@@ -1,0 +1,128 @@
+type WithdrawRequest = 
+ record {
+   amount: nat;
+   asset: variant {
+            WTC;
+            XTC;
+          };
+ };
+type User = 
+ variant {
+   address: AccountIdentifier;
+   "principal": principal;
+ };
+type TransferError__1 = 
+ variant {
+   AmountTooLarge;
+   CallFailed;
+   InsufficientBalance;
+   Unknown;
+ };
+type TransferError = 
+ variant {
+   CannotNotify: AccountIdentifier;
+   InsufficientBalance;
+   InvalidToken: TokenIdentifier;
+   Other: text;
+   Rejected;
+   Unauthorized: AccountIdentifier;
+ };
+type Transfer = 
+ record {
+   from: principal;
+   timestamp: int;
+   to: principal;
+   value: nat;
+ };
+type TokenIdentifier = text;
+type Status = 
+ record {
+   offerTimestamp: int;
+   offerValue: nat;
+   owner: principal;
+ };
+type Result = 
+ variant {
+   err: Error;
+   ok;
+ };
+type Memo = vec nat8;
+type Initialization = 
+ record {
+   canisters: Canisters;
+   controller: principal;
+   defaultValue: nat;
+ };
+type Info = 
+ record {
+   canisters: Canisters;
+   stats:
+    record {
+      cubesSupply: nat;
+      cyclesBalance: nat;
+      feesCollected: nat;
+      ownerCount: nat;
+      salesTotal: nat;
+      transactionsCount: nat;
+      wtcBalance: BalanceResponse;
+      xtcBalance: nat64;
+    };
+ };
+type ErrorCode = 
+ variant {
+   canister_error;
+   canister_reject;
+   destination_invalid;
+   future: nat32;
+   system_fatal;
+   system_transient;
+ };
+type Error = 
+ variant {
+   Error: record {
+            error_message: text;
+            error_type: ErrorCode;
+          };
+   InsufficientBalance;
+   WtcTransferError: TransferError;
+   XtcTransferError: TransferError__1;
+ };
+type Cubic = 
+ service {
+   art: () -> (vec Block) query;
+   buy: (nat) -> (Result);
+   getBalance: () -> (nat) query;
+   getHistory: () -> (vec Transfer) query;
+   getStatus: () -> (Status) query;
+   info: () -> (Info);
+   mint: (nat) -> ();
+   setCanisters: (Canisters) -> ();
+   tokenTransferNotification: (TokenIdentifier, User, Balance, Memo) ->
+    (opt Balance);
+   wallet_receive: () -> (nat);
+   withdraw: (WithdrawRequest) -> (Result);
+ };
+type CommonError_2 = 
+ variant {
+   InvalidToken: TokenIdentifier;
+   Other: text;
+ };
+type Canisters = 
+ record {
+   wtc: principal;
+   xtc: principal;
+ };
+type Block = 
+ record {
+   owner: principal;
+   totalOwnedTime: int;
+   totalValue: nat;
+ };
+type BalanceResponse = 
+ variant {
+   err: CommonError_2;
+   ok: Balance;
+ };
+type Balance = nat;
+type AccountIdentifier = text;
+service : (Initialization) -> Cubic

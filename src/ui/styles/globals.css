@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Rubik";
+  src: url("Rubik-VariableFont_wght.ttf") format("truetype");
+}
+
+textarea,
+input[type="text"],
+input[type="url"],
+input[type="number"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="button"],
+button,
+select {
+  @apply border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:ring-blue-500 focus:border-blue-500 focus:outline-none rounded-md;
+}
+
+#react-select-input {
+  @apply focus:outline-none focus:ring-0;
+}
+
+input[type="radio"] {
+  @apply focus:ring-2 focus:ring-opacity-50 focus:ring-blue-500 focus:border-blue-500 focus:outline-none rounded-full;
+}
+
+input[type="checkbox"] {
+  @apply border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:ring-blue-500 focus:border-blue-500 focus:outline-none rounded-sm;
+}
+
+.btn-cta {
+  @apply bg-blue-700 text-white hover:bg-blue-600 transition-colors;
+}
+.btn-cta-disabled {
+  @apply bg-blue-300 text-white;
+}
+.btn-secondary {
+  @apply bg-blue-200 hover:bg-blue-100 transition-colors text-blue-800;
+}
+.btn-secondary-disabled {
+  @apply bg-blue-100 text-blue-300;
+}

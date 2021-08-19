@@ -1,20 +1,15 @@
 {
   "canisters": {
-    "cubic": {
-      "main": "src/cubic/main.mo",
+    "Cubic": {
+      "main": "src/cubic/Cubic.mo",
       "type": "motoko"
     },
     "cubic_assets": {
-      "dependencies": [
-        "cubic"
-      ],
+      "dependencies": ["cubic"],
       "frontend": {
         "entrypoint": "src/cubic_assets/src/index.html"
       },
-      "source": [
-        "src/cubic_assets/assets",
-        "dist/cubic_assets/"
-      ],
+      "source": ["src/cubic_assets/assets", "dist/cubic_assets/"],
       "type": "assets"
     }
   },
