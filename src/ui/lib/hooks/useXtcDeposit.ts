@@ -1,33 +1,38 @@
+import { IDL } from "@dfinity/candid";
+import { decode, encode, Nat } from "@dfinity/candid/lib/cjs/idl";
 import { Principal } from "@dfinity/principal";
 import { useMutation, useQueryClient } from "react-query";
-import { useCubic, useXtc } from "../../components/Store/Store";
+import { useGlobalContext, useXtc } from "../../components/Store/Store";
 import { canisterId } from "../../declarations/Cubic";
-import { errorToString } from "../utils";
 
 export default function useXtcDeposit() {
+  const {
+    state: { principal },
+  } = useGlobalContext();
   const queryClient = useQueryClient();
-  const cubic = useCubic();
   const xtc = useXtc();
 
   return useMutation(
     "xtcDeposit",
     async (tcAmount: number) => {
-      const amount = BigInt(tcAmount * 1e12);
-      const transfer = await xtc.transfer({
-        to: Principal.fromText(canisterId),
-        amount,
+      const cycles = BigInt(tcAmount * 1e12);
+      const result = await xtc.wallet_call({
+        canister: Principal.fromText(canisterId),
+        args: Array.from(encode([IDL.Principal], [principal])),
+        method_name: "depositWtc",
+        cycles,
       });
-      if ("Ok" in transfer) {
-        const mint = await cubic.mint(amount);
-        return transfer.Ok;
+      if ("Ok" in result) {
+        const decoded = decode([Nat], Buffer.from(result.Ok.return) as any);
+        return decoded;
       } else {
-        throw errorToString(transfer.Err);
+        throw result.Err;
       }
     },
     {
       onSuccess: async (data) => {
-        queryClient.refetchQueries("cubesBalance");
-        queryClient.refetchQueries("xtcBalance");
+        queryClient.resetQueries("cubesBalance");
+        queryClient.resetQueries("xtcBalance");
       },
     }
   );

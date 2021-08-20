@@ -18,7 +18,7 @@ export default function useBuy() {
     },
     {
       onSuccess: async (data) => {
-        queryClient.refetchQueries("cubesBalance");
+        queryClient.resetQueries("cubesBalance");
         queryClient.refetchQueries("art");
         queryClient.refetchQueries("status");
         queryClient.refetchQueries("history");

@@ -105,13 +105,19 @@ shared actor class Cubic(init: T.Initialization) = this {
 
   // ---- Updates
 
-  // Mint cubes
-  public shared({ caller }) func mint(amount: Nat) : async () {
-    ledger.put(caller, Option.get(ledger.get(caller), 0) + amount);
-    cubesSupply := cubesSupply + amount;
+  // Deposit XTC
+  public shared({ caller }) func depositWtc(owner: Principal) : async Nat {
+    assert(caller == canisters.xtc);
+
+    let amount = Cycles.available();
+    let accepted = Cycles.accept(amount);
+    assert(accepted > 0);
+    ledger.put(owner, Option.get(ledger.get(owner), 0) + accepted);
+    cubesSupply := cubesSupply + accepted;
+    accepted;
   };
 
-  // Wtc
+  // Deposit WTC
   public shared({ caller }) func tokenTransferNotification(tokenId: Wtc.TokenIdentifier, user: Wtc.User, balance: Wtc.Balance, memo: Wtc.Memo): async ?Wtc.Balance {
     assert(caller == canisters.wtc);
 

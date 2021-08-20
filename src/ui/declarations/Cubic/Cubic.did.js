@@ -100,10 +100,10 @@ export const idlFactory = ({ IDL }) => {
     'balance' : IDL.Func([IDL.Opt(IDL.Principal)], [IDL.Nat], ['query']),
     'buy' : IDL.Func([IDL.Nat], [Result], []),
     'canister_heartbeat' : IDL.Func([], [], []),
+    'depositWtc' : IDL.Func([IDL.Principal], [IDL.Nat], []),
     'getHistory' : IDL.Func([], [IDL.Vec(Transfer)], ['query']),
     'getStatus' : IDL.Func([], [Status], ['query']),
     'info' : IDL.Func([], [Info], []),
-    'mint' : IDL.Func([IDL.Nat], [], []),
     'setCanisters' : IDL.Func([Canisters], [], []),
     'tokenTransferNotification' : IDL.Func(
         [TokenIdentifier, User, Balance, Memo],

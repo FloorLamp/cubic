@@ -32,8 +32,8 @@ export default function useWtcDeposit() {
     },
     {
       onSuccess: async (data) => {
-        queryClient.refetchQueries("cubesBalance");
-        queryClient.refetchQueries("wtcBalance");
+        queryClient.resetQueries("cubesBalance");
+        queryClient.resetQueries("wtcBalance");
       },
     }
   );

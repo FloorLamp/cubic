@@ -99,10 +99,10 @@ type Cubic =
    balance: (opt principal) -> (nat) query;
    buy: (nat) -> (Result);
    canister_heartbeat: () -> ();
+   depositWtc: (principal) -> (nat);
    getHistory: () -> (vec Transfer) query;
    getStatus: () -> (Status) query;
    info: () -> (Info);
-   mint: (nat) -> ();
    setCanisters: (Canisters) -> ();
    tokenTransferNotification: (TokenIdentifier, User, Balance, Memo) ->
     (opt Balance);

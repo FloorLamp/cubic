@@ -16,10 +16,10 @@ export interface Cubic {
   'balance' : (arg_0: [] | [Principal]) => Promise<bigint>,
   'buy' : (arg_0: bigint) => Promise<Result>,
   'canister_heartbeat' : () => Promise<undefined>,
+  'depositWtc' : (arg_0: Principal) => Promise<bigint>,
   'getHistory' : () => Promise<Array<Transfer>>,
   'getStatus' : () => Promise<Status>,
   'info' : () => Promise<Info>,
-  'mint' : (arg_0: bigint) => Promise<undefined>,
   'setCanisters' : (arg_0: Canisters) => Promise<undefined>,
   'tokenTransferNotification' : (
       arg_0: TokenIdentifier,

@@ -9,7 +9,6 @@ export const useInfo = () => {
     "info",
     async () => {
       const result = await cubic.info();
-      console.log(result);
       return result;
     },
     {
