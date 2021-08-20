@@ -140,7 +140,7 @@ export function Info() {
 
         <div>
           <label className="block text-gray-500 text-sm uppercase">
-            Own Cubes Balance
+            Treasury
           </label>
           {isLoading ? (
             <CgSpinner className="inline-block animate-spin" />

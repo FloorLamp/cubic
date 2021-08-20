@@ -35,7 +35,9 @@ export function CurrentStatus() {
   return (
     <Panel className="max-w-md w-full p-4 flex flex-col gap-4">
       <div>
-        <label className="text-gray-500 text-xs uppercase">Current Owner</label>
+        <label className="block text-gray-500 text-xs uppercase">
+          Current Owner
+        </label>
         {isLoading ? (
           <CgSpinner className="inline-block animate-spin" />
         ) : (
@@ -52,7 +54,7 @@ export function CurrentStatus() {
       </div>
 
       <div>
-        <label className="text-gray-500 text-xs uppercase">
+        <label className="block text-gray-500 text-xs uppercase">
           {isForeclosed ? "Foreclosed" : "Owned"} Since
         </label>
         {isLoading ? (
@@ -65,7 +67,7 @@ export function CurrentStatus() {
       </div>
 
       <div>
-        <label className="text-gray-500 text-xs uppercase">
+        <label className="block text-gray-500 text-xs uppercase">
           Current Offer Price
         </label>
         {isLoading ? (
@@ -82,10 +84,10 @@ export function CurrentStatus() {
 
       {!isForeclosed && (
         <div>
-          <label className="text-gray-500 text-xs uppercase">
+          <label className="block text-gray-500 text-xs uppercase">
             Projected Ownership Period
           </label>
-          {isLoading || ownerBalance.isLoading ? (
+          {isLoading || info.isLoading || ownerBalance.isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <h2 className="font-bold">

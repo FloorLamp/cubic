@@ -75,9 +75,18 @@ export default function PurchaseModal({}: {}) {
                   Set your new Offer Price
                   <div className="mt-1 xs:flex gap-2">
                     <input
+                      type="button"
+                      className="absolute mt-2 ml-2.5 text-xs px-2 py-1 cursor-pointer btn-secondary"
+                      value="Set to Current"
+                      onClick={() =>
+                        status.data &&
+                        setNewOffer(status.data.offerValue.toString())
+                      }
+                    />
+                    <input
                       type="number"
                       placeholder="New Offer Price"
-                      className="flex-1"
+                      className="flex-1 text-right"
                       value={newOffer}
                       onChange={(e) => setNewOffer(e.target.value)}
                       min={0}

@@ -81,7 +81,7 @@ const AssetForm = ({
       </div>
       <div className="mt-0.5 flex gap-1 items-center">
         {asset === "CUBE" ? (
-          <div className="absolute w-32 flex-none p-3 pointer-events-none">
+          <div className="absolute p-3 pointer-events-none">
             {formatOptionLabel(Assets.find(({ value }) => value === asset))}
           </div>
         ) : (
