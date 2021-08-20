@@ -2,6 +2,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import useBuy from "../../lib/hooks/useBuy";
 import { useCubesBalance } from "../../lib/hooks/useCubesBalance";
+import { useInfo } from "../../lib/hooks/useInfo";
 import { useStatus } from "../../lib/hooks/useStatus";
 import { formatNumber } from "../../lib/utils";
 import SpinnerButton from "../Buttons/SpinnerButton";
@@ -13,6 +14,7 @@ export default function PurchaseModal({}: {}) {
   const {
     state: { isAuthed },
   } = useGlobalContext();
+  const info = useInfo();
 
   const [isOpen, setIsOpen] = useState(false);
   const openModal = () => setIsOpen(true);
@@ -23,6 +25,17 @@ export default function PurchaseModal({}: {}) {
   const buy = useBuy();
   const status = useStatus();
   const cubesBalance = useCubesBalance();
+  const newOfferAmount = Number(newOffer);
+
+  const dailyTax =
+    newOfferAmount && info.data
+      ? ((Number(info.data.stats.annualTaxRate) / 1e8) * newOfferAmount) / 365
+      : 0;
+
+  const ownershipPeriod =
+    dailyTax > 0 && cubesBalance.isSuccess
+      ? cubesBalance.data / dailyTax
+      : null;
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -30,7 +43,7 @@ export default function PurchaseModal({}: {}) {
 
     let amount;
     try {
-      amount = BigInt(Number(newOffer) * 1e12);
+      amount = BigInt(newOfferAmount * 1e12);
     } catch (error) {
       setError(error.message);
       return;
@@ -75,11 +88,26 @@ export default function PurchaseModal({}: {}) {
 
                 {error && <ErrorAlert>{error}</ErrorAlert>}
 
-                <label className="block">
+                <p>
                   You will spend{" "}
                   <strong>{formatNumber(status.data?.offerValue, 12)}</strong>{" "}
-                  Cubes to purchase Cubic.
-                </label>
+                  Cubes now to purchase Cubic.
+                </p>
+
+                <p>
+                  You will be charged{" "}
+                  <strong>{dailyTax ? formatNumber(dailyTax) : "-"}</strong>{" "}
+                  Cubes per day while you are the owner.
+                </p>
+
+                <p>
+                  Based on your current Cubes balance, you will be able to own
+                  Cubic for{" "}
+                  <strong>
+                    {ownershipPeriod ? formatNumber(ownershipPeriod, 2) : "-"}
+                  </strong>{" "}
+                  days.
+                </p>
               </>
             ) : (
               <>
@@ -90,7 +118,7 @@ export default function PurchaseModal({}: {}) {
                   </h2>
                 </div>
                 <div>
-                  <label className="block">Your Cubes balance</label>
+                  <label className="block">Your balance</label>
                   <h2 className="text-xl font-bold text-right">
                     {formatNumber(cubesBalance.data, 12)} Cubes
                   </h2>

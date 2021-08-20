@@ -1,6 +1,10 @@
+import { Principal } from "@dfinity/principal";
 import React from "react";
 import { CgSpinner } from "react-icons/cg";
+import { canisterId } from "../declarations/Cubic";
 import { dateTimeFromNanos } from "../lib/datetime";
+import { useCubesBalance } from "../lib/hooks/useCubesBalance";
+import { useInfo } from "../lib/hooks/useInfo";
 import { useStatus } from "../lib/hooks/useStatus";
 import { formatNumber, principalIsEqual } from "../lib/utils";
 import Panel from "./Containers/Panel";
@@ -13,24 +17,44 @@ export function CurrentStatus() {
   const {
     state: { principal },
   } = useGlobalContext();
+  const info = useInfo();
+  const ownerBalance = useCubesBalance(data?.owner);
+  const dailyTax =
+    data && info.data
+      ? ((Number(info.data.stats.annualTaxRate) / 1e8) * data.offerValue) / 365
+      : 0;
 
+  const ownershipPeriod =
+    dailyTax > 0 && ownerBalance.isSuccess
+      ? ownerBalance.data / dailyTax
+      : null;
   const isOwner = data && principalIsEqual(data.owner, principal);
+  const isForeclosed =
+    data && principalIsEqual(data.owner, Principal.fromText(canisterId));
 
   return (
-    <Panel className="max-w-sm w-full p-4 flex flex-col gap-4">
+    <Panel className="max-w-md w-full p-4 flex flex-col gap-4">
       <div>
-        <label>Current Owner</label>
+        <label className="text-gray-500 text-xs uppercase">Current Owner</label>
         {isLoading ? (
           <CgSpinner className="inline-block animate-spin" />
         ) : (
           <h2 className="font-bold leading-tight">
-            {isOwner ? "You!" : data?.owner.toText()}
+            {isOwner ? (
+              "You!"
+            ) : isForeclosed ? (
+              <span className="text-red-500">Foreclosed</span>
+            ) : (
+              data?.owner.toText()
+            )}
           </h2>
         )}
       </div>
 
       <div>
-        <label>Owned Since</label>
+        <label className="text-gray-500 text-xs uppercase">
+          {isForeclosed ? "Foreclosed" : "Owned"} Since
+        </label>
         {isLoading ? (
           <CgSpinner className="inline-block animate-spin" />
         ) : (
@@ -41,15 +65,39 @@ export function CurrentStatus() {
       </div>
 
       <div>
-        <label>Current Offer Price</label>
+        <label className="text-gray-500 text-xs uppercase">
+          Current Offer Price
+        </label>
         {isLoading ? (
           <CgSpinner className="inline-block animate-spin" />
         ) : (
-          <h2 className="font-bold">
-            {formatNumber(data.offerValue, 12)} Cubes
+          <h2>
+            <strong>{formatNumber(data.offerValue, 12)} Cubes</strong>{" "}
+            {dailyTax > 0 && !isForeclosed && (
+              <>({formatNumber(dailyTax)} taxed daily)</>
+            )}
           </h2>
         )}
       </div>
+
+      {!isForeclosed && (
+        <div>
+          <label className="text-gray-500 text-xs uppercase">
+            Projected Ownership Period
+          </label>
+          {isLoading || ownerBalance.isLoading ? (
+            <CgSpinner className="inline-block animate-spin" />
+          ) : (
+            <h2 className="font-bold">
+              {ownershipPeriod != null ? (
+                <>{formatNumber(ownershipPeriod, 2)} Days</>
+              ) : (
+                "-"
+              )}
+            </h2>
+          )}
+        </div>
+      )}
 
       {!isOwner && (
         <div>

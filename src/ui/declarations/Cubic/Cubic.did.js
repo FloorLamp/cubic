@@ -69,14 +69,20 @@ export const idlFactory = ({ IDL }) => {
   });
   const Info = IDL.Record({
     'stats' : IDL.Record({
+      'foreclosureCount' : IDL.Nat,
+      'transactionFee' : IDL.Nat,
       'wtcBalance' : BalanceResponse,
       'feesCollected' : IDL.Nat,
+      'lastTaxTimestamp' : IDL.Int,
       'transactionsCount' : IDL.Nat,
       'salesTotal' : IDL.Nat,
       'cubesSupply' : IDL.Nat,
+      'ownCubesBalance' : IDL.Nat,
+      'annualTaxRate' : IDL.Nat,
       'xtcBalance' : IDL.Nat64,
       'ownerCount' : IDL.Nat,
       'cyclesBalance' : IDL.Nat,
+      'taxCollected' : IDL.Nat,
     }),
     'canisters' : Canisters,
   });
@@ -91,8 +97,9 @@ export const idlFactory = ({ IDL }) => {
   });
   const Cubic = IDL.Service({
     'art' : IDL.Func([], [IDL.Vec(Block)], ['query']),
+    'balance' : IDL.Func([IDL.Opt(IDL.Principal)], [IDL.Nat], ['query']),
     'buy' : IDL.Func([IDL.Nat], [Result], []),
-    'getBalance' : IDL.Func([], [IDL.Nat], ['query']),
+    'canister_heartbeat' : IDL.Func([], [], []),
     'getHistory' : IDL.Func([], [IDL.Vec(Transfer)], ['query']),
     'getStatus' : IDL.Func([], [Status], ['query']),
     'info' : IDL.Func([], [Info], []),

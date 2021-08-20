@@ -58,11 +58,17 @@ type Info =
    canisters: Canisters;
    stats:
     record {
+      annualTaxRate: nat;
       cubesSupply: nat;
       cyclesBalance: nat;
       feesCollected: nat;
+      foreclosureCount: nat;
+      lastTaxTimestamp: int;
+      ownCubesBalance: nat;
       ownerCount: nat;
       salesTotal: nat;
+      taxCollected: nat;
+      transactionFee: nat;
       transactionsCount: nat;
       wtcBalance: BalanceResponse;
       xtcBalance: nat64;
@@ -90,8 +96,9 @@ type Error =
 type Cubic = 
  service {
    art: () -> (vec Block) query;
+   balance: (opt principal) -> (nat) query;
    buy: (nat) -> (Result);
-   getBalance: () -> (nat) query;
+   canister_heartbeat: () -> ();
    getHistory: () -> (vec Transfer) query;
    getStatus: () -> (Status) query;
    info: () -> (Info);

@@ -11,3 +11,6 @@ export type XtcService = ActorSubclass<Xtc._SERVICE>;
 export type WtcService = ActorSubclass<Wtc._SERVICE>;
 
 export type ExtTransferError = Extract<TransferResponse, { err: {} }>["err"];
+
+export type TcAsset = "XTC" | "WTC";
+export type Asset = TcAsset | "CUBE";

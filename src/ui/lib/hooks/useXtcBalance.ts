@@ -12,7 +12,6 @@ export const useXtcBalance = () => {
       return Number(result) / 1e12;
     },
     {
-      keepPreviousData: true,
       refetchInterval: FIVE_SECONDS_MS,
     }
   );

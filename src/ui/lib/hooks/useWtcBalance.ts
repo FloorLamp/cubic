@@ -28,7 +28,6 @@ export const useWtcBalance = () => {
     },
     {
       enabled: !!principal,
-      keepPreviousData: true,
       refetchInterval: FIVE_SECONDS_MS,
     }
   );

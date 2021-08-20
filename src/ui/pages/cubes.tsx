@@ -9,13 +9,14 @@ import Panel from "../components/Containers/Panel";
 import ErrorAlert from "../components/Labels/ErrorAlert";
 import { useGlobalContext } from "../components/Store/Store";
 import { useCubesBalance } from "../lib/hooks/useCubesBalance";
+import useWithdraw from "../lib/hooks/useWithdraw";
 import { useWtcBalance } from "../lib/hooks/useWtcBalance";
 import useWtcDeposit from "../lib/hooks/useWtcDeposit";
 import { useXtcBalance } from "../lib/hooks/useXtcBalance";
 import useXtcDeposit from "../lib/hooks/useXtcDeposit";
+import { Asset, TcAsset } from "../lib/types";
 import { formatNumber } from "../lib/utils";
 
-type Asset = "XTC" | "WTC" | "CUBE";
 const Assets: { value: Asset; label: ReactNode }[] = [
   {
     value: "XTC",
@@ -96,7 +97,7 @@ const AssetForm = ({
         <input
           type="text"
           name="cubes-amount"
-          className="text-right flex-1 w-full"
+          className="py-1.5 text-right flex-1 w-full"
           placeholder="Amount"
           value={value}
           onChange={(e) => onChangeValue(e.target.value)}
@@ -123,14 +124,27 @@ export default function Cubes() {
   const [toValue, setToValue] = useState("");
   const [error, setError] = useState("");
 
-  const tcBalance = fromAsset === "XTC" ? xtcBalance : wtcBalance;
-  const fromBalance = fromAsset === "CUBE" ? cubesBalance : tcBalance;
-  const toBalance = toAsset === "CUBE" ? cubesBalance : tcBalance;
+  const fromBalance =
+    fromAsset === "CUBE"
+      ? cubesBalance
+      : fromAsset === "XTC"
+      ? xtcBalance
+      : wtcBalance;
+  const toBalance =
+    toAsset === "CUBE"
+      ? cubesBalance
+      : toAsset === "XTC"
+      ? xtcBalance
+      : wtcBalance;
 
   const xtcDeposit = useXtcDeposit();
   const wtcDeposit = useWtcDeposit();
+  const withdraw = useWithdraw();
 
-  const deposit = fromAsset === "XTC" ? xtcDeposit : wtcDeposit;
+  const deposit =
+    fromAsset === "XTC" ? xtcDeposit : fromAsset === "WTC" ? wtcDeposit : null;
+
+  const mutation = fromAsset === "CUBE" ? withdraw : deposit;
 
   const max = fromBalance.isSuccess ? Number(fromBalance.data) : 0;
   const fromAmount = Number(fromValue);
@@ -139,27 +153,34 @@ export default function Cubes() {
   const calculateAmount = (amount: number) => amount;
 
   useEffect(() => {
-    deposit.reset();
+    mutation.reset();
   }, [fromAsset]);
 
   const sideRef = useRef<Side>(null);
-  const setterWithRef = (
-    setter: (arg: string) => void,
-    ref: Side
-  ): typeof setter => {
-    sideRef.current = ref;
-    return setter;
-  };
+  const setterWithRef =
+    (setter: (arg: string) => void, ref: Side) => (arg: string) => {
+      sideRef.current = ref;
+      setter(arg);
+    };
   useEffect(() => {
-    if (sideRef.current === "from" && !isNaN(fromAmount)) {
-      setToValue(calculateAmount(fromAmount).toString());
+    if (fromValue) {
+      const fromAmount = Number(fromValue);
+      if (sideRef.current === "from" && !isNaN(fromAmount)) {
+        setToValue(calculateAmount(fromAmount).toString());
+      }
+    } else {
+      setToValue("");
     }
-  }, [fromAmount]);
+  }, [fromValue]);
 
   useEffect(() => {
-    const toAmount = Number(toValue);
-    if (sideRef.current === "to" && !isNaN(toAmount)) {
-      setFromValue(calculateAmount(toAmount).toString());
+    if (toValue) {
+      const toAmount = Number(toValue);
+      if (sideRef.current === "to" && !isNaN(toAmount)) {
+        setFromValue(calculateAmount(toAmount).toString());
+      }
+    } else {
+      setFromValue("");
     }
   }, [toValue]);
 
@@ -182,14 +203,25 @@ export default function Cubes() {
     if (fromAmount <= 0) {
       return;
     }
-    deposit.mutate(fromAmount, { onSuccess: () => setFromValue("") });
+    if (fromAsset === "CUBE") {
+      withdraw.mutate(
+        { asset: toAsset as TcAsset, tcAmount: fromAmount },
+        { onSuccess: () => setFromValue("") }
+      );
+    } else {
+      deposit.mutate(fromAmount, { onSuccess: () => setFromValue("") });
+    }
   };
 
   return (
     <div className="flex justify-center my-16">
       <Panel className="max-w-xs w-full p-4">
         <h1 className="text-xl mb-4">Swap CUBE</h1>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-4"
+          autoComplete="off"
+        >
           <AssetForm
             asset={fromAsset}
             balanceQuery={fromBalance}
@@ -215,7 +247,7 @@ export default function Cubes() {
             asset={toAsset}
             balanceQuery={toBalance}
             setAsset={setToAsset}
-            value={fromValue}
+            value={toValue}
             onChangeValue={setterWithRef(
               setterWithValidation(setToValue),
               "to"
@@ -232,7 +264,7 @@ export default function Cubes() {
             className="p-3 w-full"
             activeClassName="btn-cta cursor-pointer"
             disabledClassName="btn-cta-disabled"
-            isLoading={deposit.isLoading}
+            isLoading={mutation.isLoading}
             isDisabled={!isAuthed || !fromValue || isInsufficient}
           >
             {isAuthed
@@ -241,12 +273,12 @@ export default function Cubes() {
                 : `Swap for ${toAsset}`
               : "Login to Buy Cubes"}
           </SpinnerButton>
-          {deposit.error && (
+          {mutation.error && (
             <ErrorAlert>
               <pre className="w-full whitespace-pre-wrap text-xs break-all">
-                {deposit.error instanceof Error
-                  ? deposit.error.message
-                  : deposit.error}
+                {mutation.error instanceof Error
+                  ? mutation.error.message
+                  : mutation.error}
               </pre>
             </ErrorAlert>
           )}

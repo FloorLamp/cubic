@@ -1,78 +1,184 @@
 import React from "react";
 import { CgSpinner } from "react-icons/cg";
+import { dateTimeFromNanos } from "../lib/datetime";
 import { useInfo } from "../lib/hooks/useInfo";
-import { extErrorToString, formatNumber } from "../lib/utils";
+import { extErrorToString, formatNumber, formatPercent } from "../lib/utils";
 import IdentifierLabelWithButtons from "./Buttons/IdentifierLabelWithButtons";
 import Panel from "./Containers/Panel";
 import ErrorAlert from "./Labels/ErrorAlert";
+import { TimestampLabel } from "./Labels/TimestampLabel";
 
 export function Info() {
   const { data, isLoading, error } = useInfo();
 
   return (
     <>
-      <Panel className="max-w-sm w-full p-4 flex flex-col gap-4">
-        <h1 className="text-2xl">Cubic Stats</h1>
+      <Panel className="p-4 flex flex-col gap-4">
+        <h2 className="text-2xl">Cubic Stats</h2>
         <div>
-          <label className="block text-gray-500 text-xs uppercase">
+          <label className="block text-gray-500 text-sm uppercase">
             Unique Owners
           </label>
           {isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
-            <h2 className="font-bold">{formatNumber(data.stats.ownerCount)}</h2>
+            <span className="font-bold text-lg">
+              {formatNumber(data.stats.ownerCount)}
+            </span>
           )}
         </div>
 
         <div>
-          <label className="block text-gray-500 text-xs uppercase">
+          <label className="block text-gray-500 text-sm uppercase">
             Total Transaction Volume
           </label>
           {isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
-            <h2 className="font-bold">
+            <span className="font-bold text-lg">
               {formatNumber(Number(data.stats.salesTotal) / 1e12, 12)} Cubes
-            </h2>
+            </span>
           )}
         </div>
 
         <div>
-          <label className="block text-gray-500 text-xs uppercase">
+          <label className="block text-gray-500 text-sm uppercase">
             Transaction Count
           </label>
           {isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
-            <h2 className="font-bold">
+            <span className="font-bold text-lg">
               {formatNumber(data.stats.transactionsCount)}
-            </h2>
+            </span>
           )}
         </div>
 
         <div>
-          <label className="block text-gray-500 text-xs uppercase">
+          <label className="block text-gray-500 text-sm uppercase">
+            Foreclosure Count
+          </label>
+          {isLoading ? (
+            <CgSpinner className="inline-block animate-spin" />
+          ) : (
+            <span className="font-bold text-lg">
+              {formatNumber(data.stats.foreclosureCount)}
+            </span>
+          )}
+        </div>
+      </Panel>
+
+      <Panel className="p-4 flex flex-col gap-4">
+        <h2 className="text-2xl">Fees</h2>
+
+        <div>
+          <label className="block text-gray-500 text-sm uppercase">
+            Transaction Fee
+          </label>
+          {isLoading ? (
+            <CgSpinner className="inline-block animate-spin" />
+          ) : (
+            <span className="font-bold text-lg">
+              {formatPercent(Number(data.stats.transactionFee) / 1e8)}
+            </span>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-gray-500 text-sm uppercase">
             Fees Collected
           </label>
           {isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
-            <h2 className="font-bold">
-              {formatNumber(Number(data.stats.feesCollected) / 1e12, 12)} TC
-            </h2>
+            <span className="font-bold text-lg">
+              {formatNumber(Number(data.stats.feesCollected) / 1e12, 12)} Cubes
+            </span>
           )}
         </div>
 
         <div>
-          <label className="block text-gray-500 text-xs uppercase">
+          <label className="block text-gray-500 text-sm uppercase">
+            Annual Tax Rate
+          </label>
+          {isLoading ? (
+            <CgSpinner className="inline-block animate-spin" />
+          ) : (
+            <span className="font-bold text-lg">
+              {formatPercent(Number(data.stats.annualTaxRate) / 1e8)}
+            </span>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-gray-500 text-sm uppercase">
+            Tax Collected
+          </label>
+          {isLoading ? (
+            <CgSpinner className="inline-block animate-spin" />
+          ) : (
+            <span className="font-bold text-lg">
+              {formatNumber(Number(data.stats.taxCollected) / 1e12, 12)} Cubes
+            </span>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-gray-500 text-sm uppercase">
+            Last Tax Collection
+          </label>
+          {isLoading ? (
+            <CgSpinner className="inline-block animate-spin" />
+          ) : (
+            <span className="font-bold text-lg">
+              <TimestampLabel
+                dt={dateTimeFromNanos(data.stats.lastTaxTimestamp)}
+              />
+            </span>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-gray-500 text-sm uppercase">
+            Own Cubes Balance
+          </label>
+          {isLoading ? (
+            <CgSpinner className="inline-block animate-spin" />
+          ) : (
+            <span className="font-bold text-lg">
+              {formatNumber(Number(data.stats.ownCubesBalance) / 1e12, 12)}{" "}
+              Cubes
+            </span>
+          )}
+        </div>
+      </Panel>
+
+      <Panel className="p-4 flex flex-col gap-4">
+        <h2 className="text-2xl">Balances</h2>
+
+        <div>
+          <label className="block text-gray-500 text-sm uppercase">
+            Total Cubes Supply
+          </label>
+          {isLoading ? (
+            <CgSpinner className="inline-block animate-spin" />
+          ) : (
+            <span className="font-bold text-lg">
+              {formatNumber(Number(data.stats.cubesSupply) / 1e12, 12)} Cubes
+            </span>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-gray-500 text-sm uppercase">
             WTC Balance
           </label>
           {isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : "ok" in data.stats.wtcBalance ? (
-            <h2 className="font-bold">
+            <span className="font-bold text-lg">
               {formatNumber(Number(data.stats.wtcBalance.ok) / 1e12, 12)} WTC
-            </h2>
+            </span>
           ) : (
             <ErrorAlert>
               {extErrorToString(data.stats.wtcBalance.err)}
@@ -81,37 +187,37 @@ export function Info() {
         </div>
 
         <div>
-          <label className="block text-gray-500 text-xs uppercase">
+          <label className="block text-gray-500 text-sm uppercase">
             XTC Balance
           </label>
           {isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
-            <h2 className="font-bold">
+            <span className="font-bold text-lg">
               {formatNumber(Number(data.stats.xtcBalance) / 1e12, 12)} XTC
-            </h2>
+            </span>
           )}
         </div>
 
         <div>
-          <label className="block text-gray-500 text-xs uppercase">
+          <label className="block text-gray-500 text-sm uppercase">
             Cycles Balance
           </label>
           {isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
-            <h2 className="font-bold">
+            <span className="font-bold text-lg">
               {formatNumber(Number(data.stats.cyclesBalance) / 1e12, 12)} TC
-            </h2>
+            </span>
           )}
         </div>
       </Panel>
 
-      <Panel className="max-w-sm w-full p-4 flex flex-col gap-4">
-        <h2 className="text-xl">Canisters</h2>
+      <Panel className="p-4 flex flex-col gap-4">
+        <h2 className="text-2xl">Canisters</h2>
 
         <div>
-          <label className="block text-gray-500 text-xs uppercase">WTC</label>
+          <label className="block text-gray-500 text-sm uppercase">WTC</label>
           {isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
@@ -123,7 +229,7 @@ export function Info() {
         </div>
 
         <div>
-          <label className="block text-gray-500 text-xs uppercase">XTC</label>
+          <label className="block text-gray-500 text-sm uppercase">XTC</label>
           {isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (

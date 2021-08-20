@@ -1,18 +1,18 @@
+import { Principal } from "@dfinity/principal";
 import { useQuery } from "react-query";
 import { useCubic } from "../../components/Store/Store";
 import { FIVE_SECONDS_MS } from "../constants";
 
-export const useCubesBalance = () => {
+export const useCubesBalance = (user?: Principal) => {
   const cubic = useCubic();
 
   return useQuery(
-    "cubesBalance",
+    ["cubesBalance", user?.toText()],
     async () => {
-      const result = await cubic.getBalance();
+      const result = await cubic.balance(user ? [user] : []);
       return Number(result) / 1e12;
     },
     {
-      keepPreviousData: true,
       refetchInterval: FIVE_SECONDS_MS,
     }
   );

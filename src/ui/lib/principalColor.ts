@@ -8,5 +8,5 @@ export const principalColor = (p: Principal) => {
     hash = hash & hash; // Convert to 32bit integer
   }
 
-  return `hsl(${hash % 360},100%,30%)`;
+  return `hsl(${hash % 360},100%,50%)`;
 };

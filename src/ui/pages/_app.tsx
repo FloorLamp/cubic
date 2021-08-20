@@ -3,6 +3,7 @@ import Head from "next/head";
 import "react";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
 import Footer from "../components/Layout/Footer";
 import Nav from "../components/Layout/Nav";
 import { Subscriptions } from "../components/Query/Subscriptions";
@@ -42,7 +43,7 @@ export default function App({ Component, pageProps }) {
         </div>
       </Store>
 
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

@@ -1,39 +1,34 @@
-import { Principal } from "@dfinity/principal";
 import { useMutation, useQueryClient } from "react-query";
-import { useGlobalContext, useWtc } from "../../components/Store/Store";
-import { canisterId } from "../../declarations/Cubic";
-import { extErrorToString } from "../utils";
+import { useCubic } from "../../components/Store/Store";
+import { WithdrawRequest } from "../../declarations/Cubic/Cubic.did";
+import { TcAsset } from "../types";
+import { errorToString } from "../utils";
 
 export default function useWithdraw() {
-  const {
-    state: { principal },
-  } = useGlobalContext();
   const queryClient = useQueryClient();
-  const wtc = useWtc();
+  const cubic = useCubic();
 
   return useMutation(
-    "wtcDeposit",
-    async (tcAmount: number) => {
-      const transfer = await wtc.transfer({
-        from: { principal },
-        to: { principal: Principal.fromText(canisterId) },
+    "withdraw",
+    async ({ asset, tcAmount }: { asset: TcAsset; tcAmount: number }) => {
+      const transfer = await cubic.withdraw({
+        asset: { [asset]: null },
         amount: BigInt(tcAmount * 1e12),
-        fee: BigInt(0),
-        token: "WTC",
-        memo: [],
-        notify: true,
-        subaccount: [],
-      });
+      } as WithdrawRequest);
       if ("ok" in transfer) {
         return transfer.ok;
       } else {
-        throw extErrorToString(transfer.err);
+        throw errorToString(transfer.err);
       }
     },
     {
-      onSuccess: async (data) => {
-        queryClient.refetchQueries("cubesBalance");
-        queryClient.refetchQueries("wtcBalance");
+      onSuccess: async (data, { asset }) => {
+        queryClient.resetQueries("cubesBalance");
+        if (asset === "WTC") {
+          queryClient.resetQueries("wtcBalance");
+        } else {
+          queryClient.resetQueries("xtcBalance");
+        }
       },
     }
   );

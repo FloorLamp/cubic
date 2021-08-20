@@ -53,10 +53,16 @@ module {
       xtcBalance: Nat64;
       cyclesBalance: Nat;
       cubesSupply: Nat;
+      ownCubesBalance: Nat;
       feesCollected: Nat;
+      taxCollected: Nat;
       transactionsCount: Nat;
+      foreclosureCount: Nat;
       ownerCount: Nat;
       salesTotal: Nat;
+      transactionFee: Nat;
+      annualTaxRate: Nat;
+      lastTaxTimestamp: Int;
     };
     canisters: Canisters;
   };

@@ -13,8 +13,9 @@ export type CommonError_2 = { 'InvalidToken' : TokenIdentifier } |
   { 'Other' : string };
 export interface Cubic {
   'art' : () => Promise<Array<Block>>,
+  'balance' : (arg_0: [] | [Principal]) => Promise<bigint>,
   'buy' : (arg_0: bigint) => Promise<Result>,
-  'getBalance' : () => Promise<bigint>,
+  'canister_heartbeat' : () => Promise<undefined>,
   'getHistory' : () => Promise<Array<Transfer>>,
   'getStatus' : () => Promise<Status>,
   'info' : () => Promise<Info>,
@@ -43,14 +44,20 @@ export type ErrorCode = { 'canister_error' : null } |
   { 'system_fatal' : null };
 export interface Info {
   'stats' : {
+    'foreclosureCount' : bigint,
+    'transactionFee' : bigint,
     'wtcBalance' : BalanceResponse,
     'feesCollected' : bigint,
+    'lastTaxTimestamp' : bigint,
     'transactionsCount' : bigint,
     'salesTotal' : bigint,
     'cubesSupply' : bigint,
+    'ownCubesBalance' : bigint,
+    'annualTaxRate' : bigint,
     'xtcBalance' : bigint,
     'ownerCount' : bigint,
     'cyclesBalance' : bigint,
+    'taxCollected' : bigint,
   },
   'canisters' : Canisters,
 }
