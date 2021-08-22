@@ -7,6 +7,7 @@ import { useStatus } from "../../lib/hooks/useStatus";
 import { formatNumber } from "../../lib/utils";
 import SpinnerButton from "../Buttons/SpinnerButton";
 import ErrorAlert from "../Labels/ErrorAlert";
+import { TokenLabel } from "../Labels/TokenLabel";
 import Modal from "../Layout/Modal";
 import { useGlobalContext } from "../Store/Store";
 
@@ -58,60 +59,60 @@ export default function PurchaseModal({}: {}) {
   return (
     <>
       <button type="button" onClick={openModal} className="w-full p-2 btn-cta">
-        Buy Cubic
+        Purchase this work
       </button>
       <Modal
         isOpen={isOpen}
         openModal={openModal}
         closeModal={closeModal}
-        title="Purchase Cubic"
+        title="Complete Purchase"
       >
         <div className="flex flex-col gap-4">
           {cubesBalance.isSuccess &&
             status.data &&
             (hasSufficientBalance ? (
               <>
-                <label className="block">
-                  Set your new Offer Price
-                  <div className="mt-1 xs:flex gap-2">
+                <p className="border-b border-gray-300 pb-4">
+                  You will spend{" "}
+                  <strong>{formatNumber(status.data?.offerValue, 12)}</strong>{" "}
+                  <TokenLabel /> now to purchase this work.
+                </p>
+
+                <div>
+                  <div className="w-full flex justify-between items-center">
+                    <label>Your Offer Price</label>
                     <input
                       type="button"
-                      className="absolute mt-2 ml-2.5 text-xs px-2 py-1 cursor-pointer btn-secondary"
+                      className="text-xs px-2 py-1 cursor-pointer btn-secondary"
                       value="Set to Current"
                       onClick={() =>
                         status.data &&
                         setNewOffer(status.data.offerValue.toString())
                       }
                     />
-                    <input
-                      type="number"
-                      placeholder="New Offer Price"
-                      className="flex-1 text-right"
-                      value={newOffer}
-                      onChange={(e) => setNewOffer(e.target.value)}
-                      min={0}
-                      maxLength={20}
-                    />
                   </div>
-                </label>
+                  <input
+                    type="number"
+                    placeholder="New Offer Price"
+                    className="w-full mt-1 flex-1 text-right"
+                    value={newOffer}
+                    onChange={(e) => setNewOffer(e.target.value)}
+                    min={0}
+                    maxLength={20}
+                  />
+                </div>
 
                 {error && <ErrorAlert>{error}</ErrorAlert>}
 
                 <p>
-                  You will spend{" "}
-                  <strong>{formatNumber(status.data?.offerValue, 12)}</strong>{" "}
-                  Cubes now to purchase Cubic.
-                </p>
-
-                <p>
                   You will be charged{" "}
                   <strong>{dailyTax ? formatNumber(dailyTax) : "-"}</strong>{" "}
-                  Cubes per day while you are the owner.
+                  <TokenLabel /> per day while you are the owner.
                 </p>
 
                 <p>
-                  Based on your current Cubes balance, you will be able to own
-                  Cubic for{" "}
+                  Based on your current balance, you will be able to own this
+                  work for{" "}
                   <strong>
                     {ownershipPeriod ? formatNumber(ownershipPeriod, 2) : "-"}
                   </strong>{" "}
@@ -123,15 +124,18 @@ export default function PurchaseModal({}: {}) {
                 <div>
                   <label className="block">Current offer price</label>
                   <h2 className="text-xl font-bold text-right">
-                    {formatNumber(status.data?.offerValue, 12)} Cubes
+                    {formatNumber(status.data?.offerValue, 12)} <TokenLabel />
                   </h2>
                 </div>
                 <div>
                   <label className="block">Your balance</label>
                   <h2 className="text-xl font-bold text-right">
-                    {formatNumber(cubesBalance.data, 12)} Cubes
+                    {formatNumber(cubesBalance.data, 12)} <TokenLabel />
                   </h2>
                 </div>
+                <p className="text-red-500">
+                  Insufficient balance for purchase and taxes.
+                </p>
               </>
             ))}
 

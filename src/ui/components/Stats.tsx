@@ -7,8 +7,9 @@ import IdentifierLabelWithButtons from "./Buttons/IdentifierLabelWithButtons";
 import Panel from "./Containers/Panel";
 import ErrorAlert from "./Labels/ErrorAlert";
 import { TimestampLabel } from "./Labels/TimestampLabel";
+import { TokenLogo } from "./Labels/TokenLabel";
 
-export function Info() {
+export function Stats() {
   const { data, isLoading, error } = useInfo();
 
   return (
@@ -36,7 +37,8 @@ export function Info() {
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
-              {formatNumber(Number(data.stats.salesTotal) / 1e12, 12)} Cubes
+              {formatNumber(Number(data.stats.salesTotal) / 1e12, 12)}{" "}
+              <TokenLogo />
             </span>
           )}
         </div>
@@ -92,7 +94,8 @@ export function Info() {
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
-              {formatNumber(Number(data.stats.feesCollected) / 1e12, 12)} Cubes
+              {formatNumber(Number(data.stats.feesCollected) / 1e12, 12)}{" "}
+              <TokenLogo />
             </span>
           )}
         </div>
@@ -118,7 +121,8 @@ export function Info() {
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
-              {formatNumber(Number(data.stats.taxCollected) / 1e12, 12)} Cubes
+              {formatNumber(Number(data.stats.taxCollected) / 1e12, 12)}{" "}
+              <TokenLogo />
             </span>
           )}
         </div>
@@ -129,12 +133,14 @@ export function Info() {
           </label>
           {isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
-          ) : (
+          ) : data.stats.lastTaxTimestamp > 0 ? (
             <span className="font-bold text-lg">
               <TimestampLabel
                 dt={dateTimeFromNanos(data.stats.lastTaxTimestamp)}
               />
             </span>
+          ) : (
+            "-"
           )}
         </div>
 
@@ -147,7 +153,7 @@ export function Info() {
           ) : (
             <span className="font-bold text-lg">
               {formatNumber(Number(data.stats.ownCubesBalance) / 1e12, 12)}{" "}
-              Cubes
+              <TokenLogo />
             </span>
           )}
         </div>
@@ -158,13 +164,14 @@ export function Info() {
 
         <div>
           <label className="block text-gray-500 text-sm uppercase">
-            Total Cubes Supply
+            Total CUBE Supply
           </label>
           {isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
-              {formatNumber(Number(data.stats.cubesSupply) / 1e12, 12)} Cubes
+              {formatNumber(Number(data.stats.cubesSupply) / 1e12, 12)}{" "}
+              <TokenLogo />
             </span>
           )}
         </div>

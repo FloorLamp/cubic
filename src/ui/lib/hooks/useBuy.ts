@@ -13,6 +13,9 @@ export default function useBuy() {
       if ("ok" in result) {
         return result.ok;
       } else {
+        if ("InsufficientBalance" in result.err) {
+          queryClient.refetchQueries("status");
+        }
         throw errorToString(result.err);
       }
     },
@@ -20,6 +23,7 @@ export default function useBuy() {
       onSuccess: async (data) => {
         queryClient.resetQueries("cubesBalance");
         queryClient.refetchQueries("art");
+        queryClient.refetchQueries("blocks");
         queryClient.refetchQueries("status");
         queryClient.refetchQueries("history");
         queryClient.refetchQueries("info");

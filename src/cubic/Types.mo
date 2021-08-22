@@ -14,9 +14,19 @@ module {
   };
 
   public type Block = {
+    id: Nat;
     owner: Principal;
     totalOwnedTime: Int;
     totalValue: Nat;
+  };
+
+  public type BlocksRequest = {
+    orderBy: {
+      #id;
+      #totalOwnedTime;
+      #totalValue;
+    };
+    order: { #asc; #desc };
   };
 
   public type Status = {

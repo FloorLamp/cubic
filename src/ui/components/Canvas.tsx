@@ -1,12 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
 import { Block } from "../declarations/Cubic/Cubic.did";
 import { blockColor } from "../lib/blocks";
+import { useArt } from "../lib/hooks/useArt";
 import Panel from "./Containers/Panel";
+import { DevTools } from "./DevTools";
 
-export default function Canvas({ data }: { data: Block[] }) {
+export default function Canvas() {
+  const art = useArt();
+  const [data, setData] = useState([]);
+  const [isLive, setIsLive] = useState(true);
+  const actualData = isLive ? art.data : data;
+
   return (
     <Panel className="p-8 w-full flex flex-col items-center">
-      <Blocks data={data} />
+      <Blocks data={actualData} />
+
+      <DevTools
+        data={data}
+        setData={setData}
+        isLive={isLive}
+        setIsLive={setIsLive}
+      />
     </Panel>
   );
 }
@@ -63,8 +77,8 @@ function Blocks({ data }: { data: Block[] }) {
         {inputs.map(({ owner, color, size, start }) => {
           return (
             <polyline
-              points="-0.5 4 76 4 76 76 4 76 4 13 67 13 67 67 13 67 13 22 58 22 58 58 22 58 22 31 49 31 49 49 31 49 31 40 45 40"
               key={owner.toText()}
+              points="-0.5 4 76 4 76 76 4 76 4 13 67 13 67 67 13 67 13 22 58 22 58 58 22 58 22 31 49 31 49 49 31 49 31 40 45 40"
               strokeDasharray={
                 start === 0
                   ? `${start + size}, ${totalLength}`

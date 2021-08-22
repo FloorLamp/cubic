@@ -100,6 +100,7 @@ type Cubic =
    buy: (nat) -> (Result);
    canister_heartbeat: () -> ();
    depositWtc: (principal) -> (nat);
+   getBlocks: (BlocksRequest) -> (vec Block) query;
    getHistory: () -> (vec Transfer) query;
    getStatus: () -> (Status) query;
    info: () -> (Info);
@@ -119,8 +120,21 @@ type Canisters =
    wtc: principal;
    xtc: principal;
  };
+type BlocksRequest = 
+ record {
+   order: variant {
+            asc;
+            desc;
+          };
+   orderBy: variant {
+              id;
+              totalOwnedTime;
+              totalValue;
+            };
+ };
 type Block = 
  record {
+   id: nat;
    owner: principal;
    totalOwnedTime: int;
    totalValue: nat;

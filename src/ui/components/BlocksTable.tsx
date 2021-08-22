@@ -1,32 +1,41 @@
-import React from "react";
-import { Block } from "../declarations/Cubic/Cubic.did";
+import React, { useState } from "react";
 import { blockColor } from "../lib/blocks";
 import { formatDuration, secondsToDuration } from "../lib/datetime";
+import { useArt } from "../lib/hooks/useArt";
+import { useBlocks } from "../lib/hooks/useBlocks";
 import { useStatus } from "../lib/hooks/useStatus";
+import { Order, OrderBy } from "../lib/types";
 import { formatNumber, pluralize, principalIsEqual } from "../lib/utils";
 import IdentifierLabelWithButtons from "./Buttons/IdentifierLabelWithButtons";
 import Panel from "./Containers/Panel";
+import { TokenLogo } from "./Labels/TokenLabel";
 
-export function BlocksTable({ data }: { data: Block[] }) {
+export function BlocksTable() {
+  const art = useArt();
   const status = useStatus();
+  const [order, setOrder] = useState<Order>("desc");
+  const [orderBy, setOrderBy] = useState<OrderBy>("id");
+  const blocks = useBlocks(order, orderBy);
 
   return (
     <Panel className="p-8 w-full">
       <div className="flex items-center mb-2">
-        <div className="w-6" />
         <div className="flex-1">
-          {data.length} {pluralize("Owner", data.length)}
+          {art.data?.length} {pluralize("Owner", art.data?.length)}
         </div>
-        <div className="hidden xs:block w-48 text-right">Total Time Owned</div>
-        <div className="hidden sm:block w-32 text-right">Total Sales</div>
+        <div className="hidden xs:block w-64 text-right">Total Time Owned</div>
+        <div className="hidden sm:block w-48 text-right">Total Sales</div>
       </div>
       <ul className="text-sm flex flex-col gap-2 xs:gap-0">
-        {data.slice(0, 100).map((block, i) => {
+        {blocks.data?.map((block, i) => {
           const isOwner =
             status.data && principalIsEqual(status.data.owner, block.owner);
           return (
             <li key={i} className="flex flex-col xs:flex-row xs:items-center">
               <div className="flex-1 flex items-center">
+                <div className="w-12 mr-2 text-gray-400">
+                  #{formatNumber(block.id)}
+                </div>
                 <div
                   className="w-3 h-3 mr-2"
                   style={{
@@ -51,8 +60,8 @@ export function BlocksTable({ data }: { data: Block[] }) {
                   secondsToDuration(block.totalOwnedTime / BigInt(1e9))
                 )}
               </div>
-              <div className="hidden sm:block w-32 text-right">
-                {formatNumber(Number(block.totalValue) / 1e12)}
+              <div className="hidden sm:block w-48 text-right">
+                {formatNumber(Number(block.totalValue) / 1e12)} <TokenLogo />
               </div>
             </li>
           );

@@ -4,9 +4,17 @@ export type Balance = bigint;
 export type BalanceResponse = { 'ok' : Balance } |
   { 'err' : CommonError_2 };
 export interface Block {
+  'id' : bigint,
   'totalValue' : bigint,
   'owner' : Principal,
   'totalOwnedTime' : bigint,
+}
+export interface BlocksRequest {
+  'order' : { 'asc' : null } |
+    { 'desc' : null },
+  'orderBy' : { 'id' : null } |
+    { 'totalValue' : null } |
+    { 'totalOwnedTime' : null },
 }
 export interface Canisters { 'wtc' : Principal, 'xtc' : Principal }
 export type CommonError_2 = { 'InvalidToken' : TokenIdentifier } |
@@ -17,6 +25,7 @@ export interface Cubic {
   'buy' : (arg_0: bigint) => Promise<Result>,
   'canister_heartbeat' : () => Promise<undefined>,
   'depositWtc' : (arg_0: Principal) => Promise<bigint>,
+  'getBlocks' : (arg_0: BlocksRequest) => Promise<Array<Block>>,
   'getHistory' : () => Promise<Array<Transfer>>,
   'getStatus' : () => Promise<Status>,
   'info' : () => Promise<Info>,

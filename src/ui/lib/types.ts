@@ -1,5 +1,5 @@
 import { ActorSubclass } from "@dfinity/agent";
-import Cubic from "../declarations/Cubic/Cubic.did";
+import Cubic, { BlocksRequest } from "../declarations/Cubic/Cubic.did";
 import Wtc, { TransferResponse } from "../declarations/wtc/wtc.did";
 import Xtc from "../declarations/xtc/xtc.did";
 
@@ -14,3 +14,6 @@ export type ExtTransferError = Extract<TransferResponse, { err: {} }>["err"];
 
 export type TcAsset = "XTC" | "WTC";
 export type Asset = TcAsset | "CUBE";
+
+export type OrderBy = KeysOfUnion<BlocksRequest["orderBy"]>;
+export type Order = KeysOfUnion<BlocksRequest["order"]>;

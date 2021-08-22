@@ -9,6 +9,7 @@ export const idlFactory = ({ IDL }) => {
     'defaultValue' : IDL.Nat,
   });
   const Block = IDL.Record({
+    'id' : IDL.Nat,
     'totalValue' : IDL.Nat,
     'owner' : IDL.Principal,
     'totalOwnedTime' : IDL.Int,
@@ -47,6 +48,14 @@ export const idlFactory = ({ IDL }) => {
     'WtcTransferError' : TransferError,
   });
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Error });
+  const BlocksRequest = IDL.Record({
+    'order' : IDL.Variant({ 'asc' : IDL.Null, 'desc' : IDL.Null }),
+    'orderBy' : IDL.Variant({
+      'id' : IDL.Null,
+      'totalValue' : IDL.Null,
+      'totalOwnedTime' : IDL.Null,
+    }),
+  });
   const Transfer = IDL.Record({
     'to' : IDL.Principal,
     'value' : IDL.Nat,
@@ -101,6 +110,7 @@ export const idlFactory = ({ IDL }) => {
     'buy' : IDL.Func([IDL.Nat], [Result], []),
     'canister_heartbeat' : IDL.Func([], [], []),
     'depositWtc' : IDL.Func([IDL.Principal], [IDL.Nat], []),
+    'getBlocks' : IDL.Func([BlocksRequest], [IDL.Vec(Block)], ['query']),
     'getHistory' : IDL.Func([], [IDL.Vec(Transfer)], ['query']),
     'getStatus' : IDL.Func([], [Status], ['query']),
     'info' : IDL.Func([], [Info], []),

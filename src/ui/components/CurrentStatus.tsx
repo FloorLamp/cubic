@@ -1,14 +1,16 @@
 import { Principal } from "@dfinity/principal";
-import React from "react";
+import React, { useEffect } from "react";
 import { CgSpinner } from "react-icons/cg";
 import { canisterId } from "../declarations/Cubic";
 import { dateTimeFromNanos } from "../lib/datetime";
 import { useCubesBalance } from "../lib/hooks/useCubesBalance";
+import useHeartbeat from "../lib/hooks/useHeartbeat";
 import { useInfo } from "../lib/hooks/useInfo";
 import { useStatus } from "../lib/hooks/useStatus";
 import { formatNumber, principalIsEqual } from "../lib/utils";
 import Panel from "./Containers/Panel";
 import { TimestampLabel } from "./Labels/TimestampLabel";
+import { TokenLogo } from "./Labels/TokenLabel";
 import { useGlobalContext } from "./Store/Store";
 import PurchaseModal from "./Transaction/PurchaseModal";
 
@@ -19,8 +21,9 @@ export function CurrentStatus() {
   } = useGlobalContext();
   const info = useInfo();
   const ownerBalance = useCubesBalance(data?.owner);
+  const isOwned = data?.owner.toUint8Array().length > 0;
   const dailyTax =
-    data && info.data
+    data && info.data && isOwned
       ? ((Number(info.data.stats.annualTaxRate) / 1e8) * data.offerValue) / 365
       : 0;
 
@@ -31,6 +34,17 @@ export function CurrentStatus() {
   const isOwner = data && principalIsEqual(data.owner, principal);
   const isForeclosed =
     data && principalIsEqual(data.owner, Principal.fromText(canisterId));
+
+  const heartbeat = useHeartbeat();
+  useEffect(() => {
+    if (ownershipPeriod != null && ownershipPeriod < 0.0003) {
+      console.log(
+        `low ownershipPeriod: ${ownershipPeriod}, calling heartbeat...`
+      );
+
+      heartbeat.mutate();
+    }
+  }, [ownershipPeriod]);
 
   return (
     <Panel className="max-w-md w-full p-4 flex flex-col gap-4">
@@ -46,8 +60,10 @@ export function CurrentStatus() {
               "You!"
             ) : isForeclosed ? (
               <span className="text-red-500">Foreclosed</span>
-            ) : (
+            ) : isOwned ? (
               data?.owner.toText()
+            ) : (
+              <span className="text-gray-400">None</span>
             )}
           </h2>
         )}
@@ -74,9 +90,13 @@ export function CurrentStatus() {
           <CgSpinner className="inline-block animate-spin" />
         ) : (
           <h2>
-            <strong>{formatNumber(data.offerValue, 12)} Cubes</strong>{" "}
+            <strong>
+              {formatNumber(data.offerValue, 12)} <TokenLogo />
+            </strong>{" "}
             {dailyTax > 0 && !isForeclosed && (
-              <>({formatNumber(dailyTax)} taxed daily)</>
+              <span className="text-gray-400">
+                ({formatNumber(dailyTax)} daily tax)
+              </span>
             )}
           </h2>
         )}
