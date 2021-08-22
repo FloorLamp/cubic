@@ -1,8 +1,8 @@
 import React from "react";
+import { principalColor } from "../lib/blocks";
 import { formatDuration, secondsToDuration } from "../lib/datetime";
 import { useArt } from "../lib/hooks/useArt";
 import { useStatus } from "../lib/hooks/useStatus";
-import { principalColor } from "../lib/principalColor";
 import { formatNumber, principalIsEqual } from "../lib/utils";
 import IdentifierLabelWithButtons from "./Buttons/IdentifierLabelWithButtons";
 import Panel from "./Containers/Panel";
