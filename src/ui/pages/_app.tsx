@@ -8,14 +8,14 @@ import Footer from "../components/Layout/Footer";
 import Nav from "../components/Layout/Nav";
 import { Subscriptions } from "../components/Query/Subscriptions";
 import Store from "../components/Store/Store";
-import { ONE_HOUR_MS } from "../lib/constants";
+import { ONE_HOUR_MS, ONE_MINUTES_MS } from "../lib/constants";
 import "../styles/globals.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
+      staleTime: ONE_MINUTES_MS,
       cacheTime: ONE_HOUR_MS,
       retry: false,
     },

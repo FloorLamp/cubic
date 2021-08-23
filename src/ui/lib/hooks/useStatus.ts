@@ -1,21 +1,23 @@
 import { useQuery } from "react-query";
 import { useCubic } from "../../components/Store/Store";
-import { ONE_MINUTES_MS } from "../constants";
+import { FIVE_SECONDS_MS } from "../constants";
+import { ParsedStatus } from "../types";
 
 export const useStatus = () => {
   const cubic = useCubic();
 
-  return useQuery(
+  return useQuery<ParsedStatus>(
     "status",
     async () => {
-      const result = await cubic.getStatus();
-      console.log(result);
-
-      return { ...result, offerValue: Number(result.offerValue) / 1e12 };
+      const [status, block] = await cubic.getStatus();
+      return {
+        status: { ...status, offerValue: Number(status.offerValue) / 1e12 },
+        block: block[0] ? block[0] : null,
+      };
     },
     {
       keepPreviousData: true,
-      refetchInterval: ONE_MINUTES_MS,
+      refetchInterval: FIVE_SECONDS_MS,
     }
   );
 };

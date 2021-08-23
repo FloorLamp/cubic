@@ -20,20 +20,22 @@ export function CurrentStatus() {
     state: { principal },
   } = useGlobalContext();
   const info = useInfo();
-  const ownerBalance = useCubesBalance(data?.owner);
-  const isOwned = data?.owner.toUint8Array().length > 0;
+  const ownerBalance = useCubesBalance(data?.status.owner);
+  const isOwned = data?.status.owner.toUint8Array().length > 0;
   const dailyTax =
     data && info.data && isOwned
-      ? ((Number(info.data.stats.annualTaxRate) / 1e8) * data.offerValue) / 365
+      ? ((Number(info.data.stats.annualTaxRate) / 1e8) *
+          data.status.offerValue) /
+        365
       : 0;
 
   const ownershipPeriod =
     dailyTax > 0 && ownerBalance.isSuccess
       ? ownerBalance.data / dailyTax
       : null;
-  const isOwner = data && principalIsEqual(data.owner, principal);
+  const isOwner = data && principalIsEqual(data.status.owner, principal);
   const isForeclosed =
-    data && principalIsEqual(data.owner, Principal.fromText(canisterId));
+    data && principalIsEqual(data.status.owner, Principal.fromText(canisterId));
 
   const heartbeat = useHeartbeat();
   useEffect(() => {
@@ -61,7 +63,7 @@ export function CurrentStatus() {
             ) : isForeclosed ? (
               <span className="text-red-500">Foreclosed</span>
             ) : isOwned ? (
-              data?.owner.toText()
+              data.status.owner.toText()
             ) : (
               <span className="text-gray-400">None</span>
             )}
@@ -77,21 +79,23 @@ export function CurrentStatus() {
           <CgSpinner className="inline-block animate-spin" />
         ) : (
           <h2 className="font-bold">
-            <TimestampLabel dt={dateTimeFromNanos(data.offerTimestamp)} />
+            <TimestampLabel
+              dt={dateTimeFromNanos(data.status.offerTimestamp)}
+            />
           </h2>
         )}
       </div>
 
       <div>
         <label className="block text-gray-500 text-xs uppercase">
-          Current Offer Price
+          Current Price
         </label>
         {isLoading ? (
           <CgSpinner className="inline-block animate-spin" />
         ) : (
           <h2>
             <strong>
-              {formatNumber(data.offerValue, 12)} <TokenLogo />
+              {formatNumber(data.status.offerValue, 12)} <TokenLogo />
             </strong>{" "}
             {dailyTax > 0 && !isForeclosed && (
               <span className="text-gray-400">

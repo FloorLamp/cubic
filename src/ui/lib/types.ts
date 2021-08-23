@@ -1,5 +1,9 @@
 import { ActorSubclass } from "@dfinity/agent";
-import Cubic, { BlocksRequest } from "../declarations/Cubic/Cubic.did";
+import Cubic, {
+  Block,
+  BlocksRequest,
+  Status,
+} from "../declarations/Cubic/Cubic.did";
 import Wtc, { TransferResponse } from "../declarations/wtc/wtc.did";
 import Xtc from "../declarations/xtc/xtc.did";
 
@@ -17,3 +21,8 @@ export type Asset = TcAsset | "CUBE";
 
 export type OrderBy = KeysOfUnion<BlocksRequest["orderBy"]>;
 export type Order = KeysOfUnion<BlocksRequest["order"]>;
+
+export type ParsedStatus = {
+  status: Modify<Status, { offerValue: number }>;
+  block: Block | null;
+};

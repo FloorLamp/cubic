@@ -108,8 +108,12 @@ shared actor class Cubic(init: T.Initialization) = this {
     });
   };
 
-  public query func getStatus(): async T.Status {
-    status
+  public query func getStatus(): async (T.Status, ?T.Block) {
+    (status,
+    switch (ownerIds.get(status.owner)) {
+      case (?id) { ?blockWithTimeNow(blocks[id]); };
+      case _ { null };
+    })
   };
 
   public query func getHistory(): async [T.Transfer] {
@@ -259,24 +263,17 @@ shared actor class Cubic(init: T.Initialization) = this {
         blocks[prevId] := {
           id = blocks[prevId].id;
           owner = blocks[prevId].owner;
-          totalOwnedTime = now - status.offerTimestamp;
+          totalOwnedTime = blocks[prevId].totalOwnedTime + now - status.offerTimestamp;
           totalValue = blocks[prevId].totalValue + status.offerValue;
         };
       };
       case _ {}
     };
 
-    // Add or update new owner block
+    // Add new owner block if needed
     switch (ownerIds.get(caller)) {
-      case (?id) {
-        blocks[id] := {
-          id = blocks[id].id;
-          owner = blocks[id].owner;
-          totalOwnedTime = blocks[id].totalOwnedTime;
-          totalValue = blocks[id].totalValue;
-        };
-      };
-      case _ {
+      case (?id) {};
+      case null {
         let newId = blocks.size();
         ownerIds.put(caller, newId);
         blocks := Array.thaw(Array.append(Array.freeze(blocks), [{
@@ -376,12 +373,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
         // Owner increases owned time but not value
         let ownerId = Option.unwrap(ownerIds.get(status.owner));
-        blocks[ownerId] := {
-          id = blocks[ownerId].id;
-          owner = blocks[ownerId].owner;
-          totalOwnedTime = now - status.offerTimestamp;
-          totalValue = blocks[ownerId].totalValue;
-        };
+        blocks[ownerId] := blockWithTimeNow(blocks[ownerId]);
 
         // New offer is 0-value
         status := {
@@ -401,15 +393,19 @@ shared actor class Cubic(init: T.Initialization) = this {
 
   // ---- Helpers
 
+  func blockWithTimeNow(block: T.Block): T.Block {
+    {
+      id = block.id;
+      owner = block.owner;
+      totalOwnedTime = block.totalOwnedTime + (Time.now() - status.offerTimestamp);
+      totalValue = block.totalValue;
+    }
+  };
+
   func latestBlocks(): [T.Block] {
     Array.map<T.Block, T.Block>(Array.freeze(blocks), func (block) {
       if (block.owner == status.owner) {
-        {
-          id = block.id;
-          owner = block.owner;
-          totalOwnedTime = block.totalOwnedTime + (Time.now() - status.offerTimestamp);
-          totalValue = block.totalValue;
-        }
+        blockWithTimeNow(block)
       } else {
         block
       }

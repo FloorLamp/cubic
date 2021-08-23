@@ -112,7 +112,7 @@ export const idlFactory = ({ IDL }) => {
     'depositWtc' : IDL.Func([IDL.Principal], [IDL.Nat], []),
     'getBlocks' : IDL.Func([BlocksRequest], [IDL.Vec(Block)], ['query']),
     'getHistory' : IDL.Func([], [IDL.Vec(Transfer)], ['query']),
-    'getStatus' : IDL.Func([], [Status], ['query']),
+    'getStatus' : IDL.Func([], [Status, IDL.Opt(Block)], ['query']),
     'info' : IDL.Func([], [Info], []),
     'setCanisters' : IDL.Func([Canisters], [], []),
     'tokenTransferNotification' : IDL.Func(

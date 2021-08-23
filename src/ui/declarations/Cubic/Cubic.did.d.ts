@@ -27,7 +27,7 @@ export interface Cubic {
   'depositWtc' : (arg_0: Principal) => Promise<bigint>,
   'getBlocks' : (arg_0: BlocksRequest) => Promise<Array<Block>>,
   'getHistory' : () => Promise<Array<Transfer>>,
-  'getStatus' : () => Promise<Status>,
+  'getStatus' : () => Promise<[Status, [] | [Block]]>,
   'info' : () => Promise<Info>,
   'setCanisters' : (arg_0: Canisters) => Promise<undefined>,
   'tokenTransferNotification' : (

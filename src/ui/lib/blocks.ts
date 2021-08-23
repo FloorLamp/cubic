@@ -1,6 +1,8 @@
 import { Block } from "../declarations/Cubic/Cubic.did";
 
 export const blockColor = (block: Block) => {
+  if (!block) return "";
+
   let hash = 0;
   const bytes = block.owner.toUint8Array();
   for (const byte of bytes) {

@@ -33,7 +33,7 @@ function Blocks({ data }: { data: Block[] }) {
     start: 0,
   }));
   const sumSize = inputs.reduce((sum, { size }) => sum + size, 0);
-  const totalLength = 1000;
+  const totalLength = 720;
   const scale = totalLength / sumSize;
   let pos = 0;
   for (const element of inputs) {
@@ -58,11 +58,19 @@ function Blocks({ data }: { data: Block[] }) {
             result="matrixOut"
             in="offOut"
             type="matrix"
-            values=" 0.49 0 0 0 0 0 0.49 0 0 0 0 0 0.49 0 0 0 0 0 0.2 0"
+            values="0.49 0 0 0 0 0 0.49 0 0 0 0 0 0.49 0 0 0 0 0 0.2 0"
           />
           <feGaussianBlur result="blurOut" in="matrixOut" stdDeviation="1" />
           <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
         </filter>
+        <style>
+          {`
+          #_cubic-segments polyline {
+            fill: none;
+            stroke-width: 9;
+          }
+          `}
+        </style>
       </defs>
       <rect
         x="5"
@@ -73,19 +81,20 @@ function Blocks({ data }: { data: Block[] }) {
         filter="url(#shadow)"
       />
 
-      <g transform={`translate(${translate},${translate})scale(${cubeScale})`}>
-        {inputs.map(({ owner, color, size, start }) => {
+      <g
+        id="_cubic-segments"
+        transform={`translate(${translate},${translate})scale(${cubeScale})`}
+      >
+        {inputs.map(({ owner, color, size, start }, i) => {
           return (
             <polyline
               key={owner.toText()}
               points="-0.5 4 76 4 76 76 4 76 4 13 67 13 67 67 13 67 13 22 58 22 58 58 22 58 22 31 49 31 49 49 31 49 31 40 45 40"
               strokeDasharray={
                 start === 0
-                  ? `${start + size}, ${totalLength}`
-                  : `0, ${start}, ${start + size}, 0, ${totalLength}`
+                  ? `${start + size},${totalLength}`
+                  : `0,${start},${totalLength}`
               }
-              fill="none"
-              strokeWidth="9"
               stroke={color}
             />
           );

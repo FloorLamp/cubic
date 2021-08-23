@@ -18,14 +18,19 @@ function randomNormal(min: number, max: number, skew: number = 1) {
   return num;
 }
 
+export const randomPrincipal = () => {
+  const array = new Uint8Array(8);
+  typeof window !== "undefined" && window.crypto.getRandomValues(array);
+  return Principal.fromUint8Array(array);
+};
+
 export const generateBlocks = (length = 100): Block[] => {
   return Array.from({ length }, (_, i) => {
-    const array = new Uint8Array(8);
-    typeof window !== "undefined" && window.crypto.getRandomValues(array);
     return {
+      id: BigInt(i),
       totalValue: BigInt(Math.floor(randomNormal(1, 2000, 5)) * 1e12),
       totalOwnedTime: BigInt(Math.floor(randomNormal(0, 86_400 * 60, 5)) * 1e9),
-      owner: Principal.fromUint8Array(array),
+      owner: randomPrincipal(),
     };
   });
 };
@@ -36,10 +41,11 @@ export const generateAdditional = (data: Block[], count: number = 1) => {
   while (i < count) {
     if (Math.random() < 0.5) {
       const idx = Math.floor(Math.random() * d.length);
-      const { owner, totalOwnedTime, totalValue } = d[idx];
+      const { id, owner, totalOwnedTime, totalValue } = d[idx];
       d = d
         .slice(0, idx)
         .concat({
+          id,
           owner,
           totalValue:
             totalValue + BigInt(Math.floor(randomNormal(1, 100)) * 1e12),
@@ -48,12 +54,11 @@ export const generateAdditional = (data: Block[], count: number = 1) => {
         })
         .concat(d.slice(idx + 1));
     } else {
-      const array = new Uint8Array(8);
-      typeof window !== "undefined" && window.crypto.getRandomValues(array);
       d = d.concat({
+        id: BigInt(d.length),
         totalValue: BigInt(Math.floor(randomNormal(1, 100)) * 1e12),
         totalOwnedTime: BigInt(Math.floor(randomNormal(0, 86_400)) * 1e9),
-        owner: Principal.fromUint8Array(array),
+        owner: randomPrincipal(),
       });
     }
     i++;

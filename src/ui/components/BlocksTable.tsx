@@ -29,7 +29,8 @@ export function BlocksTable() {
       <ul className="text-sm flex flex-col gap-2 xs:gap-0">
         {blocks.data?.map((block, i) => {
           const isOwner =
-            status.data && principalIsEqual(status.data.owner, block.owner);
+            status.data &&
+            principalIsEqual(status.data.status.owner, block.owner);
           return (
             <li key={i} className="flex flex-col xs:flex-row xs:items-center">
               <div className="flex-1 flex items-center">

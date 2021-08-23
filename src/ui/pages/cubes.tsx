@@ -7,6 +7,7 @@ import Select from "react-select";
 import SpinnerButton from "../components/Buttons/SpinnerButton";
 import Panel from "../components/Containers/Panel";
 import ErrorAlert from "../components/Labels/ErrorAlert";
+import { TokenLogo } from "../components/Labels/TokenLabel";
 import { useGlobalContext } from "../components/Store/Store";
 import { useCubesBalance } from "../lib/hooks/useCubesBalance";
 import useWithdraw from "../lib/hooks/useWithdraw";
@@ -25,7 +26,7 @@ const Assets: { value: Asset; label: ReactNode }[] = [
   { value: "WTC", label: null },
   {
     value: "CUBE",
-    label: "🧊",
+    label: <TokenLogo />,
   },
 ];
 const formatOptionLabel = ({ value, label }) => {

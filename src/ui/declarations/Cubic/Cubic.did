@@ -102,7 +102,7 @@ type Cubic =
    depositWtc: (principal) -> (nat);
    getBlocks: (BlocksRequest) -> (vec Block) query;
    getHistory: () -> (vec Transfer) query;
-   getStatus: () -> (Status) query;
+   getStatus: () -> (Status, opt Block) query;
    info: () -> (Info);
    setCanisters: (Canisters) -> ();
    tokenTransferNotification: (TokenIdentifier, User, Balance, Memo) ->

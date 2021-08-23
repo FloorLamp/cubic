@@ -7,7 +7,7 @@ import { useStatus } from "../../lib/hooks/useStatus";
 import { formatNumber } from "../../lib/utils";
 import SpinnerButton from "../Buttons/SpinnerButton";
 import ErrorAlert from "../Labels/ErrorAlert";
-import { TokenLabel } from "../Labels/TokenLabel";
+import { TokenLabel, TokenLogo } from "../Labels/TokenLabel";
 import Modal from "../Layout/Modal";
 import { useGlobalContext } from "../Store/Store";
 
@@ -34,8 +34,8 @@ export default function PurchaseModal({}: {}) {
       : 0;
 
   const ownershipPeriod =
-    dailyTax > 0 && cubesBalance.isSuccess
-      ? cubesBalance.data / dailyTax
+    dailyTax > 0 && cubesBalance.isSuccess && status.data
+      ? (cubesBalance.data - status.data.status.offerValue) / dailyTax
       : null;
 
   const handleClick = (e) => {
@@ -54,12 +54,13 @@ export default function PurchaseModal({}: {}) {
     });
   };
 
-  const hasSufficientBalance = cubesBalance.data > status.data?.offerValue;
+  const hasSufficientBalance =
+    cubesBalance.data > status.data?.status.offerValue;
 
   return (
     <>
       <button type="button" onClick={openModal} className="w-full p-2 btn-cta">
-        Purchase this work
+        Purchase
       </button>
       <Modal
         isOpen={isOpen}
@@ -74,8 +75,10 @@ export default function PurchaseModal({}: {}) {
               <>
                 <p className="border-b border-gray-300 pb-4">
                   You will spend{" "}
-                  <strong>{formatNumber(status.data?.offerValue, 12)}</strong>{" "}
-                  <TokenLabel /> now to purchase this work.
+                  <strong>
+                    {formatNumber(status.data?.status.offerValue, 12)}
+                  </strong>{" "}
+                  <TokenLogo /> now to purchase this work.
                 </p>
 
                 <div>
@@ -87,19 +90,24 @@ export default function PurchaseModal({}: {}) {
                       value="Set to Current"
                       onClick={() =>
                         status.data &&
-                        setNewOffer(status.data.offerValue.toString())
+                        setNewOffer(status.data.status.offerValue.toString())
                       }
                     />
                   </div>
-                  <input
-                    type="number"
-                    placeholder="New Offer Price"
-                    className="w-full mt-1 flex-1 text-right"
-                    value={newOffer}
-                    onChange={(e) => setNewOffer(e.target.value)}
-                    min={0}
-                    maxLength={20}
-                  />
+                  <div className="relative">
+                    <div className="absolute p-3.5 pointer-events-none">
+                      <TokenLabel />
+                    </div>
+                    <input
+                      type="number"
+                      placeholder="New Offer Price"
+                      className="w-full mt-1 flex-1 text-right"
+                      value={newOffer}
+                      onChange={(e) => setNewOffer(e.target.value)}
+                      min={0}
+                      maxLength={20}
+                    />
+                  </div>
                 </div>
 
                 {error && <ErrorAlert>{error}</ErrorAlert>}
@@ -107,7 +115,7 @@ export default function PurchaseModal({}: {}) {
                 <p>
                   You will be charged{" "}
                   <strong>{dailyTax ? formatNumber(dailyTax) : "-"}</strong>{" "}
-                  <TokenLabel /> per day while you are the owner.
+                  <TokenLogo /> per day while you are the owner.
                 </p>
 
                 <p>
@@ -124,7 +132,8 @@ export default function PurchaseModal({}: {}) {
                 <div>
                   <label className="block">Current offer price</label>
                   <h2 className="text-xl font-bold text-right">
-                    {formatNumber(status.data?.offerValue, 12)} <TokenLabel />
+                    {formatNumber(status.data?.status.offerValue, 12)}{" "}
+                    <TokenLabel />
                   </h2>
                 </div>
                 <div>
