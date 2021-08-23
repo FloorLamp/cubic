@@ -2,6 +2,7 @@ import { Principal } from "@dfinity/principal";
 import React, { useEffect } from "react";
 import { CgSpinner } from "react-icons/cg";
 import { canisterId } from "../declarations/Cubic";
+import { blockColor } from "../lib/blocks";
 import { dateTimeFromNanos } from "../lib/datetime";
 import { useCubesBalance } from "../lib/hooks/useCubesBalance";
 import useHeartbeat from "../lib/hooks/useHeartbeat";
@@ -58,12 +59,18 @@ export function CurrentStatus() {
           <CgSpinner className="inline-block animate-spin" />
         ) : (
           <h2 className="font-bold leading-tight">
-            {isOwner ? (
-              "You!"
-            ) : isForeclosed ? (
+            {isForeclosed ? (
               <span className="text-red-500">Foreclosed</span>
             ) : isOwned ? (
-              data.status.owner.toText()
+              <div className="flex items-center">
+                <div
+                  className="w-3 h-3 mr-2 flex-none"
+                  style={{
+                    backgroundColor: blockColor(data.block),
+                  }}
+                />
+                {isOwner ? "You!" : data.status.owner.toText()}
+              </div>
             ) : (
               <span className="text-gray-400">None</span>
             )}
@@ -109,7 +116,7 @@ export function CurrentStatus() {
       {!isForeclosed && (
         <div>
           <label className="block text-gray-500 text-xs uppercase">
-            Projected Ownership Period
+            Estimated Ownership Period
           </label>
           {isLoading || info.isLoading || ownerBalance.isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
@@ -118,7 +125,7 @@ export function CurrentStatus() {
               {ownershipPeriod != null ? (
                 <>{formatNumber(ownershipPeriod, 2)} Days</>
               ) : (
-                "-"
+                "—"
               )}
             </h2>
           )}

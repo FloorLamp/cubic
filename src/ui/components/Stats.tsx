@@ -140,7 +140,7 @@ export function Stats() {
               />
             </span>
           ) : (
-            "-"
+            "—"
           )}
         </div>
 

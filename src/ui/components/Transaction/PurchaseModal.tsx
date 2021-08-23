@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React, { useState } from "react";
+import { FiChevronRight } from "react-icons/fi";
 import useBuy from "../../lib/hooks/useBuy";
 import { useCubesBalance } from "../../lib/hooks/useCubesBalance";
 import { useInfo } from "../../lib/hooks/useInfo";
@@ -68,20 +69,22 @@ export default function PurchaseModal({}: {}) {
         closeModal={closeModal}
         title="Complete Purchase"
       >
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2 pt-4">
           {cubesBalance.isSuccess &&
             status.data &&
-            (hasSufficientBalance ? (
+            (!isAuthed || hasSufficientBalance ? (
               <>
-                <p className="border-b border-gray-300 pb-4">
-                  You will spend{" "}
-                  <strong>
-                    {formatNumber(status.data?.status.offerValue, 12)}
-                  </strong>{" "}
-                  <TokenLogo /> now to purchase this work.
-                </p>
+                <div className="flex justify-between border-t border-b border-gray-300 py-4">
+                  <label>Current Price</label>
+                  <span>
+                    <strong>
+                      {formatNumber(status.data?.status.offerValue, 12)}
+                    </strong>{" "}
+                    <TokenLogo />
+                  </span>
+                </div>
 
-                <div>
+                <div className="pt-2">
                   <div className="w-full flex justify-between items-center">
                     <label>Your Offer Price</label>
                     <input
@@ -110,22 +113,38 @@ export default function PurchaseModal({}: {}) {
                   </div>
                 </div>
 
+                <div>
+                  <div className="flex justify-between">
+                    <label>Daily tax </label>
+                    <span>
+                      <strong>{dailyTax ? formatNumber(dailyTax) : "—"}</strong>{" "}
+                      <TokenLogo />
+                    </span>
+                  </div>
+
+                  {isAuthed && (
+                    <div className="flex justify-between">
+                      <label>Est. ownership period</label>
+                      <span>
+                        <strong>
+                          {ownershipPeriod
+                            ? formatNumber(ownershipPeriod, 2)
+                            : "—"}
+                        </strong>{" "}
+                        days
+                      </span>
+                    </div>
+                  )}
+
+                  <Link href="/info">
+                    <a className="group text-xs text-gray-400 hover:underline">
+                      How does this work?
+                      <FiChevronRight className="inline-block group-hover:translate-x-1 transform transition-transform duration-75" />
+                    </a>
+                  </Link>
+                </div>
+
                 {error && <ErrorAlert>{error}</ErrorAlert>}
-
-                <p>
-                  You will be charged{" "}
-                  <strong>{dailyTax ? formatNumber(dailyTax) : "-"}</strong>{" "}
-                  <TokenLogo /> per day while you are the owner.
-                </p>
-
-                <p>
-                  Based on your current balance, you will be able to own this
-                  work for{" "}
-                  <strong>
-                    {ownershipPeriod ? formatNumber(ownershipPeriod, 2) : "-"}
-                  </strong>{" "}
-                  days.
-                </p>
               </>
             ) : (
               <>
@@ -148,7 +167,7 @@ export default function PurchaseModal({}: {}) {
               </>
             ))}
 
-          {hasSufficientBalance ? (
+          {!isAuthed || hasSufficientBalance ? (
             <SpinnerButton
               className="p-3 w-full"
               activeClassName="btn-cta cursor-pointer"

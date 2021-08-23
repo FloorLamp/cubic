@@ -75,7 +75,7 @@ const AssetForm = ({
           ) : balanceQuery.isSuccess ? (
             formatNumber(balanceQuery.data, 12)
           ) : (
-            "-"
+            "—"
           )}
           <span>{asset}</span>
         </div>

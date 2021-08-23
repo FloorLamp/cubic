@@ -7,6 +7,26 @@ import * as xtc from "../../declarations/xtc/index";
 import { defaultAgent } from "../../lib/canisters";
 import { CubicService, WtcService, XtcService } from "../../lib/types";
 
+type State = {
+  agent: HttpAgent;
+  cubic: CubicService;
+  xtc: XtcService;
+  wtc: WtcService;
+  isAuthed: boolean;
+  principal: Principal | null;
+  showLoginModal: boolean;
+};
+
+const initialState: State = {
+  agent: defaultAgent,
+  cubic: Cubic.createActor(Cubic.canisterId, defaultAgent),
+  xtc: xtc.createActor(xtc.canisterId, defaultAgent),
+  wtc: wtc.createActor(wtc.canisterId, defaultAgent),
+  isAuthed: false,
+  principal: null,
+  showLoginModal: false,
+};
+
 type Action =
   | {
       type: "SET_AGENT";
@@ -16,9 +36,13 @@ type Action =
   | {
       type: "SET_PRINCIPAL";
       principal: Principal;
+    }
+  | {
+      type: "SET_LOGIN_MODAL";
+      open: boolean;
     };
 
-const reducer = (state: State, action: Action) => {
+const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "SET_AGENT":
       const agent = action.agent || defaultAgent;
@@ -35,25 +59,12 @@ const reducer = (state: State, action: Action) => {
         ...state,
         principal: action.principal,
       };
+    case "SET_LOGIN_MODAL":
+      return {
+        ...state,
+        showLoginModal: action.open,
+      };
   }
-};
-
-type State = {
-  agent: HttpAgent;
-  cubic: CubicService;
-  xtc: XtcService;
-  wtc: WtcService;
-  isAuthed: boolean;
-  principal: Principal | null;
-};
-
-const initialState: State = {
-  agent: defaultAgent,
-  cubic: Cubic.createActor(Cubic.canisterId, defaultAgent),
-  xtc: xtc.createActor(xtc.canisterId, defaultAgent),
-  wtc: wtc.createActor(wtc.canisterId, defaultAgent),
-  isAuthed: false,
-  principal: null,
 };
 
 const Context = createContext({
@@ -75,6 +86,14 @@ export const useGlobalContext = () => {
     throw new Error("useGlobalContext must be used within a CountProvider");
   }
   return context;
+};
+
+export const useLoginModal = () => {
+  const context = useGlobalContext();
+  return [
+    context.state.showLoginModal,
+    (open: boolean) => context.dispatch({ type: "SET_LOGIN_MODAL", open }),
+  ] as const;
 };
 
 export const useCubic = () => {

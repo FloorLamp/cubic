@@ -14,7 +14,7 @@ export default function Nav() {
   const cubesBalance = useCubesBalance();
 
   return (
-    <nav className="py-4 flex flex-col sm:flex-row items-center justify-between border-b border-black border-opacity-10 text-white">
+    <nav className="py-4 flex flex-col gap-4 sm:gap-0 sm:flex-row items-center justify-between border-b border-black border-opacity-10 text-white">
       <div className="flex items-baseline gap-8">
         <Link href="/">
           <a className="text-2xl font-bold uppercase">Cubic</a>
@@ -22,6 +22,10 @@ export default function Nav() {
 
         <Link href="/info">
           <a className="hover:underline">Info</a>
+        </Link>
+
+        <Link href="/owners">
+          <a className="hover:underline">Owners</a>
         </Link>
 
         <Link href="/stats">
@@ -43,7 +47,7 @@ export default function Nav() {
                 <strong>
                   {cubesBalance.isSuccess
                     ? formatNumber(cubesBalance.data)
-                    : "-"}
+                    : "—"}
                 </strong>{" "}
                 <TokenLabel />
               </a>

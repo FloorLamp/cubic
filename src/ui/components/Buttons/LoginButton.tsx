@@ -9,7 +9,7 @@ import { canisterId as XtcCanisterId } from "../../declarations/xtc";
 import { HOST, IDENTITY_PROVIDER } from "../../lib/canisters";
 import { ONE_WEEK_NS } from "../../lib/constants";
 import Modal from "../Layout/Modal";
-import { useGlobalContext, useSetAgent } from "../Store/Store";
+import { useGlobalContext, useLoginModal, useSetAgent } from "../Store/Store";
 
 declare global {
   interface Window {
@@ -22,7 +22,7 @@ declare global {
 const WHITELIST = [CubicCanisterId, XtcCanisterId, WtcCanisterId];
 
 export default function LoginButton() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useLoginModal();
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
 

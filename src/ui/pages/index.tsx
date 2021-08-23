@@ -1,6 +1,5 @@
 import dynamic from "next/dynamic";
 import React from "react";
-import { BlocksTable } from "../components/BlocksTable";
 import { CurrentStatus } from "../components/CurrentStatus";
 
 const CanvasContainer = dynamic(() => import("../components/Canvas"), {
@@ -13,8 +12,6 @@ export default function Home() {
       <CanvasContainer />
 
       <CurrentStatus />
-
-      <BlocksTable />
     </div>
   );
 }

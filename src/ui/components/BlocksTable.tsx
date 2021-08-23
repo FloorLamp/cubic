@@ -21,7 +21,7 @@ export function BlocksTable() {
     <Panel className="p-8 w-full">
       <div className="flex items-center mb-2">
         <div className="flex-1">
-          {art.data?.length} {pluralize("Owner", art.data?.length)}
+          {art.data?.length} Unique {pluralize("Owner", art.data?.length)}
         </div>
         <div className="hidden xs:block w-64 text-right">Total Time Owned</div>
         <div className="hidden sm:block w-48 text-right">Total Sales</div>

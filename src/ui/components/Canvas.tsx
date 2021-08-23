@@ -3,7 +3,6 @@ import { Block } from "../declarations/Cubic/Cubic.did";
 import { blockColor } from "../lib/blocks";
 import { useArt } from "../lib/hooks/useArt";
 import Panel from "./Containers/Panel";
-import { DevTools } from "./DevTools";
 
 export default function Canvas() {
   const art = useArt();
@@ -15,12 +14,12 @@ export default function Canvas() {
     <Panel className="p-8 w-full flex flex-col items-center">
       <Blocks data={actualData} />
 
-      <DevTools
+      {/* <DevTools
         data={data}
         setData={setData}
         isLive={isLive}
         setIsLive={setIsLive}
-      />
+      /> */}
     </Panel>
   );
 }

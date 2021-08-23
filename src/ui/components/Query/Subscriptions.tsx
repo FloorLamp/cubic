@@ -18,6 +18,9 @@ export const Subscriptions = () => {
   useEffect(() => {
     // Clear cache when logging in or out
     queryClient.removeQueries();
+    if (!isAuthed) {
+      setShowNotification(false);
+    }
   }, [isAuthed]);
 
   const [purchaser, setPurchaser] = useState<ParsedStatus>(null);
