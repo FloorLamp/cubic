@@ -3,7 +3,11 @@ import React, { useEffect } from "react";
 import { CgSpinner } from "react-icons/cg";
 import { canisterId } from "../declarations/Cubic";
 import { blockColor } from "../lib/blocks";
-import { dateTimeFromNanos } from "../lib/datetime";
+import {
+  dateTimeFromNanos,
+  formatDuration,
+  secondsToDuration,
+} from "../lib/datetime";
 import { useCubesBalance } from "../lib/hooks/useCubesBalance";
 import useHeartbeat from "../lib/hooks/useHeartbeat";
 import { useInfo } from "../lib/hooks/useInfo";
@@ -30,9 +34,9 @@ export function CurrentStatus() {
         365
       : 0;
 
-  const ownershipPeriod =
+  const ownershipSeconds =
     dailyTax > 0 && ownerBalance.isSuccess
-      ? ownerBalance.data / dailyTax
+      ? (ownerBalance.data / dailyTax) * 86400
       : null;
   const isOwner = data && principalIsEqual(data.status.owner, principal);
   const isForeclosed =
@@ -40,14 +44,14 @@ export function CurrentStatus() {
 
   const heartbeat = useHeartbeat();
   useEffect(() => {
-    if (ownershipPeriod != null && ownershipPeriod < 0.0003) {
+    if (ownershipSeconds != null && ownershipSeconds < 600) {
       console.log(
-        `low ownershipPeriod: ${ownershipPeriod}, calling heartbeat...`
+        `low ownershipSeconds: ${ownershipSeconds}, calling heartbeat...`
       );
 
       heartbeat.mutate();
     }
-  }, [ownershipPeriod]);
+  }, [ownershipSeconds]);
 
   return (
     <Panel className="max-w-md w-full p-4 flex flex-col gap-4">
@@ -126,11 +130,11 @@ export function CurrentStatus() {
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <h2 className="font-bold">
-              {ownershipPeriod != null ? (
-                <>{formatNumber(ownershipPeriod, 2)} Days</>
-              ) : (
-                "—"
-              )}
+              {ownershipSeconds != null
+                ? ownershipSeconds > 86400
+                  ? `${formatNumber(ownershipSeconds / 86400, 2)} days`
+                  : formatDuration(secondsToDuration(ownershipSeconds))
+                : "—"}
             </h2>
           )}
         </div>

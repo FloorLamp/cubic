@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React, { useState } from "react";
+import { BsFillExclamationCircleFill } from "react-icons/bs";
 import { FiChevronRight } from "react-icons/fi";
 import useBuy from "../../lib/hooks/useBuy";
 import { useCubesBalance } from "../../lib/hooks/useCubesBalance";
@@ -69,13 +70,13 @@ export default function PurchaseModal({}: {}) {
         closeModal={closeModal}
         title="Complete Purchase"
       >
-        <div className="flex flex-col gap-2 pt-4">
+        <div className="flex flex-col gap-2">
           {cubesBalance.isSuccess &&
             status.data &&
             (!isAuthed || hasSufficientBalance ? (
               <>
                 <div>
-                  <div className="w-full flex justify-between items-center">
+                  <div className="pt-4 w-full flex justify-between items-center">
                     <label>Set a new Offer Price</label>
                     <input
                       type="button"
@@ -113,17 +114,30 @@ export default function PurchaseModal({}: {}) {
                   </div>
 
                   {isAuthed && (
-                    <div className="flex justify-between">
-                      <label>Est. ownership period</label>
-                      <span>
-                        <strong>
-                          {ownershipPeriod
-                            ? formatNumber(ownershipPeriod, 2)
-                            : "—"}
-                        </strong>{" "}
-                        days
-                      </span>
-                    </div>
+                    <>
+                      <div className="flex justify-between">
+                        <label>Est. ownership period</label>
+                        <span>
+                          <strong>
+                            {ownershipPeriod
+                              ? formatNumber(ownershipPeriod, 2)
+                              : "—"}
+                          </strong>{" "}
+                          days
+                        </span>
+                      </div>
+                      {ownershipPeriod != null && ownershipPeriod < 0.02 && (
+                        <ErrorAlert>
+                          <p className="text-sm p-1">
+                            <strong className="flex items-center">
+                              <BsFillExclamationCircleFill className="mr-1" />
+                              You may be foreclosed!
+                            </strong>
+                            Ensure you have sufficient balance for taxes.
+                          </p>
+                        </ErrorAlert>
+                      )}
+                    </>
                   )}
 
                   <Link href="/info">
@@ -166,24 +180,30 @@ export default function PurchaseModal({}: {}) {
                 {error && <ErrorAlert>{error}</ErrorAlert>}
               </>
             ) : (
-              <>
+              <div className="flex flex-col gap-4 py-2">
                 <div>
-                  <label className="block">Current offer price</label>
-                  <h2 className="text-xl font-bold text-right">
+                  <label className="block text-gray-500 text-xs uppercase">
+                    Current offer price
+                  </label>
+                  <h2 className="text-xl font-bold">
                     {formatNumber(status.data?.status.offerValue, 12)}{" "}
                     <TokenLabel />
                   </h2>
                 </div>
                 <div>
-                  <label className="block">Your balance</label>
-                  <h2 className="text-xl font-bold text-right">
+                  <label className="block text-gray-500 text-xs uppercase">
+                    Your balance
+                  </label>
+                  <h2 className="text-xl font-bold">
                     {formatNumber(cubesBalance.data, 12)} <TokenLabel />
                   </h2>
                 </div>
-                <p className="text-red-500">
-                  Insufficient balance for purchase and taxes.
-                </p>
-              </>
+                <ErrorAlert>
+                  <p className="p-1 text-sm">
+                    Insufficient balance for purchase and taxes.
+                  </p>
+                </ErrorAlert>
+              </div>
             ))}
 
           {!isAuthed || hasSufficientBalance ? (

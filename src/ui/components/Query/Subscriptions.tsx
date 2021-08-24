@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useQueryClient } from "react-query";
-import { blockColor } from "../../lib/blocks";
 import { useStatus } from "../../lib/hooks/useStatus";
 import { ParsedStatus } from "../../lib/types";
-import { principalIsEqual, shortPrincipal } from "../../lib/utils";
-import { TokenLogo } from "../Labels/TokenLabel";
+import { principalIsEqual } from "../../lib/utils";
 import { Notification } from "../Layout/Notification";
 import { useGlobalContext } from "../Store/Store";
+import { PurchaseNotification } from "../Transaction/PurchaseNotification";
 
 export const Subscriptions = () => {
   const {
@@ -27,6 +26,7 @@ export const Subscriptions = () => {
   const [status, setStatus] = useState<ParsedStatus>(null);
   const [showNotification, setShowNotification] = useState(false);
 
+  // Show notification if we have lost ownership
   useEffect(() => {
     const latestOwner = latestStatus.data?.status.owner;
     if (latestOwner && !principalIsEqual(status?.status.owner, latestOwner)) {
@@ -51,21 +51,7 @@ export const Subscriptions = () => {
       open={showNotification}
       handleClose={() => setShowNotification(false)}
     >
-      {purchaser && (
-        <div className="flex items-start">
-          <div
-            className="w-6 h-6 mr-2"
-            style={{ backgroundColor: blockColor(purchaser.block) }}
-          />
-          <div>
-            <strong className="block">
-              {shortPrincipal(purchaser.status.owner)}
-            </strong>
-            Purchased Cubic from you for{" "}
-            <strong>{purchaser.status.offerValue}</strong> <TokenLogo />
-          </div>
-        </div>
-      )}
+      {purchaser && <PurchaseNotification status={purchaser} />}
     </Notification>
   );
 };

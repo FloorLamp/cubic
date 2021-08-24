@@ -22,6 +22,11 @@ export default function useWithdraw() {
       }
     },
     {
+      onError: (data) => {
+        if (data === "InsufficientBalance") {
+          queryClient.resetQueries("cubesBalance");
+        }
+      },
       onSuccess: async (data, { asset }) => {
         queryClient.resetQueries("cubesBalance");
         if (asset === "WTC") {

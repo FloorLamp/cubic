@@ -145,7 +145,7 @@ shared actor class Cubic(init: T.Initialization) = this {
     cubesSupply := cubesSupply + accepted;
     let balance = Cycles.balance();
     if (balance > maximumCycleBalance) {
-      let diff = balance - maximumCycleBalance;
+      let diff = balance - maximumCycleBalance : Nat;
       Cycles.add(diff);
       switch (await xtc.mint(null)) {
         case (#Err(error)) {
@@ -194,80 +194,12 @@ shared actor class Cubic(init: T.Initialization) = this {
     assert(accepted > 0);
   };
 
-  func _mintXtcUpTo(amount: Nat): async Bool {
-    if (xtcBalance >= amount) { return true };
-
-    // Ensure we have an extra 1BC of margin
-    let amountWithMargin = amount + TC / 1_000;
-    let rawBalance = Cycles.balance() - minimumCycleBalance;
-    if (rawBalance + xtcBalance < amountWithMargin) {
-      // Not enough liquidity
-      if (rawBalance + wtcBalance + xtcBalance < amountWithMargin) {
-        return false;
-      };
-
-      // burn difference from WTC
-      let wtcToBurn = amountWithMargin - xtcBalance - rawBalance;
-      if (not (await wtc.burn(wtcToBurn, acceptCycles))) {
-        Debug.print("burning WTC for XTC failed");
-        return false;
-      };
-
-      // Sync WTC balance
-      switch (await wtc.balance({ token = "WTC"; user = #principal(thisPrincipal()) })) {
-        case (#ok(balance)) {
-          wtcBalance := balance;
-        };
-        case _ {};
-      };
-    };
-
-    // mint difference to XTC
-    Cycles.add(amountWithMargin - xtcBalance);
-    switch (await xtc.mint(null)) {
-      case (#Err(error)) {
-        Debug.print("minting XTC failed: " # debug_show(error));
-        false;
-      };
-      case _ { true }
-    };
-  };
-
-  func _mintWtcUpTo(amount: Nat): async Bool {
-    if (wtcBalance >= amount) { return true };
-
-    // Ensure we have an extra 1BC of margin
-    let amountWithMargin = amount + TC / 1_000;
-    let rawBalance = Cycles.balance() - minimumCycleBalance;
-
-    if (rawBalance + wtcBalance < amountWithMargin) {
-      // Not enough liquidity
-      if (rawBalance + wtcBalance + wtcBalance < amountWithMargin) {
-        return false;
-      };
-
-      // burn difference from XTC
-      let xtcToBurn = amountWithMargin - wtcBalance - rawBalance;
-      switch (await xtc.burn({ amount = Nat64.fromNat(xtcToBurn); canister_id = thisPrincipal() })) {
-        case (#Err(error)) {
-          Debug.print("burning XTC for WTC failed: " # debug_show(error));
-          return false;
-        };
-        case _ {}
-      };
-
-      // Sync XTC balance
-      xtcBalance := Nat64.toNat(await xtc.balance(null));
-    };
-
-    // mint difference to WTC
-    Cycles.add(amountWithMargin - wtcBalance);
-    await wtc.mint(null);
-    true
-  };
-
   // Sell cubes for cycles
   public shared({ caller }) func withdraw(request: T.WithdrawRequest): async T.Result {
+    if (status.owner == caller) {
+      ignore _tax();
+    };
+
     let balance = Option.get(ledger.get(caller), 0);
 
     if (balance < request.amount) {
@@ -368,7 +300,7 @@ shared actor class Cubic(init: T.Initialization) = this {
     feesCollected := feesCollected + txFee;
 
     // Credit the seller
-    let amountMinusFees = status.offerValue - txFee;
+    let amountMinusFees = status.offerValue - txFee : Nat;
     ledger.put(status.owner, Option.get(ledger.get(status.owner), 0) + amountMinusFees);
 
     // Add transfer to history
@@ -472,7 +404,7 @@ shared actor class Cubic(init: T.Initialization) = this {
     let now = Time.now();
     let seconds = Int.abs(now - lastTaxTimestamp) / 1_000_000_000;
     let amount = percentOf(seconds * status.offerValue, ANNUAL_TAX_RATE) / 365 / 24 / 60 / 60;
-    Debug.print(debug_show(seconds, status.offerValue, amount));
+    Debug.print("tax: " # debug_show(seconds) # "s, price: " # debug_show(status.offerValue) # ", tax amount: " # debug_show(amount));
 
     if (amount > 0) {
       let ownerBalance = Option.get(ledger.get(status.owner), 0);
@@ -485,6 +417,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
       // Owner cannot pay full tax: Foreclose
       if (ownerBalance < amount) {
+        Debug.print("foreclosure: " # debug_show(thisPrincipal()) # ", balance: " # debug_show(ownerBalance));
         foreclosureCount := foreclosureCount + 1;
 
         // Transfer to self with 0-value
@@ -499,7 +432,7 @@ shared actor class Cubic(init: T.Initialization) = this {
         let ownerId = Option.unwrap(ownerIds.get(status.owner));
         blocks[ownerId] := blockWithTimeNow(blocks[ownerId]);
 
-        // New offer is 0-value
+        // Create new offer
         status := {
           owner = thisPrincipal();
           offerTimestamp = now;
@@ -551,6 +484,87 @@ shared actor class Cubic(init: T.Initialization) = this {
         }
       }
     }
+  };
+
+  /*
+    Ensure minimum XTC balance by minting raw and burning WTC if needed
+  */
+  func _mintXtcUpTo(amount: Nat): async Bool {
+    if (xtcBalance >= amount) { return true };
+
+    // Ensure we have an extra 1BC of margin
+    let amountWithMargin = amount + TC / 1_000;
+    if (Cycles.balance() < minimumCycleBalance) { return false };
+    let rawBalance = Cycles.balance() - minimumCycleBalance : Nat;
+
+    if (rawBalance + xtcBalance < amountWithMargin) {
+      // Not enough liquidity
+      if (rawBalance + wtcBalance + xtcBalance < amountWithMargin) {
+        return false;
+      };
+
+      // burn difference from WTC
+      let wtcToBurn = amountWithMargin - xtcBalance - rawBalance : Nat;
+      if (not (await wtc.burn(wtcToBurn, acceptCycles))) {
+        Debug.print("burning WTC for XTC failed");
+        return false;
+      };
+
+      // Sync WTC balance
+      switch (await wtc.balance({ token = "WTC"; user = #principal(thisPrincipal()) })) {
+        case (#ok(balance)) {
+          wtcBalance := balance;
+        };
+        case _ {};
+      };
+    };
+
+    // mint difference to XTC
+    Cycles.add(amountWithMargin - xtcBalance);
+    switch (await xtc.mint(null)) {
+      case (#Err(error)) {
+        Debug.print("minting XTC failed: " # debug_show(error));
+        false;
+      };
+      case _ { true }
+    };
+  };
+
+  /*
+    Ensure minimum WTC balance by minting raw and burning XTC if needed
+  */
+  func _mintWtcUpTo(amount: Nat): async Bool {
+    if (wtcBalance >= amount) { return true };
+
+    // Ensure we have an extra 1BC of margin
+    let amountWithMargin = amount + TC / 1_000;
+    if (Cycles.balance() < minimumCycleBalance) { return false };
+    let rawBalance = Cycles.balance() - minimumCycleBalance : Nat;
+
+    if (rawBalance + wtcBalance < amountWithMargin) {
+      // Not enough liquidity
+      if (rawBalance + wtcBalance + wtcBalance < amountWithMargin) {
+        return false;
+      };
+
+      // burn difference from XTC
+      let xtcToBurn = amountWithMargin - wtcBalance - rawBalance : Nat;
+      switch (await xtc.burn({ amount = Nat64.fromNat(xtcToBurn); canister_id = thisPrincipal() })) {
+        case (#Err(error)) {
+          Debug.print("burning XTC for WTC failed: " # debug_show(error));
+          return false;
+        };
+        case _ {}
+      };
+
+      // Sync XTC balance
+      xtcBalance := Nat64.toNat(await xtc.balance(null));
+    };
+
+    // mint difference to WTC
+    Cycles.add(amountWithMargin - wtcBalance);
+    await wtc.mint(null);
+    true
   };
 
 
