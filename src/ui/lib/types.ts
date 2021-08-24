@@ -16,7 +16,7 @@ export type WtcService = ActorSubclass<Wtc._SERVICE>;
 
 export type ExtTransferError = Extract<TransferResponse, { err: {} }>["err"];
 
-export type TcAsset = "XTC" | "WTC";
+export type TcAsset = "XTC" | "WTC" | "Cycles";
 export type Asset = TcAsset | "CUBE";
 
 export type OrderBy = KeysOfUnion<BlocksRequest["orderBy"]>;

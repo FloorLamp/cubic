@@ -12,7 +12,7 @@ export default function Canvas() {
 
   return (
     <Panel className="p-8 w-full flex flex-col items-center">
-      <Blocks data={actualData} />
+      {actualData && <Blocks data={actualData} />}
 
       {/* <DevTools
         data={data}

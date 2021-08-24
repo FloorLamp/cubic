@@ -59,8 +59,8 @@ module {
 
   public type Info = {
     stats: {
-      wtcBalance: Wtc.BalanceResponse;
-      xtcBalance: Nat64;
+      wtcBalance: Nat;
+      xtcBalance: Nat;
       cyclesBalance: Nat;
       cubesSupply: Nat;
       ownCubesBalance: Nat;
@@ -79,6 +79,7 @@ module {
 
   public type Error = {
     #InsufficientBalance;
+    #InsufficientLiquidity;
     #WtcTransferError: Wtc.TransferError;
     #XtcTransferError: Xtc.TransferError;
     #Error: { error_message : Text; error_type : Error.ErrorCode };

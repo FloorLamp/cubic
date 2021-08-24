@@ -70,8 +70,8 @@ type Info =
       taxCollected: nat;
       transactionFee: nat;
       transactionsCount: nat;
-      wtcBalance: BalanceResponse;
-      xtcBalance: nat64;
+      wtcBalance: nat;
+      xtcBalance: nat;
     };
  };
 type ErrorCode = 
@@ -90,30 +90,27 @@ type Error =
             error_type: ErrorCode;
           };
    InsufficientBalance;
+   InsufficientLiquidity;
    WtcTransferError: TransferError;
    XtcTransferError: TransferError__1;
  };
 type Cubic = 
  service {
+   acceptCycles: () -> ();
    art: () -> (vec Block) query;
    balance: (opt principal) -> (nat) query;
    buy: (nat) -> (Result);
    canister_heartbeat: () -> ();
-   depositWtc: (principal) -> (nat);
+   depositXtc: (principal) -> (nat);
    getBlocks: (BlocksRequest) -> (vec Block) query;
    getHistory: () -> (vec Transfer) query;
    getStatus: () -> (Status, opt Block) query;
-   info: () -> (Info);
+   info: () -> (Info) query;
    setCanisters: (Canisters) -> ();
    tokenTransferNotification: (TokenIdentifier, User, Balance, Memo) ->
     (opt Balance);
    wallet_receive: () -> (nat);
    withdraw: (WithdrawRequest) -> (Result);
- };
-type CommonError_2 = 
- variant {
-   InvalidToken: TokenIdentifier;
-   Other: text;
  };
 type Canisters = 
  record {
@@ -138,11 +135,6 @@ type Block =
    owner: principal;
    totalOwnedTime: int;
    totalValue: nat;
- };
-type BalanceResponse = 
- variant {
-   err: CommonError_2;
-   ok: Balance;
  };
 type Balance = nat;
 type AccountIdentifier = text;

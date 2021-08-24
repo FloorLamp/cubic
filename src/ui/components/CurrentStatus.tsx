@@ -85,11 +85,13 @@ export function CurrentStatus() {
         {isLoading ? (
           <CgSpinner className="inline-block animate-spin" />
         ) : (
-          <h2 className="font-bold">
-            <TimestampLabel
-              dt={dateTimeFromNanos(data.status.offerTimestamp)}
-            />
-          </h2>
+          data && (
+            <h2 className="font-bold">
+              <TimestampLabel
+                dt={dateTimeFromNanos(data.status.offerTimestamp)}
+              />
+            </h2>
+          )
         )}
       </div>
 
@@ -100,16 +102,18 @@ export function CurrentStatus() {
         {isLoading ? (
           <CgSpinner className="inline-block animate-spin" />
         ) : (
-          <h2>
-            <strong>
-              {formatNumber(data.status.offerValue, 12)} <TokenLogo />
-            </strong>{" "}
-            {dailyTax > 0 && !isForeclosed && (
-              <span className="text-gray-400">
-                ({formatNumber(dailyTax)} daily tax)
-              </span>
-            )}
-          </h2>
+          data && (
+            <h2>
+              <strong>
+                {formatNumber(data.status.offerValue, 12)} <TokenLogo />
+              </strong>{" "}
+              {dailyTax > 0 && !isForeclosed && (
+                <span className="text-gray-400">
+                  ({formatNumber(dailyTax)} daily tax)
+                </span>
+              )}
+            </h2>
+          )
         )}
       </div>
 

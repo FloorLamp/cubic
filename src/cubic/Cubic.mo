@@ -32,6 +32,8 @@ shared actor class Cubic(init: T.Initialization) = this {
 
   // ---- Stats
   stable var cubesSupply: Nat = 0;
+  stable var wtcBalance: Nat = 0;
+  stable var xtcBalance: Nat = 0;
   stable var salesTotal: Nat = 0;
   stable var lastTaxTimestamp: Int = 0;
   stable var taxCollected: Nat = 0;
@@ -46,19 +48,23 @@ shared actor class Cubic(init: T.Initialization) = this {
 
   // ---- Economic parameters
 
+  let TC = 1_000_000_000_000;
+  let minimumCycleBalance = TC / 2; // maintain 0.5TC in canister
+  let maximumCycleBalance = TC * 100; // wrap anything over 100TC
+
   // fees are in percent times 1e8, ie. 100% = 1e8
   stable var TRANSACTION_FEE = 1_000_000; // 1%
   stable var ANNUAL_TAX_RATE = 5_000_000; // 5%
-  stable var FORECLOSURE_PRICE = 1_000_000_000_000; // 1 TC
+  stable var FORECLOSURE_PRICE = 1 * TC; // 1 TC
 
 
   // ---- Getters
 
-  public shared func info(): async T.Info {
+  public query func info(): async T.Info {
     {
       stats = {
-        wtcBalance = await wtc.balance({ token = "WTC"; user = #principal(thisPrincipal()) });
-        xtcBalance = await xtc.balance(null);
+        wtcBalance = wtcBalance;
+        xtcBalance = xtcBalance;
         cyclesBalance = Cycles.balance();
         cubesSupply = cubesSupply;
         ownCubesBalance = Option.get(ledger.get(thisPrincipal()), 0);
@@ -129,7 +135,7 @@ shared actor class Cubic(init: T.Initialization) = this {
   // ---- Updates
 
   // Deposit XTC
-  public shared({ caller }) func depositWtc(owner: Principal) : async Nat {
+  public shared({ caller }) func depositXtc(owner: Principal) : async Nat {
     assert(caller == canisters.xtc);
 
     let amount = Cycles.available();
@@ -137,6 +143,19 @@ shared actor class Cubic(init: T.Initialization) = this {
     assert(accepted > 0);
     ledger.put(owner, Option.get(ledger.get(owner), 0) + accepted);
     cubesSupply := cubesSupply + accepted;
+    let balance = Cycles.balance();
+    if (balance > maximumCycleBalance) {
+      let diff = balance - maximumCycleBalance;
+      Cycles.add(diff);
+      switch (await xtc.mint(null)) {
+        case (#Err(error)) {
+          Debug.print("minting XTC failed: " # debug_show(error));
+        };
+        case _ {
+          xtcBalance := Nat64.toNat(await xtc.balance(null));
+        }
+      };
+    };
     accepted;
   };
 
@@ -148,6 +167,7 @@ shared actor class Cubic(init: T.Initialization) = this {
     switch (tokenId, user) {
       case ("WTC", #principal(owner)) {
         ledger.put(owner, Option.get(ledger.get(owner), 0) + balance);
+        wtcBalance := wtcBalance + balance;
         cubesSupply := cubesSupply + balance;
         ?balance;
       };
@@ -157,7 +177,7 @@ shared actor class Cubic(init: T.Initialization) = this {
     }
   };
 
-  // Accept raw cycles
+  // Deposit raw cycles
   public shared({ caller }) func wallet_receive() : async Nat {
     let amount = Cycles.available();
     let accepted = Cycles.accept(amount);
@@ -165,6 +185,85 @@ shared actor class Cubic(init: T.Initialization) = this {
     ledger.put(caller, Option.get(ledger.get(caller), 0) + accepted);
     cubesSupply := cubesSupply + accepted;
     accepted;
+  };
+
+  // Accept raw cycles without issuing cubes
+  public shared func acceptCycles() : async () {
+    let amount = Cycles.available();
+    let accepted = Cycles.accept(amount);
+    assert(accepted > 0);
+  };
+
+  func _mintXtcUpTo(amount: Nat): async Bool {
+    if (xtcBalance >= amount) { return true };
+
+    // Ensure we have an extra 1BC of margin
+    let amountWithMargin = amount + TC / 1_000;
+    let rawBalance = Cycles.balance() - minimumCycleBalance;
+    if (rawBalance + xtcBalance < amountWithMargin) {
+      // Not enough liquidity
+      if (rawBalance + wtcBalance + xtcBalance < amountWithMargin) {
+        return false;
+      };
+
+      // burn difference from WTC
+      let wtcToBurn = amountWithMargin - xtcBalance - rawBalance;
+      if (not (await wtc.burn(wtcToBurn, acceptCycles))) {
+        Debug.print("burning WTC for XTC failed");
+        return false;
+      };
+
+      // Sync WTC balance
+      switch (await wtc.balance({ token = "WTC"; user = #principal(thisPrincipal()) })) {
+        case (#ok(balance)) {
+          wtcBalance := balance;
+        };
+        case _ {};
+      };
+    };
+
+    // mint difference to XTC
+    Cycles.add(amountWithMargin - xtcBalance);
+    switch (await xtc.mint(null)) {
+      case (#Err(error)) {
+        Debug.print("minting XTC failed: " # debug_show(error));
+        false;
+      };
+      case _ { true }
+    };
+  };
+
+  func _mintWtcUpTo(amount: Nat): async Bool {
+    if (wtcBalance >= amount) { return true };
+
+    // Ensure we have an extra 1BC of margin
+    let amountWithMargin = amount + TC / 1_000;
+    let rawBalance = Cycles.balance() - minimumCycleBalance;
+
+    if (rawBalance + wtcBalance < amountWithMargin) {
+      // Not enough liquidity
+      if (rawBalance + wtcBalance + wtcBalance < amountWithMargin) {
+        return false;
+      };
+
+      // burn difference from XTC
+      let xtcToBurn = amountWithMargin - wtcBalance - rawBalance;
+      switch (await xtc.burn({ amount = Nat64.fromNat(xtcToBurn); canister_id = thisPrincipal() })) {
+        case (#Err(error)) {
+          Debug.print("burning XTC for WTC failed: " # debug_show(error));
+          return false;
+        };
+        case _ {}
+      };
+
+      // Sync XTC balance
+      xtcBalance := Nat64.toNat(await xtc.balance(null));
+    };
+
+    // mint difference to WTC
+    Cycles.add(amountWithMargin - wtcBalance);
+    await wtc.mint(null);
+    true
   };
 
   // Sell cubes for cycles
@@ -175,9 +274,12 @@ shared actor class Cubic(init: T.Initialization) = this {
       return #err(#InsufficientBalance);
     };
 
-    ledger.put(caller, balance - request.amount);
     switch (request.asset) {
       case (#WTC) {
+        if (not (await _mintWtcUpTo(request.amount))) {
+          return #err(#InsufficientLiquidity);
+        };
+
         try {
           switch (await wtc.transfer({
             from = #principal(thisPrincipal());
@@ -191,15 +293,31 @@ shared actor class Cubic(init: T.Initialization) = this {
           })) {
             case (#ok(accepted)) {
               cubesSupply := cubesSupply - accepted;
+              ledger.put(caller, balance - accepted);
+
+              // Sync WTC balance
+              switch (await wtc.balance({ token = "WTC"; user = #principal(thisPrincipal()) })) {
+                case (#ok(balance)) {
+                  wtcBalance := balance;
+                };
+                case _ {};
+              };
+
               #ok
             };
             case (#err(transferError)) { #err(#WtcTransferError(transferError)) }
-          }
+          };
+
+
         } catch (error) {
           #err(makeError(error))
         }
       };
       case (#XTC) {
+        if (not (await _mintXtcUpTo(request.amount))) {
+          return #err(#InsufficientLiquidity);
+        };
+
         try {
           switch (await xtc.transfer({
             to = caller;
@@ -207,6 +325,11 @@ shared actor class Cubic(init: T.Initialization) = this {
           })) {
             case (#Ok(_)) {
               cubesSupply := cubesSupply - request.amount;
+              ledger.put(caller, balance - request.amount);
+
+              // Sync XTC balance
+              xtcBalance := Nat64.toNat(await xtc.balance(null));
+
               #ok
             };
             case (#Err(transferError)) { #err(#XtcTransferError(transferError)) }
@@ -309,6 +432,7 @@ shared actor class Cubic(init: T.Initialization) = this {
   // Run periodic events, eg. tax
   public shared func canister_heartbeat(): async () {
     ignore _tax();
+    ignore _refill();
   };
 
   system func preupgrade() {
@@ -388,6 +512,45 @@ shared actor class Cubic(init: T.Initialization) = this {
     lastTaxTimestamp := now;
 
     amount
+  };
+
+  /*
+    Ensure that we have at least 1TC in raw cycles by unwrapping
+  */
+  func _refill(): async () {
+    if (Cycles.balance() < minimumCycleBalance) {
+      let available = Option.get(ledger.get(thisPrincipal()), 0);
+      if (available == 0) {
+        Debug.print("no cubes balance, cannot refill");
+        return;
+      };
+
+      let wtcBalance = switch (await wtc.balance({ token = "WTC"; user = #principal(thisPrincipal()) })) {
+        case (#ok(balance)) { balance };
+        case _ { 0 };
+      };
+      let xtcBalance = Nat64.toNat(await xtc.balance(null));
+      if (wtcBalance == 0 and xtcBalance == 0) {
+        Debug.print("no WTC or XTC balance to refill from!");
+        return
+      };
+      if (wtcBalance > xtcBalance) {
+        let amount = Nat.min(TC, wtcBalance);
+        Debug.print("refilling from WTC, balance: " # debug_show(wtcBalance) # ", amount: " # debug_show(amount));
+        if (not (await wtc.burn(amount, acceptCycles))) {
+          Debug.print("refilling from WTC failed!");
+        }
+      } else {
+        let amount = Nat.min(TC, xtcBalance);
+        Debug.print("refilling from XTC, balance: " # debug_show(xtcBalance));
+        switch (await xtc.burn({ amount = Nat64.fromNat(amount); canister_id = thisPrincipal() })) {
+          case (#Err(error)) {
+            Debug.print("refilling from XTC failed: " # debug_show(error));
+          };
+          case _ {}
+        }
+      }
+    }
   };
 
 

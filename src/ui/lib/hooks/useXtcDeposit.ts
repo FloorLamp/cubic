@@ -19,7 +19,7 @@ export default function useXtcDeposit() {
       const result = await xtc.wallet_call({
         canister: Principal.fromText(canisterId),
         args: Array.from(encode([IDL.Principal], [principal])),
-        method_name: "depositWtc",
+        method_name: "depositXtc",
         cycles,
       });
       if ("Ok" in result) {

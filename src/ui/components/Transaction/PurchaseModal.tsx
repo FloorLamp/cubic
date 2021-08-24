@@ -74,19 +74,9 @@ export default function PurchaseModal({}: {}) {
             status.data &&
             (!isAuthed || hasSufficientBalance ? (
               <>
-                <div className="flex justify-between border-t border-b border-gray-300 py-4">
-                  <label>Current Price</label>
-                  <span>
-                    <strong>
-                      {formatNumber(status.data?.status.offerValue, 12)}
-                    </strong>{" "}
-                    <TokenLogo />
-                  </span>
-                </div>
-
-                <div className="pt-2">
+                <div>
                   <div className="w-full flex justify-between items-center">
-                    <label>Your Offer Price</label>
+                    <label>Set a new Offer Price</label>
                     <input
                       type="button"
                       className="text-xs px-2 py-1 cursor-pointer btn-secondary"
@@ -142,6 +132,35 @@ export default function PurchaseModal({}: {}) {
                       <FiChevronRight className="inline-block group-hover:translate-x-1 transform transition-transform duration-75" />
                     </a>
                   </Link>
+
+                  <div className="flex justify-between border-t border-gray-300 py-2 mt-2">
+                    <label>Current Price</label>
+                    <span>
+                      <strong>
+                        {formatNumber(status.data?.status.offerValue, 12)}
+                      </strong>{" "}
+                      <TokenLogo />
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between border-t border-b border-gray-300 py-2 mb-4">
+                    <strong>Total</strong>
+                    <div>
+                      <div className="text-right">
+                        <strong>
+                          {formatNumber(status.data?.status.offerValue, 12)}
+                        </strong>{" "}
+                        <TokenLogo />
+                      </div>
+                      <div className="text-right">
+                        <strong>
+                          {dailyTax ? formatNumber(dailyTax) : "—"}
+                        </strong>{" "}
+                        <TokenLogo />
+                        /day
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {error && <ErrorAlert>{error}</ErrorAlert>}

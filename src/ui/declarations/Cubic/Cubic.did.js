@@ -46,6 +46,7 @@ export const idlFactory = ({ IDL }) => {
     'InsufficientBalance' : IDL.Null,
     'XtcTransferError' : TransferError__1,
     'WtcTransferError' : TransferError,
+    'InsufficientLiquidity' : IDL.Null,
   });
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Error });
   const BlocksRequest = IDL.Record({
@@ -67,20 +68,11 @@ export const idlFactory = ({ IDL }) => {
     'owner' : IDL.Principal,
     'offerValue' : IDL.Nat,
   });
-  const Balance = IDL.Nat;
-  const CommonError_2 = IDL.Variant({
-    'InvalidToken' : TokenIdentifier,
-    'Other' : IDL.Text,
-  });
-  const BalanceResponse = IDL.Variant({
-    'ok' : Balance,
-    'err' : CommonError_2,
-  });
   const Info = IDL.Record({
     'stats' : IDL.Record({
       'foreclosureCount' : IDL.Nat,
       'transactionFee' : IDL.Nat,
-      'wtcBalance' : BalanceResponse,
+      'wtcBalance' : IDL.Nat,
       'feesCollected' : IDL.Nat,
       'lastTaxTimestamp' : IDL.Int,
       'transactionsCount' : IDL.Nat,
@@ -88,7 +80,7 @@ export const idlFactory = ({ IDL }) => {
       'cubesSupply' : IDL.Nat,
       'ownCubesBalance' : IDL.Nat,
       'annualTaxRate' : IDL.Nat,
-      'xtcBalance' : IDL.Nat64,
+      'xtcBalance' : IDL.Nat,
       'ownerCount' : IDL.Nat,
       'cyclesBalance' : IDL.Nat,
       'taxCollected' : IDL.Nat,
@@ -99,21 +91,23 @@ export const idlFactory = ({ IDL }) => {
     'principal' : IDL.Principal,
     'address' : AccountIdentifier,
   });
+  const Balance = IDL.Nat;
   const Memo = IDL.Vec(IDL.Nat8);
   const WithdrawRequest = IDL.Record({
     'asset' : IDL.Variant({ 'WTC' : IDL.Null, 'XTC' : IDL.Null }),
     'amount' : IDL.Nat,
   });
   const Cubic = IDL.Service({
+    'acceptCycles' : IDL.Func([], [], []),
     'art' : IDL.Func([], [IDL.Vec(Block)], ['query']),
     'balance' : IDL.Func([IDL.Opt(IDL.Principal)], [IDL.Nat], ['query']),
     'buy' : IDL.Func([IDL.Nat], [Result], []),
     'canister_heartbeat' : IDL.Func([], [], []),
-    'depositWtc' : IDL.Func([IDL.Principal], [IDL.Nat], []),
+    'depositXtc' : IDL.Func([IDL.Principal], [IDL.Nat], []),
     'getBlocks' : IDL.Func([BlocksRequest], [IDL.Vec(Block)], ['query']),
     'getHistory' : IDL.Func([], [IDL.Vec(Transfer)], ['query']),
     'getStatus' : IDL.Func([], [Status, IDL.Opt(Block)], ['query']),
-    'info' : IDL.Func([], [Info], []),
+    'info' : IDL.Func([], [Info], ['query']),
     'setCanisters' : IDL.Func([Canisters], [], []),
     'tokenTransferNotification' : IDL.Func(
         [TokenIdentifier, User, Balance, Memo],

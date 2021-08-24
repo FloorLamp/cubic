@@ -51,7 +51,7 @@ export default function InfoPage() {
           to 1 trillion cycles — the unit of compute that power the Internet
           Computer.
         </p>
-        <p>
+        <div>
           You can swap with:{" "}
           <ul className="list-disc pl-5">
             <li>
@@ -88,7 +88,7 @@ export default function InfoPage() {
               using cycles-wallet
             </li>
           </ul>
-        </p>
+        </div>
       </Panel>
     </div>
   );

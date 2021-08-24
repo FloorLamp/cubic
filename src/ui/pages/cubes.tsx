@@ -4,11 +4,13 @@ import { BsArrowDown } from "react-icons/bs";
 import { CgSpinner } from "react-icons/cg";
 import { UseQueryResult } from "react-query";
 import Select from "react-select";
+import IdentifierLabelWithButtons from "../components/Buttons/IdentifierLabelWithButtons";
 import SpinnerButton from "../components/Buttons/SpinnerButton";
 import Panel from "../components/Containers/Panel";
 import ErrorAlert from "../components/Labels/ErrorAlert";
 import { TokenLogo } from "../components/Labels/TokenLabel";
 import { useGlobalContext } from "../components/Store/Store";
+import { canisterId } from "../declarations/Cubic";
 import { useCubesBalance } from "../lib/hooks/useCubesBalance";
 import useWithdraw from "../lib/hooks/useWithdraw";
 import { useWtcBalance } from "../lib/hooks/useWtcBalance";
@@ -24,6 +26,7 @@ const Assets: { value: Asset; label: ReactNode }[] = [
     label: <img className="w-4" src="/img/XTC.svg" />,
   },
   { value: "WTC", label: null },
+  { value: "Cycles", label: null },
   {
     value: "CUBE",
     label: <TokenLogo />,
@@ -44,6 +47,7 @@ const setterWithValidation =
 
 type Side = "from" | "to";
 const AssetForm = ({
+  side,
   asset,
   setAsset,
   value,
@@ -51,6 +55,7 @@ const AssetForm = ({
   balanceQuery,
   canSetMax,
 }: {
+  side: Side;
   asset: Asset;
   setAsset: (arg: Asset) => void;
   value: string;
@@ -70,7 +75,9 @@ const AssetForm = ({
           })}
           onClick={() => canSetMax && onChangeValue(balance.toString())}
         >
-          {balanceQuery.isLoading ? (
+          {asset === "Cycles" ? (
+            "—"
+          ) : balanceQuery?.isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : balanceQuery.isSuccess ? (
             formatNumber(balanceQuery.data, 12)
@@ -91,20 +98,26 @@ const AssetForm = ({
             className="w-32 flex-none"
             formatOptionLabel={formatOptionLabel}
             onChange={({ value }) => setAsset(value as Asset)}
-            options={Assets.filter(({ value }) => value !== "CUBE")}
+            options={Assets.filter(
+              ({ value }) =>
+                value !== "CUBE" && (side === "to" ? value !== "Cycles" : true)
+            )}
             defaultValue={Assets.find(({ value }) => value === asset)}
           />
         )}
         <input
           type="text"
           name="cubes-amount"
-          className="py-1.5 text-right flex-1 w-full"
+          className={classNames("py-1.5 text-right flex-1 w-full", {
+            "bg-gray-100 text-gray-200": asset === "Cycles",
+          })}
           placeholder="Amount"
           value={value}
           onChange={(e) => onChangeValue(e.target.value)}
           min={0}
           maxLength={20}
           max={balance}
+          disabled={asset === "Cycles"}
         />
       </div>
     </div>
@@ -154,7 +167,7 @@ export default function Cubes() {
   const calculateAmount = (amount: number) => amount;
 
   useEffect(() => {
-    mutation.reset();
+    mutation?.reset();
   }, [fromAsset]);
 
   const sideRef = useRef<Side>(null);
@@ -187,7 +200,7 @@ export default function Cubes() {
 
   const switchSides = () => {
     setFromAsset(toAsset);
-    setToAsset(fromAsset);
+    setToAsset(fromAsset === "Cycles" ? "WTC" : fromAsset);
     sideRef.current = null;
     setFromValue(toValue);
     setToValue(fromValue);
@@ -224,6 +237,7 @@ export default function Cubes() {
           autoComplete="off"
         >
           <AssetForm
+            side="from"
             asset={fromAsset}
             balanceQuery={fromBalance}
             setAsset={setFromAsset}
@@ -235,29 +249,52 @@ export default function Cubes() {
             canSetMax={true}
           />
 
-          <div className="w-full flex justify-center">
-            <div
-              className="rounded-full border-gray-500 border w-10 h-10 flex justify-center items-center group cursor-pointer"
-              onClick={switchSides}
-            >
-              <BsArrowDown className="text-xl text-gray-500 transform transition-transform group-hover:-rotate-180 rotate-0" />
-            </div>
-          </div>
+          {fromAsset === "Cycles" ? (
+            <>
+              <div className="text-sm">
+                We recommend using WTC or XTC to buy CUBE. If you'd like to use
+                raw cycles, use the cycles wallet UI or dfx, and send the
+                desired amount to:
+                <div className="border border-gray-300 my-2 rounded-md p-2 text-xs">
+                  <IdentifierLabelWithButtons
+                    type="Principal"
+                    id={canisterId}
+                  />
+                </div>
+                The sending principal will be credited with CUBE.
+              </div>
+              <div className="text-xs text-gray-500 text-right">
+                1 TC = 1 CUBE
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="w-full flex justify-center">
+                <div
+                  className="rounded-full border-gray-500 border w-10 h-10 flex justify-center items-center group cursor-pointer"
+                  onClick={switchSides}
+                >
+                  <BsArrowDown className="text-xl text-gray-500 transform transition-transform group-hover:-rotate-180 rotate-0" />
+                </div>
+              </div>
 
-          <AssetForm
-            asset={toAsset}
-            balanceQuery={toBalance}
-            setAsset={setToAsset}
-            value={toValue}
-            onChangeValue={setterWithRef(
-              setterWithValidation(setToValue),
-              "to"
-            )}
-          />
+              <AssetForm
+                side="to"
+                asset={toAsset}
+                balanceQuery={toBalance}
+                setAsset={setToAsset}
+                value={toValue}
+                onChangeValue={setterWithRef(
+                  setterWithValidation(setToValue),
+                  "to"
+                )}
+              />
 
-          <div className="text-xs text-gray-500 text-right">
-            1 {fromAsset} = 1 {toAsset}
-          </div>
+              <div className="text-xs text-gray-500 text-right">
+                1 {fromAsset} = 1 {toAsset}
+              </div>
+            </>
+          )}
 
           {error && <ErrorAlert>{error}</ErrorAlert>}
 
@@ -265,7 +302,7 @@ export default function Cubes() {
             className="p-3 w-full"
             activeClassName="btn-cta cursor-pointer"
             disabledClassName="btn-cta-disabled"
-            isLoading={mutation.isLoading}
+            isLoading={mutation?.isLoading}
             isDisabled={!isAuthed || !fromValue || isInsufficient}
           >
             {isAuthed
@@ -274,7 +311,7 @@ export default function Cubes() {
                 : `Swap for ${toAsset}`
               : "Login to Buy Cubes"}
           </SpinnerButton>
-          {mutation.error && (
+          {mutation?.error && (
             <ErrorAlert>
               <pre className="w-full whitespace-pre-wrap text-xs break-all">
                 {mutation.error instanceof Error

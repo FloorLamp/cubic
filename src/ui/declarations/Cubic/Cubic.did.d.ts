@@ -1,8 +1,6 @@
 import type { Principal } from '@dfinity/principal';
 export type AccountIdentifier = string;
 export type Balance = bigint;
-export type BalanceResponse = { 'ok' : Balance } |
-  { 'err' : CommonError_2 };
 export interface Block {
   'id' : bigint,
   'totalValue' : bigint,
@@ -17,14 +15,13 @@ export interface BlocksRequest {
     { 'totalOwnedTime' : null },
 }
 export interface Canisters { 'wtc' : Principal, 'xtc' : Principal }
-export type CommonError_2 = { 'InvalidToken' : TokenIdentifier } |
-  { 'Other' : string };
 export interface Cubic {
+  'acceptCycles' : () => Promise<undefined>,
   'art' : () => Promise<Array<Block>>,
   'balance' : (arg_0: [] | [Principal]) => Promise<bigint>,
   'buy' : (arg_0: bigint) => Promise<Result>,
   'canister_heartbeat' : () => Promise<undefined>,
-  'depositWtc' : (arg_0: Principal) => Promise<bigint>,
+  'depositXtc' : (arg_0: Principal) => Promise<bigint>,
   'getBlocks' : (arg_0: BlocksRequest) => Promise<Array<Block>>,
   'getHistory' : () => Promise<Array<Transfer>>,
   'getStatus' : () => Promise<[Status, [] | [Block]]>,
@@ -44,7 +41,8 @@ export type Error = {
   } |
   { 'InsufficientBalance' : null } |
   { 'XtcTransferError' : TransferError__1 } |
-  { 'WtcTransferError' : TransferError };
+  { 'WtcTransferError' : TransferError } |
+  { 'InsufficientLiquidity' : null };
 export type ErrorCode = { 'canister_error' : null } |
   { 'system_transient' : null } |
   { 'future' : number } |
@@ -55,7 +53,7 @@ export interface Info {
   'stats' : {
     'foreclosureCount' : bigint,
     'transactionFee' : bigint,
-    'wtcBalance' : BalanceResponse,
+    'wtcBalance' : bigint,
     'feesCollected' : bigint,
     'lastTaxTimestamp' : bigint,
     'transactionsCount' : bigint,

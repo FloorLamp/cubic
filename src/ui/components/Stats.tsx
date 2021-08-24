@@ -2,15 +2,14 @@ import React from "react";
 import { CgSpinner } from "react-icons/cg";
 import { dateTimeFromNanos } from "../lib/datetime";
 import { useInfo } from "../lib/hooks/useInfo";
-import { extErrorToString, formatNumber, formatPercent } from "../lib/utils";
+import { formatNumber, formatPercent } from "../lib/utils";
 import IdentifierLabelWithButtons from "./Buttons/IdentifierLabelWithButtons";
 import Panel from "./Containers/Panel";
-import ErrorAlert from "./Labels/ErrorAlert";
 import { TimestampLabel } from "./Labels/TimestampLabel";
 import { TokenLogo } from "./Labels/TokenLabel";
 
 export function Stats() {
-  const { data, isLoading, error } = useInfo();
+  const { data } = useInfo();
 
   return (
     <>
@@ -20,7 +19,7 @@ export function Stats() {
           <label className="block text-gray-500 text-sm uppercase">
             Unique Owners
           </label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
@@ -33,7 +32,7 @@ export function Stats() {
           <label className="block text-gray-500 text-sm uppercase">
             Total Transaction Volume
           </label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
@@ -47,7 +46,7 @@ export function Stats() {
           <label className="block text-gray-500 text-sm uppercase">
             Transaction Count
           </label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
@@ -60,7 +59,7 @@ export function Stats() {
           <label className="block text-gray-500 text-sm uppercase">
             Foreclosure Count
           </label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
@@ -77,7 +76,7 @@ export function Stats() {
           <label className="block text-gray-500 text-sm uppercase">
             Transaction Fee
           </label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
@@ -90,7 +89,7 @@ export function Stats() {
           <label className="block text-gray-500 text-sm uppercase">
             Fees Collected
           </label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
@@ -104,7 +103,7 @@ export function Stats() {
           <label className="block text-gray-500 text-sm uppercase">
             Annual Tax Rate
           </label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
@@ -117,7 +116,7 @@ export function Stats() {
           <label className="block text-gray-500 text-sm uppercase">
             Tax Collected
           </label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
@@ -131,7 +130,7 @@ export function Stats() {
           <label className="block text-gray-500 text-sm uppercase">
             Last Tax Collection
           </label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : data.stats.lastTaxTimestamp > 0 ? (
             <span className="font-bold text-lg">
@@ -148,7 +147,7 @@ export function Stats() {
           <label className="block text-gray-500 text-sm uppercase">
             Treasury
           </label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
@@ -166,7 +165,7 @@ export function Stats() {
           <label className="block text-gray-500 text-sm uppercase">
             Total CUBE Supply
           </label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
@@ -180,16 +179,12 @@ export function Stats() {
           <label className="block text-gray-500 text-sm uppercase">
             WTC Balance
           </label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
-          ) : "ok" in data.stats.wtcBalance ? (
-            <span className="font-bold text-lg">
-              {formatNumber(Number(data.stats.wtcBalance.ok) / 1e12, 12)} WTC
-            </span>
           ) : (
-            <ErrorAlert>
-              {extErrorToString(data.stats.wtcBalance.err)}
-            </ErrorAlert>
+            <span className="font-bold text-lg">
+              {formatNumber(Number(data.stats.wtcBalance) / 1e12, 12)} WTC
+            </span>
           )}
         </div>
 
@@ -197,7 +192,7 @@ export function Stats() {
           <label className="block text-gray-500 text-sm uppercase">
             XTC Balance
           </label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
@@ -210,7 +205,7 @@ export function Stats() {
           <label className="block text-gray-500 text-sm uppercase">
             Cycles Balance
           </label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <span className="font-bold text-lg">
@@ -225,7 +220,7 @@ export function Stats() {
 
         <div>
           <label className="block text-gray-500 text-sm uppercase">WTC</label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <IdentifierLabelWithButtons
@@ -237,7 +232,7 @@ export function Stats() {
 
         <div>
           <label className="block text-gray-500 text-sm uppercase">XTC</label>
-          {isLoading ? (
+          {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
             <IdentifierLabelWithButtons
