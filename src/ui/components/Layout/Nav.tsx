@@ -1,11 +1,15 @@
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import React from "react";
 import { useCubesBalance } from "../../lib/hooks/useCubesBalance";
 import { formatNumber } from "../../lib/utils";
 import IdentifierLabelWithButtons from "../Buttons/IdentifierLabelWithButtons";
-import LoginButton from "../Buttons/LoginButton";
 import { TokenLabel } from "../Labels/TokenLabel";
 import { useGlobalContext } from "../Store/Store";
+
+const LoginButton = dynamic(() => import("../Buttons/LoginButton"), {
+  ssr: false,
+});
 
 export default function Nav() {
   const {

@@ -9,7 +9,7 @@ import SpinnerButton from "../components/Buttons/SpinnerButton";
 import Panel from "../components/Containers/Panel";
 import ErrorAlert from "../components/Labels/ErrorAlert";
 import { TokenLogo } from "../components/Labels/TokenLabel";
-import { useGlobalContext } from "../components/Store/Store";
+import { useGlobalContext, useLoginModal } from "../components/Store/Store";
 import { canisterId } from "../declarations/Cubic";
 import { useCubesBalance } from "../lib/hooks/useCubesBalance";
 import useWithdraw from "../lib/hooks/useWithdraw";
@@ -63,6 +63,9 @@ const AssetForm = ({
   balanceQuery: UseQueryResult<number>;
   canSetMax?: boolean;
 }) => {
+  const {
+    state: { isAuthed },
+  } = useGlobalContext();
   const balance = balanceQuery.isSuccess ? Number(balanceQuery.data) : 0;
 
   return (
@@ -75,7 +78,7 @@ const AssetForm = ({
           })}
           onClick={() => canSetMax && onChangeValue(balance.toString())}
         >
-          {asset === "Cycles" ? (
+          {!isAuthed || asset === "Cycles" ? (
             "—"
           ) : balanceQuery?.isLoading ? (
             <CgSpinner className="inline-block animate-spin" />
@@ -206,9 +209,15 @@ export default function Cubes() {
     setToValue(fromValue);
   };
 
+  const [_, setIsOpen] = useLoginModal();
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
+
+    if (!isAuthed) {
+      setIsOpen(true);
+      return;
+    }
 
     if (isNaN(fromAmount)) {
       setError("Invalid value");
@@ -303,7 +312,7 @@ export default function Cubes() {
             activeClassName="btn-cta cursor-pointer"
             disabledClassName="btn-cta-disabled"
             isLoading={mutation?.isLoading}
-            isDisabled={!isAuthed || !fromValue || isInsufficient}
+            isDisabled={isAuthed && (!fromValue || isInsufficient)}
           >
             {isAuthed
               ? isInsufficient

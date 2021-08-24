@@ -1,7 +1,7 @@
-import { HttpAgent, Identity } from "@dfinity/agent";
+import { HttpAgent, Identity, SignIdentity } from "@dfinity/agent";
 import { AuthClient } from "@dfinity/auth-client";
 import PlugConnect from "@psychedelic/plug-connect";
-// import { StoicIdentity } from "ic-stoic-identity";
+import { StoicIdentity } from "ic-stoic-identity";
 import React, { useEffect, useState } from "react";
 import { canisterId as CubicCanisterId } from "../../declarations/Cubic";
 import { canisterId as WtcCanisterId } from "../../declarations/wtc";
@@ -44,6 +44,7 @@ export default function LoginButton() {
     closeModal();
   };
 
+  const [showIILogin, setShowIILogin] = useState(false);
   const handleIILogin = async () => {
     authClient.login({
       identityProvider: IDENTITY_PROVIDER,
@@ -65,21 +66,21 @@ export default function LoginButton() {
     closeModal();
   };
 
-  // const handleStoicLogin = async () => {
-  //   StoicIdentity.load().then(async (identity: SignIdentity) => {
-  //     if (!identity) {
-  //       identity = await StoicIdentity.connect();
-  //     }
-  //     setAgent({
-  //       agent: new HttpAgent({
-  //         identity,
-  //         host: HOST,
-  //       }),
-  //       isAuthed: true,
-  //     });
-  //     closeModal();
-  //   });
-  // };
+  const handleStoicLogin = async () => {
+    StoicIdentity.load().then(async (identity: SignIdentity) => {
+      if (!identity) {
+        identity = await StoicIdentity.connect();
+      }
+      setAgent({
+        agent: new HttpAgent({
+          identity,
+          host: HOST,
+        }),
+        isAuthed: true,
+      });
+      closeModal();
+    });
+  };
 
   const handleLogout = async () => {
     if (await window?.ic?.plug?.isConnected()) {
@@ -128,29 +129,52 @@ export default function LoginButton() {
         openModal={openModal}
         closeModal={closeModal}
         title="Login"
-        className="w-52"
+        className="max-w-xs w-full"
       >
         <div className="flex flex-col items-stretch gap-4">
-          <button
-            className="flex items-center px-3 py-2 rounded-lg bg-white border-gray-300 border-2 hover:ring-2 hover:ring-opacity-50 hover:ring-indigo-500 hover:border-indigo-500"
-            onClick={handleIILogin}
-          >
-            <img src="/img/dfinity.png" className="w-4 mr-2" /> Internet
-            Identity
-          </button>
+          {showIILogin ? (
+            <div className="text-sm">
+              Internet Identity is not recommended due to difficulty in holding
+              balances across different apps.
+              <div className="flex mt-4 gap-2 leading-none">
+                <button
+                  className="flex-1 px-3 py-2 rounded-lg bg-gray-200 border-gray-300 border-2 hover:ring-2 hover:ring-opacity-50 hover:ring-indigo-500 hover:border-indigo-500"
+                  onClick={() => setShowIILogin(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="flex-1 flex justify-center items-center px-3 py-2 rounded-lg bg-white border-gray-300 border-2 hover:ring-2 hover:ring-opacity-50 hover:ring-indigo-500 hover:border-indigo-500"
+                  onClick={() => setShowIILogin(!showIILogin)}
+                >
+                  <img src="/img/dfinity.png" className="w-4 mr-2" /> Login
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <PlugConnect
+                whitelist={WHITELIST}
+                host={HOST}
+                onConnectCallback={handlePlugLogin}
+              />
 
-          <PlugConnect
-            whitelist={WHITELIST}
-            host={HOST}
-            onConnectCallback={handlePlugLogin}
-          />
+              <button
+                className="flex items-center px-3 py-2 rounded-lg bg-white border-gray-300 border-2 hover:ring-2 hover:ring-opacity-50 hover:ring-indigo-500 hover:border-indigo-500"
+                onClick={handleStoicLogin}
+              >
+                <img src="/img/stoic.png" className="w-4 mr-2" /> Stoic
+              </button>
 
-          {/* <button
-            className="flex items-center px-3 py-2 rounded-lg bg-white border-gray-300 border-2 hover:ring-2 hover:ring-opacity-50 hover:ring-indigo-500 hover:border-indigo-500"
-            onClick={handleStoicLogin}
-          >
-            <img src="/img/stoic.png" className="w-4 mr-2" /> Stoic
-          </button> */}
+              <button
+                className="flex items-center px-3 py-2 rounded-lg bg-white border-gray-300 border-2 hover:ring-2 hover:ring-opacity-50 hover:ring-indigo-500 hover:border-indigo-500"
+                onClick={() => setShowIILogin(!showIILogin)}
+              >
+                <img src="/img/dfinity.png" className="w-4 mr-2" /> Internet
+                Identity
+              </button>
+            </>
+          )}
         </div>
       </Modal>
     </>
