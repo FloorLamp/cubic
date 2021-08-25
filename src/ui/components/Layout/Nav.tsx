@@ -35,6 +35,10 @@ export default function Nav() {
         <Link href="/stats">
           <a className="hover:underline">Stats</a>
         </Link>
+
+        <Link href="/minter">
+          <a className="hover:underline">Cycles Minter</a>
+        </Link>
       </div>
       <div className="flex items-center gap-4">
         {principal && !principal.isAnonymous() && (

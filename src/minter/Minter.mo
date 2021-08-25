@@ -13,7 +13,16 @@ shared actor class Minter(canisters: {
 
   public type Request = {
     token: { #wtc; #xtc };
-    principal: Principal;
+    recipient: Principal;
+  };
+  public type Response = {
+    #NoRecipient;
+    #NoCyclesReceived;
+    #Ok: {
+      amount: Nat;
+      xtcTransactionId: ?Xtc.TransactionId;
+    };
+    #Err: Xtc.MintError;
   };
 
   let CYCLES_MINTER = Principal.fromText("rkp4c-7iaaa-aaaaa-aaaca-cai");
@@ -43,11 +52,11 @@ shared actor class Minter(canisters: {
     }
   };
 
-  public shared({ caller }) func close(): async Bool {
+  public shared({ caller }) func close(): async Response {
     assert(caller == controller);
 
-    let { principal; token } = switch (activeRequest) {
-      case null { return false };
+    let { recipient; token } = switch (activeRequest) {
+      case null { return #NoRecipient };
       case (?r) { r };
     };
 
@@ -57,25 +66,25 @@ shared actor class Minter(canisters: {
     } else {
       Debug.print("Closed without receiving cycles");
       activeRequest := null;
-      return false;
+      return #NoCyclesReceived;
     };
 
     Cycles.add(diff);
     let result = switch (token) {
       case (#wtc) {
-        await wtc.mint(?#principal(principal));
-        Debug.print("mint WTC success, amount=" # debug_show(diff) # ", principal=" # debug_show(principal));
-        true
+        await wtc.mint(?#principal(recipient));
+        Debug.print("mint WTC success, amount=" # debug_show(diff) # ", recipient=" # debug_show(recipient));
+        #Ok({ amount = diff; xtcTransactionId = null })
       };
       case (#xtc) {
-        switch (await xtc.mint(?principal)) {
+        switch (await xtc.mint(?recipient)) {
           case (#Err(error)) {
             Debug.print("minting XTC failed: " # debug_show(error));
-            false
+            #Err(error)
           };
-          case _ {
-            Debug.print("mint XTC success, amount=" # debug_show(diff) # ", principal=" # debug_show(principal));
-            true
+          case (#Ok(txId)) {
+            Debug.print("mint XTC success, amount=" # debug_show(diff) # ", recipient=" # debug_show(recipient));
+            #Ok({ amount = diff; xtcTransactionId = ?txId })
           }
         };
       };

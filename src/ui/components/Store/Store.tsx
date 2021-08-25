@@ -2,16 +2,23 @@ import { HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import React, { createContext, useContext, useReducer } from "react";
 import * as Cubic from "../../declarations/Cubic/index";
+import * as ledger from "../../declarations/ledger/index";
 import * as wtc from "../../declarations/wtc/index";
 import * as xtc from "../../declarations/xtc/index";
 import { defaultAgent } from "../../lib/canisters";
-import { CubicService, WtcService, XtcService } from "../../lib/types";
+import {
+  CubicService,
+  LedgerService,
+  WtcService,
+  XtcService,
+} from "../../lib/types";
 
 type State = {
   agent: HttpAgent;
   cubic: CubicService;
   xtc: XtcService;
   wtc: WtcService;
+  ledger: LedgerService;
   isAuthed: boolean;
   principal: Principal | null;
   showLoginModal: boolean;
@@ -22,6 +29,7 @@ const initialState: State = {
   cubic: Cubic.createActor(defaultAgent),
   xtc: xtc.createActor(defaultAgent),
   wtc: wtc.createActor(defaultAgent),
+  ledger: ledger.createActor(defaultAgent),
   isAuthed: false,
   principal: null,
   showLoginModal: false,
@@ -52,6 +60,7 @@ const reducer = (state: State, action: Action): State => {
         cubic: Cubic.createActor(agent),
         xtc: xtc.createActor(agent),
         wtc: wtc.createActor(agent),
+        ledger: ledger.createActor(agent),
         isAuthed: !!action.isAuthed,
       };
     case "SET_PRINCIPAL":
@@ -109,6 +118,11 @@ export const useXtc = () => {
 export const useWtc = () => {
   const context = useGlobalContext();
   return context.state.wtc;
+};
+
+export const useLedger = () => {
+  const context = useGlobalContext();
+  return context.state.ledger;
 };
 
 export const useSetAgent = () => {

@@ -4,6 +4,7 @@ import PlugConnect from "@psychedelic/plug-connect";
 import { StoicIdentity } from "ic-stoic-identity";
 import React, { useEffect, useState } from "react";
 import { canisterId as CubicCanisterId } from "../../declarations/Cubic";
+import { canisterId as LedgerCanisterId } from "../../declarations/ledger";
 import { canisterId as WtcCanisterId } from "../../declarations/wtc";
 import { canisterId as XtcCanisterId } from "../../declarations/xtc";
 import { HOST, IDENTITY_PROVIDER } from "../../lib/canisters";
@@ -19,7 +20,12 @@ declare global {
   }
 }
 
-const WHITELIST = [CubicCanisterId, XtcCanisterId, WtcCanisterId];
+const WHITELIST = [
+  process.env.NEXT_PUBLIC_DFX_NETWORK === "local" && LedgerCanisterId, // only request perms for ledger if local
+  CubicCanisterId,
+  XtcCanisterId,
+  WtcCanisterId,
+].filter(Boolean);
 
 export default function LoginButton() {
   const [isOpen, setIsOpen] = useLoginModal();
@@ -145,7 +151,7 @@ export default function LoginButton() {
                 </button>
                 <button
                   className="flex-1 flex justify-center items-center px-3 py-2 rounded-lg bg-white border-gray-300 border-2 hover:ring-2 hover:ring-opacity-50 hover:ring-indigo-500 hover:border-indigo-500"
-                  onClick={() => setShowIILogin(!showIILogin)}
+                  onClick={handleIILogin}
                 >
                   <img src="/img/dfinity.png" className="w-4 mr-2" /> Login
                 </button>

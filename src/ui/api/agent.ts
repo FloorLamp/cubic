@@ -1,8 +1,6 @@
 import { HttpAgent } from "@dfinity/agent";
 import { Ed25519KeyIdentity } from "@dfinity/identity";
-import { Principal } from "@dfinity/principal";
 import fetch from "node-fetch";
-import nacl from "tweetnacl";
 import { createActor as createActorCubic } from "../declarations/Cubic";
 import { createActor as createActorLedger } from "../declarations/ledger";
 import { createActor as createActorMinter } from "../declarations/Minter";
@@ -12,10 +10,7 @@ import logger from "./logger";
 
 let SECRET_KEY = process.env.SECRET_KEY;
 if (!SECRET_KEY) {
-  logger.error("SECRET_KEY is not set");
-  const kp = nacl.sign.keyPair();
-  SECRET_KEY = Buffer.from(kp.secretKey).toString("hex");
-  logger.info(`generated new key: ${SECRET_KEY}`);
+  logger.error("SECRET_KEY is not set!");
 }
 
 export const defaultAgent = new HttpAgent({
@@ -23,10 +18,13 @@ export const defaultAgent = new HttpAgent({
   host: HOST,
 });
 
-export let principal: Principal;
 defaultAgent.getPrincipal().then((pr) => {
-  principal = pr;
-  logger.info(`principal: ${pr.toText()}`);
+  const minterPrincipal = pr.toText();
+  if (process.env.NEXT_PUBLIC_MINTER_PRINCIPAL !== minterPrincipal) {
+    logger.error(
+      `NEXT_PUBLIC_MINTER_PRINCIPAL=${process.env.NEXT_PUBLIC_MINTER_PRINCIPAL} but we are using ${minterPrincipal}!`
+    );
+  }
 });
 
 export const cubic = createActorCubic(defaultAgent);

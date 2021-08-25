@@ -1,6 +1,17 @@
+type TransactionId = nat64;
+type Response = 
+ variant {
+   Err: MintError;
+   NoCyclesReceived;
+   NoRecipient;
+   Ok: record {
+         amount: nat;
+         xtcTransactionId: opt TransactionId;
+       };
+ };
 type Request = 
  record {
-   "principal": principal;
+   recipient: principal;
    token: variant {
             wtc;
             xtc;
@@ -8,10 +19,11 @@ type Request =
  };
 type Minter = 
  service {
-   close: () -> (bool);
+   close: () -> (Response);
    isActive: () -> (bool) query;
    open: (Request) -> (bool);
  };
+type MintError = variant {NotSufficientLiquidity;};
 service : (record {
              controller: principal;
              wtc: principal;
