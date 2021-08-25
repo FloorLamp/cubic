@@ -4,6 +4,10 @@
       "main": "src/cubic/Cubic.mo",
       "type": "motoko"
     },
+    "Minter": {
+      "main": "src/minter/Minter.mo",
+      "type": "motoko"
+    },
     "cubic_assets": {
       "dependencies": ["cubic"],
       "frontend": {

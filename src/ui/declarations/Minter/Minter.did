@@ -1,0 +1,19 @@
+type Request = 
+ record {
+   "principal": principal;
+   token: variant {
+            wtc;
+            xtc;
+          };
+ };
+type Minter = 
+ service {
+   close: () -> (bool);
+   isActive: () -> (bool) query;
+   open: (Request) -> (bool);
+ };
+service : (record {
+             controller: principal;
+             wtc: principal;
+             xtc: principal;
+           }) -> Minter

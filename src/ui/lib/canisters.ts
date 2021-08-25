@@ -12,3 +12,5 @@ export const IDENTITY_PROVIDER = process.env.IDENTITY_CANISTER_ID
 export const defaultAgent = new HttpAgent({
   host: HOST,
 });
+
+export const cyclesMintingCanisterId = "rkp4c-7iaaa-aaaaa-aaaca-cai";

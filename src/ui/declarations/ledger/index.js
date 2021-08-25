@@ -1,13 +1,13 @@
 import { Actor } from "@dfinity/agent";
 
 // Imports and re-exports candid interface
-import { idlFactory } from "./wtc.did.js";
-export { idlFactory } from "./wtc.did.js";
-export const canisterId = process.env.WTC_CANISTER_ID;
+import { idlFactory } from "./ledger.did.js";
+export { idlFactory } from "./ledger.did.js";
+export const canisterId = "ryjl3-tyaaa-aaaaa-aaaba-cai";
 
 /**
  * @param {{agent: import("@dfinity/agent").HttpAgent}} [options]
- * @return {import("@dfinity/agent").ActorSubclass<import("./wtc.did.js")._SERVICE>}
+ * @return {import("@dfinity/agent").ActorSubclass<import("./ledger.did.js")._SERVICE>}
  */
 export const createActor = (agent) => {
   // Fetch root key for certificate validation during development

@@ -1,10 +1,19 @@
+console.log(`NEXT_PUBLIC_DFX_NETWORK=${process.env.NEXT_PUBLIC_DFX_NETWORK}`);
+
+const MINTER_CANISTER_ID =
+  process.env.NEXT_PUBLIC_DFX_NETWORK === "local"
+    ? require("../../.dfx/local/canister_ids.json").Minter.local
+    : process.env.NEXT_PUBLIC_DFX_NETWORK === "staging"
+    ? require("../../canister_ids.json").staging.ic
+    : require("../../canister_ids.json").Minter.ic;
+console.log(`MINTER_CANISTER_ID=${MINTER_CANISTER_ID}`);
+
 const CUBIC_CANISTER_ID =
   process.env.NEXT_PUBLIC_DFX_NETWORK === "local"
     ? require("../../.dfx/local/canister_ids.json").Cubic.local
     : process.env.NEXT_PUBLIC_DFX_NETWORK === "staging"
     ? require("../../canister_ids.json").staging.ic
     : require("../../canister_ids.json").Cubic.ic;
-console.log(`NEXT_PUBLIC_DFX_NETWORK=${process.env.NEXT_PUBLIC_DFX_NETWORK}`);
 console.log(`CUBIC_CANISTER_ID=${CUBIC_CANISTER_ID}`);
 
 const IDENTITY_CANISTER_ID =
@@ -27,6 +36,7 @@ console.log(`WTC_CANISTER_ID=${WTC_CANISTER_ID}`);
 
 module.exports = {
   env: {
+    MINTER_CANISTER_ID,
     CUBIC_CANISTER_ID,
     IDENTITY_CANISTER_ID,
     XTC_CANISTER_ID,

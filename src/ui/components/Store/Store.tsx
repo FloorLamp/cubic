@@ -19,9 +19,9 @@ type State = {
 
 const initialState: State = {
   agent: defaultAgent,
-  cubic: Cubic.createActor(Cubic.canisterId, defaultAgent),
-  xtc: xtc.createActor(xtc.canisterId, defaultAgent),
-  wtc: wtc.createActor(wtc.canisterId, defaultAgent),
+  cubic: Cubic.createActor(defaultAgent),
+  xtc: xtc.createActor(defaultAgent),
+  wtc: wtc.createActor(defaultAgent),
   isAuthed: false,
   principal: null,
   showLoginModal: false,
@@ -49,9 +49,9 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         agent,
-        cubic: Cubic.createActor(Cubic.canisterId, agent),
-        xtc: xtc.createActor(xtc.canisterId, agent),
-        wtc: wtc.createActor(wtc.canisterId, agent),
+        cubic: Cubic.createActor(agent),
+        xtc: xtc.createActor(agent),
+        wtc: wtc.createActor(agent),
         isAuthed: !!action.isAuthed,
       };
     case "SET_PRINCIPAL":
