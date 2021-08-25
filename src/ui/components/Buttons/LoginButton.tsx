@@ -15,7 +15,36 @@ import { useGlobalContext, useLoginModal, useSetAgent } from "../Store/Store";
 declare global {
   interface Window {
     ic: {
-      plug: any;
+      plug: {
+        agent: any;
+        isConnected: () => Promise<boolean>;
+        createAgent: (args?: {
+          whitelist: string[];
+          host?: string;
+        }) => Promise<undefined>;
+        requestBalance: () => Promise<
+          Array<{
+            amount: number;
+            canisterId: string | null;
+            image: string;
+            name: string;
+            symbol: string;
+            value: number | null;
+          }>
+        >;
+        requestTransfer: (arg: {
+          to: string;
+          amount: number;
+          opts?: {
+            fee?: number;
+            memo?: number;
+            from_subaccount?: number;
+            created_at_time?: {
+              timestamp_nanos: number;
+            };
+          };
+        }) => Promise<{ height: number }>;
+      };
     };
   }
 }

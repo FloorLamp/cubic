@@ -14,9 +14,11 @@ import {
   padSubaccountArray,
 } from "../lib/accounts";
 import { FEE_AMOUNT } from "../lib/constants";
+import { useCyclesPerIcp } from "../lib/hooks/useCyclesPerIcp";
 import { useIcpBalance } from "../lib/hooks/useIcpBalance";
 import useIcpTransfer from "../lib/hooks/useIcpTransfer";
-import useMinter from "../lib/hooks/useMinter";
+import useMint from "../lib/hooks/useMint";
+import { useMinterIsAvailable } from "../lib/hooks/useMinter";
 import { useWtcBalance } from "../lib/hooks/useWtcBalance";
 import { useXtcBalance } from "../lib/hooks/useXtcBalance";
 import { Asset, WrappedTcAsset } from "../lib/types";
@@ -146,6 +148,8 @@ export default function Minter() {
   const icpBalance = useIcpBalance();
   const xtcBalance = useXtcBalance();
   const wtcBalance = useWtcBalance();
+  const cyclesPerIcp = useCyclesPerIcp();
+  const { data: minterIsAvailable } = useMinterIsAvailable();
 
   const [cycleToken, setCycleToken] = useState<WrappedTcAsset>(
     Assets[0].value as WrappedTcAsset
@@ -161,15 +165,13 @@ export default function Minter() {
   }, [principal]);
 
   const [error, setError] = useState("");
-  const mutation = useMinter({ token: cycleToken, recipient });
+  const mutation = useMint({ token: cycleToken, recipient });
 
   const cycleBalance = cycleToken === "XTC" ? xtcBalance : wtcBalance;
 
   const max = icpBalance?.isSuccess ? Number(icpBalance.data) : 0;
   const icpAmount = Number(icpInput);
   const isInsufficient = !isNaN(icpAmount) && icpAmount > max;
-
-  const tcPerIcp = 60;
 
   const inputRef = useRef<Side>(null);
   const setterWithRef =
@@ -180,8 +182,12 @@ export default function Minter() {
   useEffect(() => {
     if (icpInput) {
       const icpAmount = Number(icpInput);
-      if (inputRef.current === "from" && !isNaN(icpAmount)) {
-        setCycleInput((icpAmount * tcPerIcp).toString());
+      if (
+        cyclesPerIcp.data &&
+        inputRef.current === "from" &&
+        !isNaN(icpAmount)
+      ) {
+        setCycleInput((icpAmount * cyclesPerIcp.data).toString());
       }
     } else {
       setCycleInput("");
@@ -191,8 +197,12 @@ export default function Minter() {
   useEffect(() => {
     if (cycleInput) {
       const cycleAmount = Number(cycleInput);
-      if (inputRef.current === "to" && !isNaN(cycleAmount)) {
-        setIcpInput((cycleAmount / tcPerIcp).toString());
+      if (
+        cyclesPerIcp.data &&
+        inputRef.current === "to" &&
+        !isNaN(cycleAmount)
+      ) {
+        setIcpInput((cycleAmount / cyclesPerIcp.data).toString());
       }
     } else {
       setIcpInput("");
@@ -309,7 +319,7 @@ export default function Minter() {
           />
 
           <div className="text-xs text-gray-500 text-right">
-            1 ICP = {tcPerIcp} Trillion Cycles
+            1 ICP ≈ {cyclesPerIcp.data || "—"} Trillion Cycles
           </div>
 
           {error && <ErrorAlert>{error}</ErrorAlert>}
@@ -319,11 +329,16 @@ export default function Minter() {
             activeClassName="btn-cta cursor-pointer"
             disabledClassName="btn-cta-disabled"
             isLoading={transfer.isLoading || mutation.isLoading}
-            isDisabled={isAuthed && (!icpInput || isInsufficient || !recipient)}
+            isDisabled={
+              isAuthed &&
+              (!icpInput || isInsufficient || !recipient || !minterIsAvailable)
+            }
           >
             {isAuthed
               ? isInsufficient
                 ? `Insufficient balance`
+                : !minterIsAvailable
+                ? "Please wait..."
                 : `Swap for ${cycleToken}`
               : "Login to Mint Cycles"}
           </SpinnerButton>

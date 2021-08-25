@@ -12,14 +12,14 @@ export default function useIcpTransfer() {
   return useMutation(
     "icpTransfer",
     async ({ amount, toAccount }: { amount: bigint; toAccount: string }) => {
+      const amountMinusFees = amount - FEE_AMOUNT;
+      if (amountMinusFees <= BigInt(0)) {
+        throw "Insufficient balance";
+      }
       if (
         !window?.ic?.plug?.agent ||
         process.env.NEXT_PUBLIC_DFX_NETWORK === "local"
       ) {
-        const amountMinusFees = amount - FEE_AMOUNT;
-        if (amountMinusFees <= BigInt(0)) {
-          throw "Insufficient balance";
-        }
         const height = await ledger.send_dfx({
           to: toAccount,
           amount: { e8s: amountMinusFees },
@@ -30,7 +30,11 @@ export default function useIcpTransfer() {
         });
         return height;
       } else {
-        // window?.ic?.plug?.requestTransfer
+        const { height } = await window?.ic?.plug?.requestTransfer({
+          to: toAccount,
+          amount: Number(amountMinusFees),
+        });
+        return height;
       }
     },
     {

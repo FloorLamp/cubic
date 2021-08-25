@@ -1,48 +1,20 @@
-import { useMutation, useQueryClient } from "react-query";
-import { useGlobalContext } from "../../components/Store/Store";
-import { WrappedTcAsset } from "../types";
+import { useQuery } from "react-query";
+import * as Minter from "../../declarations/Minter/index";
+import { defaultAgent } from "../canisters";
 
-export default function useMinter({
-  token,
-  recipient,
-}: {
-  token: WrappedTcAsset;
-  recipient: string;
-}) {
-  const queryClient = useQueryClient();
-  const {
-    state: { principal },
-  } = useGlobalContext();
+const minter = Minter.createActor(defaultAgent);
 
-  return useMutation(
-    "mint",
+export const useMinterIsAvailable = () => {
+  return useQuery(
+    "minterIsActive",
     async () => {
-      const res = await fetch("/api/mint", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token,
-          recipient,
-        }),
-      });
-      return await res.json();
+      const result = await minter.isActive();
+      return !result;
     },
     {
-      onError: (data) => {
-        console.warn(data);
-      },
-      onSuccess: async (data) => {
-        console.log(data);
-
-        queryClient.resetQueries(["icpBalance", principal.toText()]);
-        if (token === "WTC") {
-          queryClient.resetQueries("wtcBalance");
-        } else {
-          queryClient.resetQueries("xtcBalance");
-        }
-      },
+      keepPreviousData: true,
+      placeholderData: true,
+      refetchInterval: 1000,
     }
   );
-}
+};

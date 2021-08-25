@@ -21,8 +21,22 @@ export const useIcpBalance = (user_?: Principal) => {
   return useQuery(
     ["icpBalance", user?.toText()],
     async () => {
-      const result = await ledger.account_balance_dfx({ account });
-      return Number(result.e8s) / 1e8;
+      if (
+        window?.ic?.plug?.agent &&
+        process.env.NEXT_PUBLIC_DFX_NETWORK !== "local"
+      ) {
+        const result = await window.ic.plug.requestBalance();
+        const balance = result.find(({ symbol }) => symbol === "ICP");
+        if (balance) {
+          return balance.amount;
+        } else {
+          console.log(result);
+          throw "ICP balance not found";
+        }
+      } else {
+        const result = await ledger.account_balance_dfx({ account });
+        return Number(result.e8s) / 1e8;
+      }
     },
     {
       enabled: !!user,

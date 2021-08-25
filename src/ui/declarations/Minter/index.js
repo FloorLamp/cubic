@@ -1,8 +1,8 @@
 import { Actor } from "@dfinity/agent";
 
 // Imports and re-exports candid interface
-import { idlFactory } from "./minter.did.js";
-export { idlFactory } from "./minter.did.js";
+import { idlFactory } from "./Minter.did.js";
+export { idlFactory } from "./Minter.did.js";
 export const canisterId = process.env.MINTER_CANISTER_ID;
 
 /**
