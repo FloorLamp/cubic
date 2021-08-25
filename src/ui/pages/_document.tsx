@@ -10,7 +10,7 @@ export default class MyDocument extends Document {
       <Html>
         <Head>
           <meta name="description" content={fullTitle} />
-          <link rel="icon" href="/img/dfinity.png" />
+          <link rel="icon" href="/img/cubic.svg" />
           <meta property="og:type" content="website" />
           <meta name="title" content={fullTitle} />
           <meta property="og:title" content={fullTitle} />

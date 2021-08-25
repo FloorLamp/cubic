@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 141.65 163.43">
+    <defs>
+        <style>
+            .a {
+                isolation: isolate;
+            }
+
+            .b {
+                fill: #0071bc;
+            }
+
+            .c {
+                fill: #2e3192;
+            }
+
+            .d {
+                fill: #3fa9f5;
+            }
+        </style>
+    </defs>
+    <g class="a">
+        <polygon class="b" points="71.17 81.92 70.94 163.43 0 122.47 0.23 40.96 71.17 81.92" />
+        <polygon class="c" points="71.17 81.92 141.65 40.96 141.42 122.47 70.94 163.43 71.17 81.92" />
+        <polygon class="d" points="0.23 40.96 70.71 0 141.65 40.96 71.17 81.92 0.23 40.96" />
+    </g>
+</svg>

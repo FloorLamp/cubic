@@ -51,7 +51,7 @@ export default function Nav() {
             />
 
             <Link href={`/cubes`}>
-              <a className="text-right hover:underline">
+              <a className="justify-end hover:underline inline-flex items-center">
                 <strong>
                   {cubesBalance.isSuccess
                     ? formatNumber(cubesBalance.data)

@@ -185,7 +185,7 @@ export default function PurchaseModal({}: {}) {
                   <label className="block text-gray-500 text-xs uppercase">
                     Current offer price
                   </label>
-                  <h2 className="text-xl font-bold">
+                  <h2 className="text-xl font-bold inline-flex items-center">
                     {formatNumber(status.data?.status.offerValue, 12)}{" "}
                     <TokenLabel />
                   </h2>
@@ -194,7 +194,7 @@ export default function PurchaseModal({}: {}) {
                   <label className="block text-gray-500 text-xs uppercase">
                     Your balance
                   </label>
-                  <h2 className="text-xl font-bold">
+                  <h2 className="text-xl font-bold inline-flex items-center">
                     {formatNumber(cubesBalance.data, 12)} <TokenLabel />
                   </h2>
                 </div>

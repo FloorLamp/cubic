@@ -36,10 +36,10 @@ export default function InfoPage() {
             ` (currently ${formatPercent(
               Number(data.stats.annualTaxRate) / 1e8
             )} annual)`}
-          , which is deducted automatically from your <TokenLabel /> balance.
+          , which is deducted automatically from your CUBE balance.
         </p>
         <p>
-          If you don't have enough <TokenLabel /> to pay tax, your Cubic will be{" "}
+          If you don't have enough CUBE to pay tax, your Cubic will be{" "}
           <strong>foreclosed</strong>! You will forfeit ownership and anyone
           will be able to purchase it at the starting price.
         </p>
@@ -47,8 +47,8 @@ export default function InfoPage() {
           <TokenLabel />
         </h3>
         <p>
-          You will need <TokenLabel /> to make purchases. 1 CUBE is equivalent
-          to 1 trillion cycles — the unit of compute that power the Internet
+          You will need CUBE to make purchases. 1 CUBE is equivalent to 1
+          trillion cycles — the unit of compute that power the Internet
           Computer.
         </p>
         <div>

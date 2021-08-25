@@ -35,7 +35,7 @@ export function Stats() {
           {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
-            <span className="font-bold text-lg">
+            <span className="font-bold text-lg inline-flex items-center">
               {formatNumber(Number(data.stats.salesTotal) / 1e12, 12)}{" "}
               <TokenLogo />
             </span>
@@ -92,7 +92,7 @@ export function Stats() {
           {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
-            <span className="font-bold text-lg">
+            <span className="font-bold text-lg inline-flex items-center">
               {formatNumber(Number(data.stats.feesCollected) / 1e12, 12)}{" "}
               <TokenLogo />
             </span>
@@ -119,7 +119,7 @@ export function Stats() {
           {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
-            <span className="font-bold text-lg">
+            <span className="font-bold text-lg inline-flex items-center">
               {formatNumber(Number(data.stats.taxCollected) / 1e12, 12)}{" "}
               <TokenLogo />
             </span>
@@ -150,7 +150,7 @@ export function Stats() {
           {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
-            <span className="font-bold text-lg">
+            <span className="font-bold text-lg inline-flex items-center">
               {formatNumber(Number(data.stats.ownCubesBalance) / 1e12, 12)}{" "}
               <TokenLogo />
             </span>
@@ -168,7 +168,7 @@ export function Stats() {
           {!data ? (
             <CgSpinner className="inline-block animate-spin" />
           ) : (
-            <span className="font-bold text-lg">
+            <span className="font-bold text-lg inline-flex items-center">
               {formatNumber(Number(data.stats.cubesSupply) / 1e12, 12)}{" "}
               <TokenLogo />
             </span>

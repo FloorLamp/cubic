@@ -108,7 +108,7 @@ export function CurrentStatus() {
         ) : (
           data && (
             <h2>
-              <strong>
+              <strong className="inline-flex items-center">
                 {formatNumber(data.status.offerValue, 12)} <TokenLogo />
               </strong>{" "}
               {dailyTax > 0 && !isForeclosed && (
