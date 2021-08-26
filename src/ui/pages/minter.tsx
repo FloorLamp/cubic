@@ -9,24 +9,24 @@ import SpinnerButton from "../components/Buttons/SpinnerButton";
 import Panel from "../components/Containers/Panel";
 import ErrorAlert from "../components/Labels/ErrorAlert";
 import { useGlobalContext, useLoginModal } from "../components/Store/Store";
-import {
-  accountIdentifierFromSubaccount,
-  padSubaccountArray,
-} from "../lib/accounts";
 import { FEE_AMOUNT } from "../lib/constants";
 import { useCyclesPerIcp } from "../lib/hooks/useCyclesPerIcp";
 import { useIcpBalance } from "../lib/hooks/useIcpBalance";
 import useIcpTransfer from "../lib/hooks/useIcpTransfer";
 import useMint from "../lib/hooks/useMint";
 import { useMinterIsAvailable } from "../lib/hooks/useMinter";
+import { useMinterIcpBalance } from "../lib/hooks/useMinterIcpBalance";
 import { useWtcBalance } from "../lib/hooks/useWtcBalance";
 import { useXtcBalance } from "../lib/hooks/useXtcBalance";
+import { accountForRecipient } from "../lib/minter";
 import { Asset, WrappedTcAsset } from "../lib/types";
 import { formatNumber } from "../lib/utils";
 
 if (!process.env.NEXT_PUBLIC_MINTER_PRINCIPAL) {
   throw "NEXT_PUBLIC_MINTER_PRINCIPAL not set!";
 }
+
+const ICP_MINIMUM = Number(FEE_AMOUNT * BigInt(3)) / 1e8;
 
 type Side = "from" | "to";
 const Assets: { value: Asset; label: ReactNode }[] = [
@@ -52,20 +52,6 @@ const formatOptionLabel = ({ value, label }) => {
 const setterWithValidation =
   (setter: (arg: string) => void) => (value: string) =>
     /^[0-9.]*$/.test(value) && setter(value);
-
-const accountIdForRecipient = (recipient: Principal) => {
-  const userSubaccount = padSubaccountArray(
-    Array.from(recipient.toUint8Array())
-  );
-  return accountIdentifierFromSubaccount(
-    Buffer.from(
-      Principal.fromText(
-        process.env.NEXT_PUBLIC_MINTER_PRINCIPAL
-      ).toUint8Array()
-    ),
-    Buffer.from(userSubaccount)
-  );
-};
 
 const AssetForm = ({
   asset,
@@ -209,6 +195,15 @@ export default function Minter() {
     }
   }, [cycleInput]);
 
+  const { data: pendingIcp } = useMinterIcpBalance(recipient);
+  useEffect(() => {
+    if (pendingIcp > ICP_MINIMUM && minterIsAvailable && !mutation.isLoading) {
+      console.log("found pending balance, attempting mint...");
+
+      mutation.mutate();
+    }
+  }, [pendingIcp, minterIsAvailable]);
+
   const transfer = useIcpTransfer();
 
   const [_, setIsOpen] = useLoginModal();
@@ -230,9 +225,7 @@ export default function Minter() {
     }
     const amount = BigInt(Math.round(icpAmount * 1e8));
     if (amount <= FEE_AMOUNT * BigInt(3)) {
-      setError(
-        `The minimum amount is ${Number(FEE_AMOUNT * BigInt(3)) / 1e8} ICP`
-      );
+      setError(`Amount must be greater than ${ICP_MINIMUM} ICP`);
       return;
     }
 
@@ -243,32 +236,30 @@ export default function Minter() {
       setError("Invalid recipient");
       return;
     }
-    const toAccount = accountIdForRecipient(recipientPrincipal);
-    console.log(`transfer ICP amount=${amount}, account=${toAccount}`);
+    const { accountId } = accountForRecipient(recipientPrincipal);
+    console.log(`transfer ICP amount=${amount}, account=${accountId}`);
 
     try {
       const blockHeight = await transfer.mutateAsync({
         amount,
-        toAccount,
+        toAccount: accountId,
       });
       console.log(`deposit success: block height ${blockHeight}`);
     } catch (error) {
       console.warn(`deposit failed: ${error.message}`);
       return;
     }
-
-    mutation.mutate(null, {
-      onSuccess: () => {
-        setIcpInput("");
-        setCycleInput("");
-      },
-    });
   };
 
   return (
     <div className="flex justify-center my-16">
       <Panel className="max-w-xs w-full p-4">
         <h1 className="text-xl mb-4">Mint Cycles</h1>
+        <p className="text-sm mb-4">
+          Mint wrapped cycles from ICP.
+          <br />
+          This is a one way operation.
+        </p>
         <form
           onSubmit={handleSubmit}
           className="flex flex-col gap-4"
@@ -323,6 +314,19 @@ export default function Minter() {
           </div>
 
           {error && <ErrorAlert>{error}</ErrorAlert>}
+
+          {pendingIcp > 0 && (
+            <div className="border border-gray-300 rounded-md px-2 py-1 flex justify-between text-sm">
+              <label className="text-gray-500">Pending Mint</label>
+              <div
+                className={classNames({
+                  "text-gray-300": pendingIcp <= ICP_MINIMUM,
+                })}
+              >
+                {pendingIcp} ICP
+              </div>
+            </div>
+          )}
 
           <SpinnerButton
             className="p-3 w-full"

@@ -9,10 +9,10 @@ import { canisterId as minterCanisterId } from "../../declarations/Minter";
 import {
   accountIdentifierFromSubaccount,
   makeCanisterIdSubaccount,
-  padSubaccountArray,
 } from "../../lib/accounts";
 import { cyclesMintingCanisterId } from "../../lib/canisters";
 import { FEE_AMOUNT } from "../../lib/constants";
+import { accountForRecipient } from "../../lib/minter";
 import { stringify } from "../../lib/utils";
 
 const cors = Cors({
@@ -69,24 +69,18 @@ export default async function mintRequest(
   }
 
   // User-specific account to deposit ICP to
-  const userSubaccount = padSubaccountArray(
-    Array.from(recipient.toUint8Array())
-  );
-  const userAccount = accountIdentifierFromSubaccount(
-    Buffer.from(minterPrincipal.toUint8Array()),
-    Buffer.from(userSubaccount)
-  );
+  const { subaccount, accountId } = accountForRecipient(recipient);
 
   // Ensure balance is greater than tx fee
   let balance: ICPTs;
   try {
-    balance = await ledger.account_balance_dfx({ account: userAccount });
+    balance = await ledger.account_balance_dfx({ account: accountId });
   } catch (error) {
     logger.warn(error.message);
     res.status(500).json({ error: "Failed to fetch balance" });
     return;
   }
-  logger.info(`userAccount=${userAccount}, balance=${balance.e8s}`);
+  logger.info(`accountId=${accountId}, balance=${balance.e8s}`);
 
   // We need to make 2 transfers: 1 to cycles minter, 1 to notify
   const amountMinusFee = balance.e8s - BigInt(2) * FEE_AMOUNT;
@@ -105,7 +99,7 @@ export default async function mintRequest(
       amount: { e8s: amountMinusFee },
       fee,
       memo: BigInt("1347768404"), // TPUP
-      from_subaccount: [userSubaccount],
+      from_subaccount: [subaccount],
       created_at_time: [],
     });
   } catch (error) {
@@ -137,7 +131,7 @@ export default async function mintRequest(
     await ledger.notify_dfx({
       block_height: blockHeight,
       max_fee: fee,
-      from_subaccount: [userSubaccount],
+      from_subaccount: [subaccount],
       to_canister: Principal.fromText(cyclesMintingCanisterId),
       to_subaccount: [minterSubaccount],
     });

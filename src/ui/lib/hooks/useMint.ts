@@ -31,10 +31,10 @@ export default function useMint({
     },
     {
       onError: (data) => {
-        console.warn(data);
+        console.warn("mint error", data);
       },
       onSuccess: async (data) => {
-        console.log(data);
+        console.log("mint success", data);
 
         queryClient.resetQueries(["icpBalance", principal.toText()]);
         if (token === "WTC") {
