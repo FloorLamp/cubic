@@ -8,15 +8,21 @@ import { shortPrincipal } from "../../lib/utils";
 import { TimestampLabel } from "../Labels/TimestampLabel";
 import { TokenLogo } from "../Labels/TokenLabel";
 
-export const PurchaseNotification = ({ status }: { status: ParsedStatus }) => {
-  const isForeclosure = status.status.owner.toText() === canisterId;
+export const PurchaseNotification = ({
+  purchaser,
+  myPurchase,
+}: {
+  purchaser: ParsedStatus;
+  myPurchase: ParsedStatus;
+}) => {
+  const isForeclosure = purchaser.status.owner.toText() === canisterId;
 
   return (
     <div className="flex items-start">
       <div
         className="w-6 h-6 mr-2 flex items-center justify-center"
         style={
-          !isForeclosure ? { backgroundColor: blockColor(status.block) } : {}
+          !isForeclosure ? { backgroundColor: blockColor(purchaser.block) } : {}
         }
       >
         {isForeclosure && (
@@ -28,18 +34,20 @@ export const PurchaseNotification = ({ status }: { status: ParsedStatus }) => {
           {isForeclosure ? (
             <span className="text-red-500">Foreclosed</span>
           ) : (
-            shortPrincipal(status.status.owner)
+            shortPrincipal(purchaser.status.owner)
           )}
         </strong>
 
         {isForeclosure ? (
           <TimestampLabel
-            dt={dateTimeFromNanos(status.status.offerTimestamp)}
+            dt={dateTimeFromNanos(purchaser.status.offerTimestamp)}
           />
         ) : (
           <span>
             Purchased Cubic from you for{" "}
-            <strong>{status.status.offerValue}</strong> <TokenLogo />
+            <strong className="inline-flex items-center">
+              {myPurchase?.status.offerValue} <TokenLogo />
+            </strong>
           </span>
         )}
       </div>

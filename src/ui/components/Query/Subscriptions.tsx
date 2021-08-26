@@ -22,6 +22,7 @@ export const Subscriptions = () => {
     }
   }, [isAuthed]);
 
+  const [myPurchase, setMyPurchase] = useState<ParsedStatus>(null);
   const [purchaser, setPurchaser] = useState<ParsedStatus>(null);
   const [status, setStatus] = useState<ParsedStatus>(null);
   const [showNotification, setShowNotification] = useState(false);
@@ -29,20 +30,25 @@ export const Subscriptions = () => {
   // Show notification if we have lost ownership
   useEffect(() => {
     const latestOwner = latestStatus.data?.status.owner;
-    if (latestOwner && !principalIsEqual(status?.status.owner, latestOwner)) {
-      if (status) {
-        console.log("owner changed!");
-        if (principalIsEqual(status.status.owner, principal)) {
-          // Alert if we are no longer the owner
-          setPurchaser(latestStatus.data);
-          setShowNotification(true);
-        } else if (principalIsEqual(principal, latestOwner)) {
-          // Hide alert if we are the new owner
-          setPurchaser(null);
-          setShowNotification(false);
+    if (latestOwner) {
+      if (!principalIsEqual(status?.status.owner, latestOwner)) {
+        if (status) {
+          console.log("owner changed!");
+          if (principalIsEqual(status.status.owner, principal)) {
+            // Alert if we are no longer the owner
+            setPurchaser(latestStatus.data);
+            setShowNotification(true);
+          } else if (principalIsEqual(principal, latestOwner)) {
+            // Hide alert if we are the new owner
+            setPurchaser(null);
+            setShowNotification(false);
+          }
         }
+        setStatus(latestStatus.data);
       }
-      setStatus(latestStatus.data);
+      if (principalIsEqual(latestOwner, principal)) {
+        setMyPurchase(latestStatus.data);
+      }
     }
   }, [latestStatus.data]);
 
@@ -51,7 +57,9 @@ export const Subscriptions = () => {
       open={showNotification}
       handleClose={() => setShowNotification(false)}
     >
-      {purchaser && <PurchaseNotification status={purchaser} />}
+      {purchaser && (
+        <PurchaseNotification purchaser={purchaser} myPurchase={myPurchase} />
+      )}
     </Notification>
   );
 };

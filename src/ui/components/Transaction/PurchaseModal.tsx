@@ -89,7 +89,7 @@ export default function PurchaseModal({}: {}) {
                     />
                   </div>
                   <div className="relative">
-                    <div className="absolute p-3.5 pointer-events-none">
+                    <div className="absolute px-3 pt-4 pointer-events-none">
                       <TokenLabel />
                     </div>
                     <input
