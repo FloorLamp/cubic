@@ -1,4 +1,17 @@
+import { Principal } from "@dfinity/principal";
 import { Block } from "../declarations/Cubic/Cubic.did";
+
+export const principalColor = (principal?: Principal) => {
+  if (!principal) return "";
+
+  let hash = 0;
+  const bytes = principal.toUint8Array();
+  for (const byte of bytes) {
+    hash = byte + (hash << 5) - hash;
+    hash = hash & hash;
+  }
+  return `hsl(${hash % 360},100%,50%)`;
+};
 
 export const blockColor = (block: Block) => {
   if (!block) return "";

@@ -30,6 +30,7 @@ type TransferError =
 type Transfer = 
  record {
    from: principal;
+   id: nat;
    timestamp: int;
    to: principal;
    value: nat;
@@ -74,6 +75,12 @@ type Info =
       xtcBalance: nat;
     };
  };
+type HistoryResponse = 
+ record {
+   count: nat;
+   transfers: vec Transfer;
+ };
+type HistoryRequest = record {"principal": opt principal;};
 type ErrorCode = 
  variant {
    canister_error;
@@ -103,7 +110,7 @@ type Cubic =
    canister_heartbeat: () -> ();
    depositXtc: (principal) -> (nat);
    getBlocks: (BlocksRequest) -> (vec Block) query;
-   getHistory: () -> (vec Transfer) query;
+   getHistory: (HistoryRequest) -> (HistoryResponse) query;
    getStatus: () -> (Status, opt Block) query;
    info: () -> (Info) query;
    info_secure: () -> (Info);

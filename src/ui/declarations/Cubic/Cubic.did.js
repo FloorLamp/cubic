@@ -65,11 +65,17 @@ export const idlFactory = ({ IDL }) => {
       'totalOwnedTime' : IDL.Null,
     }),
   });
+  const HistoryRequest = IDL.Record({ 'principal' : IDL.Opt(IDL.Principal) });
   const Transfer = IDL.Record({
+    'id' : IDL.Nat,
     'to' : IDL.Principal,
     'value' : IDL.Nat,
     'from' : IDL.Principal,
     'timestamp' : IDL.Int,
+  });
+  const HistoryResponse = IDL.Record({
+    'transfers' : IDL.Vec(Transfer),
+    'count' : IDL.Nat,
   });
   const Status = IDL.Record({
     'offerTimestamp' : IDL.Int,
@@ -113,7 +119,7 @@ export const idlFactory = ({ IDL }) => {
     'canister_heartbeat' : IDL.Func([], [], []),
     'depositXtc' : IDL.Func([IDL.Principal], [IDL.Nat], []),
     'getBlocks' : IDL.Func([BlocksRequest], [IDL.Vec(Block)], ['query']),
-    'getHistory' : IDL.Func([], [IDL.Vec(Transfer)], ['query']),
+    'getHistory' : IDL.Func([HistoryRequest], [HistoryResponse], ['query']),
     'getStatus' : IDL.Func([], [Status, IDL.Opt(Block)], ['query']),
     'info' : IDL.Func([], [Info], ['query']),
     'info_secure' : IDL.Func([], [Info], []),

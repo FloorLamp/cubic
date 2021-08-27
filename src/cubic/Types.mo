@@ -6,11 +6,27 @@ import Wtc "./WtcTypes";
 import Xtc "./XtcTypes";
 
 module {
-  public type Transfer = {
+  public type Transfer_pre = {
     from: Principal;
     to: Principal;
     timestamp: Int;
     value: Nat;
+  };
+  public type Transfer = {
+    id: Nat;
+    from: Principal;
+    to: Principal;
+    timestamp: Int;
+    value: Nat;
+  };
+
+  public type HistoryRequest = {
+    principal: ?Principal;
+  };
+
+  public type HistoryResponse = {
+    transfers: [Transfer];
+    count: Nat;
   };
 
   public type Block_pre = {

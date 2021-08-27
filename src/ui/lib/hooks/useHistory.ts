@@ -1,21 +1,24 @@
 import { useQuery } from "react-query";
-import { useCubic } from "../../components/Store/Store";
+import { useCubic, useGlobalContext } from "../../components/Store/Store";
 import { ONE_MINUTES_MS } from "../constants";
 
-export const useHistory = () => {
+export const useHistory = (onlyUser: boolean) => {
   const cubic = useCubic();
+  const {
+    state: { principal },
+  } = useGlobalContext();
 
   return useQuery(
     "history",
     async () => {
-      const result = await cubic.getHistory();
-      console.log(result);
-
+      const result = await cubic.getHistory({
+        principal: onlyUser ? [principal] : [],
+      });
       return result;
     },
     {
+      enabled: !onlyUser || !!principal,
       keepPreviousData: true,
-      placeholderData: [],
       refetchInterval: ONE_MINUTES_MS,
     }
   );

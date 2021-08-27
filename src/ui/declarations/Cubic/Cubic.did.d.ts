@@ -31,7 +31,7 @@ export interface Cubic {
   'canister_heartbeat' : () => Promise<undefined>,
   'depositXtc' : (arg_0: Principal) => Promise<bigint>,
   'getBlocks' : (arg_0: BlocksRequest) => Promise<Array<Block>>,
-  'getHistory' : () => Promise<Array<Transfer>>,
+  'getHistory' : (arg_0: HistoryRequest) => Promise<HistoryResponse>,
   'getStatus' : () => Promise<[Status, [] | [Block]]>,
   'info' : () => Promise<Info>,
   'info_secure' : () => Promise<Info>,
@@ -58,6 +58,11 @@ export type ErrorCode = { 'canister_error' : null } |
   { 'canister_reject' : null } |
   { 'destination_invalid' : null } |
   { 'system_fatal' : null };
+export interface HistoryRequest { 'principal' : [] | [Principal] }
+export interface HistoryResponse {
+  'transfers' : Array<Transfer>,
+  'count' : bigint,
+}
 export interface Info {
   'stats' : {
     'foreclosureCount' : bigint,
@@ -92,6 +97,7 @@ export interface Status {
 }
 export type TokenIdentifier = string;
 export interface Transfer {
+  'id' : bigint,
   'to' : Principal,
   'value' : bigint,
   'from' : Principal,

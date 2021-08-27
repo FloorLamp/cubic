@@ -21,7 +21,8 @@ shared actor class Cubic(init: T.Initialization) = this {
   var ledger: T.PrincipalToNat = HashMap.HashMap<Principal, Nat>(1, Principal.equal, Principal.hash);
   stable var ledgerEntries: [T.PrincipalToNatEntry] = [];
 
-  stable var history: [T.Transfer] = [];
+  stable var history: [T.Transfer_pre] = [];
+  stable var history_post: [T.Transfer] = [];
 
   stable var blocks: [var T.Block_pre] = [var];
   stable var blocks_post: [var T.Block] = [var];
@@ -169,8 +170,28 @@ shared actor class Cubic(init: T.Initialization) = this {
     })
   };
 
-  public query func getHistory(): async [T.Transfer] {
-    history
+  public query func getHistory(request: T.HistoryRequest): async T.HistoryResponse {
+    let (max, filtered) = switch (request.principal) {
+      case (?principal) {
+        let filtered = Array.filter<T.Transfer>(history_post, func ({ from; to }) {
+          from == principal or to == principal
+        });
+        (filtered.size(), filtered)
+      };
+      case _ {
+        (Nat.min(100, history_post.size()), history_post)
+      }
+    };
+
+    let size = filtered.size();
+    let transfers = Array.tabulate<T.Transfer>(max, func (i) {
+      filtered[size - i - 1]
+    });
+
+    {
+      transfers = transfers;
+      count = history_post.size();
+    }
   };
 
   public query({ caller }) func balance(user_: ?Principal) : async Nat {
@@ -354,6 +375,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
     // Add transfer to history
     history := Array.append(history, [{
+      id = history.size();
       from = status.owner;
       to = caller;
       timestamp = now;
@@ -440,6 +462,16 @@ shared actor class Cubic(init: T.Initialization) = this {
     cubesSupply := Array.foldLeft<T.PrincipalToNatEntry, Nat>(ledgerEntries, 0, func (sum, (_, bal)) {
       sum + bal
     });
+
+    history_post := Array.tabulate<T.Transfer>(history.size(), func (i) {
+      {
+        id = i;
+        from = history[i].from;
+        to = history[i].to;
+        timestamp = history[i].timestamp;
+        value = history[i].value;
+      }
+    });
   };
 
 
@@ -479,6 +511,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
         // Transfer to self with 0-value
         history := Array.append(history, [{
+          id = history.size();
           from = status.owner;
           to = thisPrincipal();
           timestamp = now;

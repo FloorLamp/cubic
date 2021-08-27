@@ -52,7 +52,7 @@ export default function IdentifierLabelWithButtons({
   render = defaultRender,
 }: {
   className?: string;
-  type: "Principal" | "Account" | "Neuron" | "Proposal";
+  type: "Principal" | "Account";
   id: Principal | string | bigint;
   forceShowId?: boolean;
   showName?: boolean;
