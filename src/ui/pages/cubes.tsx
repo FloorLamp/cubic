@@ -21,10 +21,10 @@ import { Asset, TcAsset } from "../lib/types";
 import { formatNumber } from "../lib/utils";
 
 const Assets: { value: Asset; label: ReactNode }[] = [
-  {
-    value: "XTC",
-    label: <img className="w-4" src="/img/XTC.svg" />,
-  },
+  // {
+  //   value: "XTC",
+  //   label: <img className="w-4" src="/img/XTC.svg" />,
+  // },
   { value: "WTC", label: null },
   { value: "Cycles", label: null },
   {
@@ -261,9 +261,9 @@ export default function Cubes() {
           {fromAsset === "Cycles" ? (
             <>
               <div className="text-sm">
-                We recommend using WTC or XTC to buy CUBE. If you'd like to use
-                raw cycles, use the cycles wallet UI or dfx, and send the
-                desired amount to:
+                We recommend using WTC to buy CUBE. If you'd like to use raw
+                cycles, use the cycles wallet UI or dfx, and send the desired
+                amount to:
                 <div className="border border-gray-300 my-2 rounded-md p-2 text-xs">
                   <IdentifierLabelWithButtons
                     type="Principal"

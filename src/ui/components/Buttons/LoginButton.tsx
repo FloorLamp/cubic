@@ -101,6 +101,7 @@ export default function LoginButton() {
     closeModal();
   };
 
+  const [showStoicLogin, setShowStoicLogin] = useState(false);
   const handleStoicLogin = async () => {
     StoicIdentity.load().then(async (identity: SignIdentity) => {
       if (!identity) {
@@ -167,7 +168,7 @@ export default function LoginButton() {
         className="max-w-xs w-full"
       >
         <div className="flex flex-col items-stretch gap-4">
-          {showIILogin ? (
+          {showIILogin && (
             <div className="text-sm">
               Internet Identity is not recommended due to difficulty in holding
               balances across different apps.
@@ -186,7 +187,37 @@ export default function LoginButton() {
                 </button>
               </div>
             </div>
-          ) : (
+          )}
+
+          {showStoicLogin && (
+            <div className="text-sm">
+              Stoic requires third-party cookies to connect.
+              <ul className="list-disc mt-2 pl-5">
+                <li>
+                  <strong>Brave</strong> — Disable shields for cubic.place
+                </li>
+                <li>
+                  <strong>Safari</strong> — Enable cross-site tracking
+                </li>
+              </ul>
+              <div className="flex mt-4 gap-2 leading-none">
+                <button
+                  className="flex-1 px-3 py-2 rounded-lg bg-gray-200 border-gray-300 border-2 hover:ring-2 hover:ring-opacity-50 hover:ring-indigo-500 hover:border-indigo-500"
+                  onClick={() => setShowStoicLogin(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="flex-1 flex justify-center items-center px-3 py-2 rounded-lg bg-white border-gray-300 border-2 hover:ring-2 hover:ring-opacity-50 hover:ring-indigo-500 hover:border-indigo-500"
+                  onClick={handleStoicLogin}
+                >
+                  <img src="/img/stoic.png" className="w-4 mr-2" /> Login
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!showIILogin && !showStoicLogin && (
             <>
               <PlugConnect
                 whitelist={WHITELIST}
@@ -196,7 +227,7 @@ export default function LoginButton() {
 
               <button
                 className="flex items-center px-3 py-2 rounded-lg bg-white border-gray-300 border-2 hover:ring-2 hover:ring-opacity-50 hover:ring-indigo-500 hover:border-indigo-500"
-                onClick={handleStoicLogin}
+                onClick={() => setShowStoicLogin(!showStoicLogin)}
               >
                 <img src="/img/stoic.png" className="w-4 mr-2" /> Stoic
               </button>
