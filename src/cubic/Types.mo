@@ -6,7 +6,24 @@ import Wtc "./WtcTypes";
 import Xtc "./XtcTypes";
 
 module {
+  public type Data = {
+    artId: Nat;
+    owners: [var Block];
+    status: Status;
+    ownerIds: PrincipalToNat;
+    transfers: [Transfer];
+  };
+
+  public type DataEntry = {
+    artId: Nat;
+    owners: [var Block];
+    status: Status;
+    ownerIdEntries: [PrincipalToNatEntry];
+    transfers: [Transfer];
+  };
+
   public type Transfer_pre = {
+    id: Nat;
     from: Principal;
     to: Principal;
     timestamp: Int;
@@ -21,6 +38,7 @@ module {
   };
 
   public type HistoryRequest = {
+    artId: Nat;
     principal: ?Principal;
   };
 
@@ -48,6 +66,7 @@ module {
   };
 
   public type BlocksRequest = {
+    artId: Nat;
     orderBy: {
       #id;
       #lastPurchasePrice;
@@ -64,6 +83,11 @@ module {
     owner: Principal;
     offerTimestamp: Int;
     offerValue: Nat;
+  };
+
+  public type StatusAndOwner = {
+    status: Status;
+    owner: ?Block;
   };
 
   public type Initialization = {
@@ -89,6 +113,7 @@ module {
   public type PrincipalToNat = HashMap.HashMap<Principal, Nat>;
 
   public type Info = {
+    arts: Nat;
     stats: {
       wtcBalance: Nat;
       xtcBalance: Nat;
@@ -99,7 +124,7 @@ module {
       taxCollected: Nat;
       transactionsCount: Nat;
       foreclosureCount: Nat;
-      ownerCount: Nat;
+      // ownerCount: Nat;
       salesTotal: Nat;
       transactionFee: Nat;
       annualTaxRate: Nat;

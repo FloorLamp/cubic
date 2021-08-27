@@ -2,12 +2,13 @@ import { Principal } from "@dfinity/principal";
 import React, { useEffect } from "react";
 import { CgSpinner } from "react-icons/cg";
 import { canisterId } from "../declarations/Cubic";
-import { blockColor } from "../lib/blocks";
+import { ownerColor } from "../lib/blocks";
 import {
   dateTimeFromNanos,
   formatDuration,
   secondsToDuration,
 } from "../lib/datetime";
+import useArtId from "../lib/hooks/useArtId";
 import { useCubesBalance } from "../lib/hooks/useCubesBalance";
 import useHeartbeat from "../lib/hooks/useHeartbeat";
 import { useInfo } from "../lib/hooks/useInfo";
@@ -20,7 +21,8 @@ import { useGlobalContext } from "./Store/Store";
 import PurchaseModal from "./Transaction/PurchaseModal";
 
 export function CurrentStatus() {
-  const { data, isLoading, error } = useStatus();
+  const artId = useArtId();
+  const { data, isLoading } = useStatus({ artId });
   const {
     state: { principal },
   } = useGlobalContext();
@@ -54,7 +56,7 @@ export function CurrentStatus() {
   }, [ownershipSeconds]);
 
   return (
-    <Panel className="max-w-md w-full p-4 flex flex-col gap-4">
+    <Panel className="flex-1 overflow-hidden p-4 flex flex-col gap-4">
       <div>
         <label className="block text-gray-500 text-xs uppercase">
           Current Owner
@@ -66,11 +68,11 @@ export function CurrentStatus() {
             {isForeclosed ? (
               <span className="text-red-500">Foreclosed</span>
             ) : isOwned ? (
-              <div className="flex items-center">
+              <div className="">
                 <div
-                  className="w-3 h-3 mr-2 flex-none"
+                  className="w-3 h-3 mr-2 inline-block"
                   style={{
-                    backgroundColor: blockColor(data.block),
+                    backgroundColor: ownerColor(data.owner),
                   }}
                 />
                 {isOwner ? "You!" : data.status.owner.toText()}

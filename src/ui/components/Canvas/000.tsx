@@ -1,33 +1,11 @@
-import React, { useState } from "react";
-import { Block } from "../declarations/Cubic/Cubic.did";
-import { blockColor } from "../lib/blocks";
-import { useArt } from "../lib/hooks/useArt";
-import Panel from "./Containers/Panel";
+import React from "react";
+import { Block } from "../../declarations/Cubic/Cubic.did";
+import { ownerColor } from "../../lib/blocks";
 
-export default function Canvas() {
-  const art = useArt();
-  const [data, setData] = useState([]);
-  const [isLive, setIsLive] = useState(true);
-  const actualData = isLive ? art.data : data;
-
-  return (
-    <Panel className="p-8 w-full flex flex-col items-center">
-      {actualData && <Blocks data={actualData} />}
-
-      {/* <DevTools
-        data={data}
-        setData={setData}
-        isLive={isLive}
-        setIsLive={setIsLive}
-      /> */}
-    </Panel>
-  );
-}
-
-function Blocks({ data }: { data: Block[] }) {
+export function Art000({ data }: { data: Block[] }) {
   const inputs = data.map((d) => ({
     ...d,
-    color: blockColor(d),
+    color: ownerColor(d),
     size: Number(d.totalOwnedTime) / 1e9,
     start: 0,
   }));
@@ -49,7 +27,7 @@ function Blocks({ data }: { data: Block[] }) {
   const translate = ((1 - cubeScale) * 80) / 2 + 10;
 
   return (
-    <svg className="max-w-lg" viewBox={`0 0 100 100`}>
+    <svg className="max-w-lg w-full" viewBox={`0 0 100 100`}>
       <defs>
         <filter id="shadow" x="0" y="0" width="175" height="200">
           <feOffset result="offOut" in="SourceAlpha" dx="2" dy="2" />

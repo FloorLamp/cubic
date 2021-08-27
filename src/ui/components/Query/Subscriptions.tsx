@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useQueryClient } from "react-query";
-import { useStatus } from "../../lib/hooks/useStatus";
+import { useAllStatus } from "../../lib/hooks/useAllStatus";
+import useArtId from "../../lib/hooks/useArtId";
 import { ParsedStatus } from "../../lib/types";
 import { principalIsEqual } from "../../lib/utils";
 import { Notification } from "../Layout/Notification";
@@ -12,7 +13,8 @@ export const Subscriptions = () => {
     state: { principal, isAuthed },
   } = useGlobalContext();
   const queryClient = useQueryClient();
-  const latestStatus = useStatus();
+  const artId = useArtId();
+  const latestStatuses = useAllStatus();
 
   useEffect(() => {
     // Clear cache when logging in or out
@@ -29,14 +31,17 @@ export const Subscriptions = () => {
 
   // Show notification if we have lost ownership
   useEffect(() => {
-    const latestOwner = latestStatus.data?.status.owner;
-    if (latestOwner) {
+    if (!latestStatuses.data) {
+      return;
+    }
+    for (const latestStatus of latestStatuses.data) {
+      const latestOwner = latestStatus.status.owner;
       if (!principalIsEqual(status?.status.owner, latestOwner)) {
         if (status) {
           console.log("owner changed!");
           if (principalIsEqual(status.status.owner, principal)) {
             // Alert if we are no longer the owner
-            setPurchaser(latestStatus.data);
+            setPurchaser(latestStatus);
             setShowNotification(true);
           } else if (principalIsEqual(principal, latestOwner)) {
             // Hide alert if we are the new owner
@@ -44,13 +49,13 @@ export const Subscriptions = () => {
             setShowNotification(false);
           }
         }
-        setStatus(latestStatus.data);
+        setStatus(latestStatus);
       }
       if (principalIsEqual(latestOwner, principal)) {
-        setMyPurchase(latestStatus.data);
+        setMyPurchase(latestStatus);
       }
     }
-  }, [latestStatus.data]);
+  }, [latestStatuses.data]);
 
   return (
     <Notification

@@ -1,17 +1,13 @@
-import dynamic from "next/dynamic";
 import React from "react";
-import { CurrentStatus } from "../components/CurrentStatus";
-
-const CanvasContainer = dynamic(() => import("../components/Canvas"), {
-  ssr: false,
-});
+import { Preview } from "../components/Preview";
 
 export default function Home() {
+  const ids = 1;
   return (
     <div className="flex flex-col items-center gap-8 pt-8">
-      <CanvasContainer />
-
-      <CurrentStatus />
+      {Array.from({ length: ids }, (_, artId) => (
+        <Preview artId={artId.toString()} key={artId} />
+      ))}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { BsFillExclamationCircleFill } from "react-icons/bs";
 import { FiChevronRight } from "react-icons/fi";
+import useArtId from "../../lib/hooks/useArtId";
 import useBuy from "../../lib/hooks/useBuy";
 import { useCubesBalance } from "../../lib/hooks/useCubesBalance";
 import { useInfo } from "../../lib/hooks/useInfo";
@@ -11,9 +12,10 @@ import SpinnerButton from "../Buttons/SpinnerButton";
 import ErrorAlert from "../Labels/ErrorAlert";
 import { TokenLabel, TokenLogo } from "../Labels/TokenLabel";
 import Modal from "../Layout/Modal";
-import { useGlobalContext } from "../Store/Store";
+import { useGlobalContext, useLoginModal } from "../Store/Store";
 
 export default function PurchaseModal({}: {}) {
+  const artId = useArtId();
   const {
     state: { isAuthed },
   } = useGlobalContext();
@@ -25,8 +27,8 @@ export default function PurchaseModal({}: {}) {
 
   const [newOffer, setNewOffer] = useState("");
   const [error, setError] = useState("");
-  const buy = useBuy();
-  const status = useStatus();
+  const buy = useBuy({ artId });
+  const status = useStatus({ artId });
   const cubesBalance = useCubesBalance();
   const newOfferAmount = Number(newOffer);
 
@@ -40,9 +42,15 @@ export default function PurchaseModal({}: {}) {
       ? (cubesBalance.data - status.data.status.offerValue) / dailyTax
       : null;
 
+  const [_, setLoginIsOpen] = useLoginModal();
   const handleClick = (e) => {
     e.preventDefault();
     setError("");
+
+    if (!isAuthed) {
+      setLoginIsOpen(true);
+      return;
+    }
 
     let amount;
     try {
@@ -213,7 +221,7 @@ export default function PurchaseModal({}: {}) {
               disabledClassName="btn-cta-disabled"
               onClick={handleClick}
               isLoading={buy.isLoading}
-              isDisabled={!isAuthed || !newOffer}
+              isDisabled={isAuthed && !newOffer}
             >
               {isAuthed ? "Buy" : "Login to Buy"}
             </SpinnerButton>

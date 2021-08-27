@@ -3,6 +3,7 @@ import React from "react";
 import { Block } from "../declarations/Cubic/Cubic.did";
 import { generateAdditional, generateBlocks } from "../lib/generate";
 import { useArt } from "../lib/hooks/useArt";
+import useArtId from "../lib/hooks/useArtId";
 
 export const DevTools = ({
   data,
@@ -15,7 +16,8 @@ export const DevTools = ({
   isLive: boolean;
   setIsLive: (arg: boolean) => void;
 }) => {
-  const { data: art } = useArt();
+  const artId = useArtId();
+  const { data: art } = useArt({ artId });
   return (
     <div className="fixed z-10 bottom-0">
       <div className="p-2 flex gap-2 bg-black bg-opacity-50">

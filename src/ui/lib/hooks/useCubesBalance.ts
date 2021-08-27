@@ -1,10 +1,14 @@
 import { Principal } from "@dfinity/principal";
 import { useQuery } from "react-query";
-import { useCubic } from "../../components/Store/Store";
+import { useCubic, useGlobalContext } from "../../components/Store/Store";
 import { FIVE_SECONDS_MS } from "../constants";
 
-export const useCubesBalance = (user?: Principal) => {
+export const useCubesBalance = (user_?: Principal) => {
   const cubic = useCubic();
+  const {
+    state: { principal },
+  } = useGlobalContext();
+  const user = user_ ?? principal;
 
   return useQuery(
     ["cubesBalance", user?.toText()],

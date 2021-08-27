@@ -36,6 +36,11 @@ type Transfer =
    value: nat;
  };
 type TokenIdentifier = text;
+type StatusAndOwner = 
+ record {
+   owner: opt Block;
+   status: Status;
+ };
 type Status = 
  record {
    offerTimestamp: int;
@@ -56,6 +61,7 @@ type Initialization =
  };
 type Info = 
  record {
+   arts: nat;
    canisters: Canisters;
    stats:
     record {
@@ -66,7 +72,6 @@ type Info =
       foreclosureCount: nat;
       lastTaxTimestamp: int;
       ownCubesBalance: nat;
-      ownerCount: nat;
       salesTotal: nat;
       taxCollected: nat;
       transactionFee: nat;
@@ -80,7 +85,11 @@ type HistoryResponse =
    count: nat;
    transfers: vec Transfer;
  };
-type HistoryRequest = record {"principal": opt principal;};
+type HistoryRequest = 
+ record {
+   artId: nat;
+   "principal": opt principal;
+ };
 type ErrorCode = 
  variant {
    canister_error;
@@ -104,16 +113,19 @@ type Error =
 type Cubic = 
  service {
    acceptCycles: () -> ();
-   art: () -> (vec Block) query;
+   art: (nat) -> (vec Block) query;
    balance: (opt principal) -> (nat) query;
-   buy: (nat) -> (Result);
+   buy: (record {
+           artId: nat;
+           newOffer: nat;
+         }) -> (Result);
    canister_heartbeat: () -> ();
    depositXtc: (principal) -> (nat);
+   getAllStatus: () -> (vec StatusAndOwner) query;
    getBlocks: (BlocksRequest) -> (vec Block) query;
    getHistory: (HistoryRequest) -> (HistoryResponse) query;
-   getStatus: () -> (Status, opt Block) query;
+   getStatus: (nat) -> (StatusAndOwner) query;
    info: () -> (Info) query;
-   info_secure: () -> (Info);
    setCanisters: (Canisters) -> ();
    tokenTransferNotification: (TokenIdentifier, User, Balance, Memo) ->
     (opt Balance);
@@ -127,6 +139,7 @@ type Canisters =
  };
 type BlocksRequest = 
  record {
+   artId: nat;
    order: variant {
             asc;
             desc;

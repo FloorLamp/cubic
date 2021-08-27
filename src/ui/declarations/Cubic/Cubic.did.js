@@ -53,7 +53,17 @@ export const idlFactory = ({ IDL }) => {
     'InsufficientLiquidity' : IDL.Null,
   });
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Error });
+  const Status = IDL.Record({
+    'offerTimestamp' : IDL.Int,
+    'owner' : IDL.Principal,
+    'offerValue' : IDL.Nat,
+  });
+  const StatusAndOwner = IDL.Record({
+    'status' : Status,
+    'owner' : IDL.Opt(Block),
+  });
   const BlocksRequest = IDL.Record({
+    'artId' : IDL.Nat,
     'order' : IDL.Variant({ 'asc' : IDL.Null, 'desc' : IDL.Null }),
     'orderBy' : IDL.Variant({
       'id' : IDL.Null,
@@ -65,7 +75,10 @@ export const idlFactory = ({ IDL }) => {
       'totalOwnedTime' : IDL.Null,
     }),
   });
-  const HistoryRequest = IDL.Record({ 'principal' : IDL.Opt(IDL.Principal) });
+  const HistoryRequest = IDL.Record({
+    'principal' : IDL.Opt(IDL.Principal),
+    'artId' : IDL.Nat,
+  });
   const Transfer = IDL.Record({
     'id' : IDL.Nat,
     'to' : IDL.Principal,
@@ -77,12 +90,8 @@ export const idlFactory = ({ IDL }) => {
     'transfers' : IDL.Vec(Transfer),
     'count' : IDL.Nat,
   });
-  const Status = IDL.Record({
-    'offerTimestamp' : IDL.Int,
-    'owner' : IDL.Principal,
-    'offerValue' : IDL.Nat,
-  });
   const Info = IDL.Record({
+    'arts' : IDL.Nat,
     'stats' : IDL.Record({
       'foreclosureCount' : IDL.Nat,
       'transactionFee' : IDL.Nat,
@@ -95,7 +104,6 @@ export const idlFactory = ({ IDL }) => {
       'ownCubesBalance' : IDL.Nat,
       'annualTaxRate' : IDL.Nat,
       'xtcBalance' : IDL.Nat,
-      'ownerCount' : IDL.Nat,
       'cyclesBalance' : IDL.Nat,
       'taxCollected' : IDL.Nat,
     }),
@@ -113,16 +121,20 @@ export const idlFactory = ({ IDL }) => {
   });
   const Cubic = IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
-    'art' : IDL.Func([], [IDL.Vec(Block)], ['query']),
+    'art' : IDL.Func([IDL.Nat], [IDL.Vec(Block)], ['query']),
     'balance' : IDL.Func([IDL.Opt(IDL.Principal)], [IDL.Nat], ['query']),
-    'buy' : IDL.Func([IDL.Nat], [Result], []),
+    'buy' : IDL.Func(
+        [IDL.Record({ 'artId' : IDL.Nat, 'newOffer' : IDL.Nat })],
+        [Result],
+        [],
+      ),
     'canister_heartbeat' : IDL.Func([], [], []),
     'depositXtc' : IDL.Func([IDL.Principal], [IDL.Nat], []),
+    'getAllStatus' : IDL.Func([], [IDL.Vec(StatusAndOwner)], ['query']),
     'getBlocks' : IDL.Func([BlocksRequest], [IDL.Vec(Block)], ['query']),
     'getHistory' : IDL.Func([HistoryRequest], [HistoryResponse], ['query']),
-    'getStatus' : IDL.Func([], [Status, IDL.Opt(Block)], ['query']),
+    'getStatus' : IDL.Func([IDL.Nat], [StatusAndOwner], ['query']),
     'info' : IDL.Func([], [Info], ['query']),
-    'info_secure' : IDL.Func([], [Info], []),
     'setCanisters' : IDL.Func([Canisters], [], []),
     'tokenTransferNotification' : IDL.Func(
         [TokenIdentifier, User, Balance, Memo],

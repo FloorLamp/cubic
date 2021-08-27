@@ -2,7 +2,7 @@ import { ActorSubclass } from "@dfinity/agent";
 import Cubic, {
   Block,
   BlocksRequest,
-  Status,
+  StatusAndOwner,
 } from "../declarations/Cubic/Cubic.did";
 import ledger from "../declarations/ledger/ledger.did";
 import Wtc, { TransferResponse } from "../declarations/wtc/wtc.did";
@@ -26,6 +26,7 @@ export type OrderBy = KeysOfUnion<BlocksRequest["orderBy"]>;
 export type Order = KeysOfUnion<BlocksRequest["order"]>;
 
 export type ParsedStatus = {
-  status: Modify<Status, { offerValue: number }>;
-  block: Block | null;
+  artId: string;
+  status: Modify<StatusAndOwner["status"], { offerValue: number }>;
+  owner: Block | null;
 };

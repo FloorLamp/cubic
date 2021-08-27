@@ -122,10 +122,6 @@ export default function LoginButton() {
     if (await window?.ic?.plug?.isConnected()) {
       window.ic.plug.agent = null;
       setAgent({ agent: null });
-      if (!authClient) {
-        const authClient = await AuthClient.create();
-        setAuthClient(authClient);
-      }
     } else {
       handleIILogout();
     }
@@ -134,6 +130,9 @@ export default function LoginButton() {
   // Auth on refresh
   useEffect(() => {
     (async () => {
+      const authClient = await AuthClient.create();
+      setAuthClient(authClient);
+
       if (await window?.ic?.plug?.isConnected()) {
         if (!window.ic.plug.agent) {
           await window.ic.plug.createAgent({
@@ -143,8 +142,6 @@ export default function LoginButton() {
         }
         handlePlugLogin();
       } else {
-        const authClient = await AuthClient.create();
-        setAuthClient(authClient);
         if (await authClient.isAuthenticated()) {
           handleAuthenticated(authClient);
         }

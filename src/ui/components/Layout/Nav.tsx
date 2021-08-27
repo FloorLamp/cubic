@@ -28,10 +28,6 @@ export default function Nav() {
           <a className="hover:underline">Info</a>
         </Link>
 
-        <Link href="/owners">
-          <a className="hover:underline">Owners</a>
-        </Link>
-
         <Link href="/stats">
           <a className="hover:underline">Stats</a>
         </Link>

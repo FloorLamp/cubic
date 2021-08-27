@@ -1,7 +1,7 @@
 import React from "react";
 import { BsFillExclamationCircleFill } from "react-icons/bs";
 import { canisterId } from "../../declarations/Cubic";
-import { blockColor } from "../../lib/blocks";
+import { cubicName, ownerColor } from "../../lib/blocks";
 import { dateTimeFromNanos } from "../../lib/datetime";
 import { ParsedStatus } from "../../lib/types";
 import { shortPrincipal } from "../../lib/utils";
@@ -22,7 +22,7 @@ export const PurchaseNotification = ({
       <div
         className="w-6 h-6 mr-2 flex items-center justify-center"
         style={
-          !isForeclosure ? { backgroundColor: blockColor(purchaser.block) } : {}
+          !isForeclosure ? { backgroundColor: ownerColor(purchaser.owner) } : {}
         }
       >
         {isForeclosure && (
@@ -44,7 +44,7 @@ export const PurchaseNotification = ({
           />
         ) : (
           <span>
-            Purchased Cubic from you for{" "}
+            Purchased {cubicName(purchaser.artId)} from you for{" "}
             <strong className="inline-flex items-center">
               {myPurchase?.status.offerValue} <TokenLogo />
             </strong>

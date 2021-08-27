@@ -12,6 +12,7 @@ export interface Block {
   'totalOwnedTime' : bigint,
 }
 export interface BlocksRequest {
+  'artId' : bigint,
   'order' : { 'asc' : null } |
     { 'desc' : null },
   'orderBy' : { 'id' : null } |
@@ -25,16 +26,16 @@ export interface BlocksRequest {
 export interface Canisters { 'wtc' : Principal, 'xtc' : Principal }
 export interface Cubic {
   'acceptCycles' : () => Promise<undefined>,
-  'art' : () => Promise<Array<Block>>,
+  'art' : (arg_0: bigint) => Promise<Array<Block>>,
   'balance' : (arg_0: [] | [Principal]) => Promise<bigint>,
-  'buy' : (arg_0: bigint) => Promise<Result>,
+  'buy' : (arg_0: { 'artId' : bigint, 'newOffer' : bigint }) => Promise<Result>,
   'canister_heartbeat' : () => Promise<undefined>,
   'depositXtc' : (arg_0: Principal) => Promise<bigint>,
+  'getAllStatus' : () => Promise<Array<StatusAndOwner>>,
   'getBlocks' : (arg_0: BlocksRequest) => Promise<Array<Block>>,
   'getHistory' : (arg_0: HistoryRequest) => Promise<HistoryResponse>,
-  'getStatus' : () => Promise<[Status, [] | [Block]]>,
+  'getStatus' : (arg_0: bigint) => Promise<StatusAndOwner>,
   'info' : () => Promise<Info>,
-  'info_secure' : () => Promise<Info>,
   'setCanisters' : (arg_0: Canisters) => Promise<undefined>,
   'tokenTransferNotification' : (
       arg_0: TokenIdentifier,
@@ -58,12 +59,16 @@ export type ErrorCode = { 'canister_error' : null } |
   { 'canister_reject' : null } |
   { 'destination_invalid' : null } |
   { 'system_fatal' : null };
-export interface HistoryRequest { 'principal' : [] | [Principal] }
+export interface HistoryRequest {
+  'principal' : [] | [Principal],
+  'artId' : bigint,
+}
 export interface HistoryResponse {
   'transfers' : Array<Transfer>,
   'count' : bigint,
 }
 export interface Info {
+  'arts' : bigint,
   'stats' : {
     'foreclosureCount' : bigint,
     'transactionFee' : bigint,
@@ -76,7 +81,6 @@ export interface Info {
     'ownCubesBalance' : bigint,
     'annualTaxRate' : bigint,
     'xtcBalance' : bigint,
-    'ownerCount' : bigint,
     'cyclesBalance' : bigint,
     'taxCollected' : bigint,
   },
@@ -95,6 +99,7 @@ export interface Status {
   'owner' : Principal,
   'offerValue' : bigint,
 }
+export interface StatusAndOwner { 'status' : Status, 'owner' : [] | [Block] }
 export type TokenIdentifier = string;
 export interface Transfer {
   'id' : bigint,

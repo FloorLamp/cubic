@@ -15,18 +15,6 @@ export function Stats() {
     <>
       <Panel className="p-4 flex flex-col gap-4">
         <h2 className="text-2xl">Cubic Stats</h2>
-        <div>
-          <label className="block text-gray-500 text-sm uppercase">
-            Unique Owners
-          </label>
-          {!data ? (
-            <CgSpinner className="inline-block animate-spin" />
-          ) : (
-            <span className="font-bold text-lg">
-              {formatNumber(data.stats.ownerCount)}
-            </span>
-          )}
-        </div>
 
         <div>
           <label className="block text-gray-500 text-sm uppercase">

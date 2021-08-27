@@ -1,12 +1,13 @@
 import { DateTime } from "luxon";
 import React, { useState } from "react";
-import { blockColor } from "../lib/blocks";
+import { ownerColor } from "../lib/blocks";
 import {
   dateTimeFromNanos,
   formatDuration,
   secondsToDuration,
 } from "../lib/datetime";
 import { useArt } from "../lib/hooks/useArt";
+import useArtId from "../lib/hooks/useArtId";
 import { useBlocks } from "../lib/hooks/useBlocks";
 import { useStatus } from "../lib/hooks/useStatus";
 import { Order, OrderBy } from "../lib/types";
@@ -15,21 +16,22 @@ import IdentifierLabelWithButtons from "./Buttons/IdentifierLabelWithButtons";
 import Panel from "./Containers/Panel";
 import { TokenLogo } from "./Labels/TokenLabel";
 
-export function BlocksTable() {
-  const art = useArt();
-  const status = useStatus();
+export function OwnersTable() {
+  const artId = useArtId();
+  const art = useArt({ artId });
+  const status = useStatus({ artId });
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<OrderBy>("id");
-  const blocks = useBlocks(order, orderBy);
+  const blocks = useBlocks({ artId, order, orderBy });
 
   return (
     <Panel className="p-8 w-full">
       <div className="flex items-center mb-2">
-        <div className="flex-1">
+        <div className="flex-1 overflow-hidden">
           {art.data?.length} Unique {pluralize("Owner", art.data?.length)}
         </div>
         <div className="hidden md:block w-40 text-right">Last Owned</div>
-        <div className="hidden xs:block w-40 text-right">Time Owned</div>
+        <div className="w-40 text-right">Time Owned</div>
         <div className="hidden md:block w-32 text-right">Last Sale</div>
         <div className="hidden sm:block w-32 text-right">Total Sales</div>
       </div>
@@ -39,15 +41,15 @@ export function BlocksTable() {
             status.data &&
             principalIsEqual(status.data.status.owner, block.owner);
           return (
-            <li key={i} className="flex flex-col xs:flex-row xs:items-center">
-              <div className="flex-1 flex items-center">
+            <li key={i} className="flex items-center">
+              <div className="flex-1 flex items-center overflow-hidden">
                 <div className="w-12 mr-2 text-gray-400">
                   #{formatNumber(block.id)}
                 </div>
                 <div
                   className="w-3 h-3 mr-2"
                   style={{
-                    backgroundColor: blockColor(block),
+                    backgroundColor: ownerColor(block),
                   }}
                 />
                 <div className="flex-1 overflow-hidden whitespace-nowrap">

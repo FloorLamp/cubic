@@ -15,22 +15,12 @@ import Wtc "./WtcTypes";
 import Xtc "./XtcTypes";
 
 shared actor class Cubic(init: T.Initialization) = this {
-  var ownerIds: T.PrincipalToNat = HashMap.HashMap<Principal, Nat>(1, Principal.equal, Principal.hash);
-  stable var ownerIdEntries: [T.PrincipalToNatEntry] = [];
-
+  // ---- Global state
   var ledger: T.PrincipalToNat = HashMap.HashMap<Principal, Nat>(1, Principal.equal, Principal.hash);
   stable var ledgerEntries: [T.PrincipalToNatEntry] = [];
 
-  stable var history: [T.Transfer_pre] = [];
-  stable var history_post: [T.Transfer] = [];
-
-  stable var blocks: [var T.Block_pre] = [var];
-  stable var blocks_post: [var T.Block] = [var];
-  stable var status: T.Status = {
-    owner = Principal.fromText("aaaaa-aa");
-    offerTimestamp = Time.now();
-    offerValue = init.defaultValue;
-  };
+  var data: [var T.Data] = [var];
+  stable var dataEntries: [T.DataEntry] = [];
 
   // ---- Stats
   stable var cubesSupply: Nat = 0;
@@ -64,6 +54,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
   public query func info(): async T.Info {
     {
+      arts = data.size();
       stats = {
         wtcBalance = wtcBalance;
         xtcBalance = xtcBalance;
@@ -72,9 +63,10 @@ shared actor class Cubic(init: T.Initialization) = this {
         ownCubesBalance = Option.get(ledger.get(thisPrincipal()), 0);
         feesCollected = feesCollected;
         taxCollected = taxCollected;
-        transactionsCount = history.size();
+        transactionsCount = Array.foldLeft<T.Data, Nat>(Array.freeze(data), 0, func (sum, ({transfers})) {
+          sum + transfers.size()
+        });
         foreclosureCount = foreclosureCount;
-        ownerCount = ownerIdEntries.size();
         salesTotal = salesTotal;
         transactionFee = TRANSACTION_FEE;
         annualTaxRate = ANNUAL_TAX_RATE;
@@ -84,35 +76,13 @@ shared actor class Cubic(init: T.Initialization) = this {
     }
   };
 
-  public shared func info_secure(): async T.Info {
-    {
-      stats = {
-        wtcBalance = wtcBalance;
-        xtcBalance = xtcBalance;
-        cyclesBalance = Cycles.balance();
-        cubesSupply = cubesSupply;
-        ownCubesBalance = Option.get(ledger.get(thisPrincipal()), 0);
-        feesCollected = feesCollected;
-        taxCollected = taxCollected;
-        transactionsCount = history.size();
-        foreclosureCount = foreclosureCount;
-        ownerCount = ownerIdEntries.size();
-        salesTotal = salesTotal;
-        transactionFee = TRANSACTION_FEE;
-        annualTaxRate = ANNUAL_TAX_RATE;
-        lastTaxTimestamp = lastTaxTimestamp;
-      };
-      canisters = canisters;
-    }
-  };
-
-  public query func art(): async [T.Block] {
-    latestBlocks()
+  public query func art(artId: Nat): async [T.Block] {
+    latestBlocks(artId)
   };
 
   /* Return 100 sorted blocks, no pagination */
   public query func getBlocks(request: T.BlocksRequest): async [T.Block] {
-    let data = latestBlocks();
+    let data = latestBlocks(request.artId);
 
     let sorted = switch (request.orderBy, request.order) {
       case (#id, #asc) { data };
@@ -162,35 +132,53 @@ shared actor class Cubic(init: T.Initialization) = this {
     });
   };
 
-  public query func getStatus(): async (T.Status, ?T.Block) {
-    (status,
-    switch (ownerIds.get(status.owner)) {
-      case (?id) { ?blockWithTimeNow(blocks_post[id]); };
-      case _ { null };
+  public query func getStatus(artId: Nat): async T.StatusAndOwner {
+    let {status; ownerIds; owners} = data[artId];
+
+    {
+      status = status;
+      owner = switch (ownerIds.get(status.owner)) {
+        case (?id) { ?blockWithTimeNow(owners[id], status); };
+        case _ { null };
+      };
+    }
+  };
+
+  public query func getAllStatus(): async [T.StatusAndOwner] {
+    Array.map<T.Data, T.StatusAndOwner>(Array.freeze(data), func (d) {
+      let {status; ownerIds; owners} = d;
+
+      {
+        status = status;
+        owner = switch (ownerIds.get(status.owner)) {
+          case (?id) { ?blockWithTimeNow(owners[id], status); };
+          case _ { null };
+        };
+      }
     })
   };
 
   public query func getHistory(request: T.HistoryRequest): async T.HistoryResponse {
+    let {transfers} = data[request.artId];
+
     let (max, filtered) = switch (request.principal) {
       case (?principal) {
-        let filtered = Array.filter<T.Transfer>(history_post, func ({ from; to }) {
+        let filtered = Array.filter<T.Transfer>(transfers, func ({ from; to }) {
           from == principal or to == principal
         });
         (filtered.size(), filtered)
       };
       case _ {
-        (Nat.min(100, history_post.size()), history_post)
+        (Nat.min(100, transfers.size()), transfers)
       }
     };
 
     let size = filtered.size();
-    let transfers = Array.tabulate<T.Transfer>(max, func (i) {
-      filtered[size - i - 1]
-    });
-
     {
-      transfers = transfers;
-      count = history_post.size();
+      transfers = Array.tabulate<T.Transfer>(max, func (i) {
+        filtered[size - i - 1]
+      });
+      count = transfers.size();
     }
   };
 
@@ -264,8 +252,12 @@ shared actor class Cubic(init: T.Initialization) = this {
 
   // Sell cubes for cycles
   public shared({ caller }) func withdraw(request: T.WithdrawRequest): async T.Result {
-    if (status.owner == caller) {
-      ignore _tax();
+    let ownerOf = Array.find<T.Data>(Array.freeze(data), func (d) {
+      d.status.owner == caller
+    });
+
+    if (Option.isSome(ownerOf)) {
+      _tax();
     };
 
     let balance = Option.get(ledger.get(caller), 0);
@@ -342,7 +334,9 @@ shared actor class Cubic(init: T.Initialization) = this {
   };
 
   // Transfer ownership to buyer and update the offer
-  public shared({ caller }) func buy(newOffer: Nat): async T.Result {
+  public shared({ caller }) func buy(request: {artId: Nat; newOffer: Nat}): async T.Result {
+    let {status; ownerIds; owners; transfers} = data[request.artId];
+
     let buyerBalance = Option.get(ledger.get(caller), 0);
     if (buyerBalance < status.offerValue) {
       return #err(#InsufficientBalance);
@@ -355,7 +349,7 @@ shared actor class Cubic(init: T.Initialization) = this {
       lastTaxTimestamp := now;
     } else {
       // Assess taxes before sale. Foreclosure can happen here!
-      ignore _tax();
+      _tax();
     };
 
     // Debit the buyer
@@ -374,8 +368,9 @@ shared actor class Cubic(init: T.Initialization) = this {
     ledger.put(status.owner, Option.get(ledger.get(status.owner), 0) + amountMinusFees);
 
     // Add transfer to history
-    history := Array.append(history, [{
-      id = history.size();
+    let newTransfers = Array.append(transfers, [{
+      id = transfers.size();
+      artId = request.artId;
       from = status.owner;
       to = caller;
       timestamp = now;
@@ -386,27 +381,27 @@ shared actor class Cubic(init: T.Initialization) = this {
     // Finalize previous owner's block
     switch (ownerIds.get(status.owner)) {
       case (?prevId) {
-        blocks_post[prevId] := {
-          id = blocks_post[prevId].id;
-          owner = blocks_post[prevId].owner;
-          lastPurchasePrice = blocks_post[prevId].lastPurchasePrice;
+        owners[prevId] := {
+          id = owners[prevId].id;
+          owner = owners[prevId].owner;
+          lastPurchasePrice = owners[prevId].lastPurchasePrice;
           lastSalePrice = status.offerValue;
           lastSaleTime = now;
-          totalSaleCount = blocks_post[prevId].totalSaleCount + 1;
-          totalOwnedTime = blocks_post[prevId].totalOwnedTime + now - status.offerTimestamp;
-          totalValue = blocks_post[prevId].totalValue + status.offerValue;
+          totalSaleCount = owners[prevId].totalSaleCount + 1;
+          totalOwnedTime = owners[prevId].totalOwnedTime + now - status.offerTimestamp;
+          totalValue = owners[prevId].totalValue + status.offerValue;
         };
       };
       case _ {}
     };
 
-    // Add new owner block if needed
-    switch (ownerIds.get(caller)) {
-      case (?id) {};
+    // Add new owner if needed
+    let newOwners = switch (ownerIds.get(caller)) {
+      case (?id) { owners };
       case null {
-        let newId = blocks.size();
+        let newId = owners.size();
         ownerIds.put(caller, newId);
-        blocks := Array.thaw(Array.append(Array.freeze(blocks), [{
+        Array.thaw<T.Block>(Array.append(Array.freeze(owners), [{
           id = newId;
           owner = caller;
           lastPurchasePrice = status.offerValue;
@@ -420,10 +415,18 @@ shared actor class Cubic(init: T.Initialization) = this {
     };
 
     // Set new status
-    status := {
+    let newStatus = {
       owner = caller;
       offerTimestamp = now;
-      offerValue = newOffer;
+      offerValue = request.newOffer;
+    };
+
+    data[request.artId] := {
+      artId = request.artId;
+      owners = newOwners;
+      status = newStatus;
+      ownerIds = ownerIds;
+      transfers = newTransfers;
     };
 
     #ok
@@ -442,20 +445,27 @@ shared actor class Cubic(init: T.Initialization) = this {
 
   // Run periodic events, eg. tax
   public shared func canister_heartbeat(): async () {
-    ignore _tax();
+    _tax();
     ignore _refill();
   };
 
   system func preupgrade() {
-    ownerIdEntries := Iter.toArray(ownerIds.entries());
+    dataEntries := Array.map<T.Data, T.DataEntry>(Array.freeze(data), func (d) {
+      {
+        artId = d.artId;
+        owners = d.owners;
+        status = d.status;
+        ownerIdEntries = Iter.toArray(d.ownerIds.entries());
+        transfers = d.transfers;
+      }
+    });
+
     ledgerEntries := Array.filter<T.PrincipalToNatEntry>(Iter.toArray(ledger.entries()), func ((_, bal)) {
       bal > 0
     });
   };
 
   system func postupgrade() {
-    ownerIds := HashMap.fromIter<Principal, Nat>(ownerIdEntries.vals(), ownerIdEntries.size(), Principal.equal, Principal.hash);
-
     let filteredEntries = Array.filter<T.PrincipalToNatEntry>(ledgerEntries, func((_, balance)) { balance > 0 });
     ledger := HashMap.fromIter<Principal, Nat>(filteredEntries.vals(), filteredEntries.size(), Principal.equal, Principal.hash);
 
@@ -463,15 +473,15 @@ shared actor class Cubic(init: T.Initialization) = this {
       sum + bal
     });
 
-    history_post := Array.tabulate<T.Transfer>(history.size(), func (i) {
+    data := Array.thaw(Array.map<T.DataEntry, T.Data>(dataEntries, func (d) {
       {
-        id = i;
-        from = history[i].from;
-        to = history[i].to;
-        timestamp = history[i].timestamp;
-        value = history[i].value;
+        artId = d.artId;
+        owners = d.owners;
+        status = d.status;
+        ownerIds = HashMap.fromIter<Principal, Nat>(d.ownerIdEntries.vals(), d.ownerIdEntries.size(), Principal.equal, Principal.hash);
+        transfers = d.transfers;
       }
-    });
+    }));
   };
 
 
@@ -487,54 +497,68 @@ shared actor class Cubic(init: T.Initialization) = this {
     - Ownership transfers to this canister
     - Offer price is set to 0
   */
-  func _tax(): Nat {
-    if (lastTaxTimestamp == 0 or status.owner == thisPrincipal()) { return 0 };
+  func _tax(): () {
+    if (lastTaxTimestamp == 0 ) { return };
 
     let now = Time.now();
-    let seconds = Int.abs(now - lastTaxTimestamp) / 1_000_000_000;
-    let amount = percentOf(seconds * status.offerValue, ANNUAL_TAX_RATE) / 365 / 24 / 60 / 60;
-    Debug.print("tax: " # debug_show(seconds) # "s, price: " # debug_show(status.offerValue) # ", tax amount: " # debug_show(amount));
 
-    if (amount > 0) {
-      let ownerBalance = Option.get(ledger.get(status.owner), 0);
-      let deductible = Nat.min(ownerBalance, amount);
+    for (art in data.vals()) {
+      let {artId; owners; ownerIds; status; transfers} = art;
 
-      // Transfer deductible from owner to self
-      taxCollected := taxCollected + deductible;
-      ledger.put(thisPrincipal(), Option.get(ledger.get(thisPrincipal()), 0) + deductible);
-      ledger.put(status.owner, ownerBalance - deductible);
+      if (art.status.owner != thisPrincipal()) {
+        let seconds = Int.abs(now - lastTaxTimestamp) / 1_000_000_000;
+        let amount = percentOf(seconds * status.offerValue, ANNUAL_TAX_RATE) / 365 / 24 / 60 / 60;
+        Debug.print("tax: " # debug_show(seconds) # "s, price: " # debug_show(status.offerValue) # ", tax amount: " # debug_show(amount));
 
-      // Owner cannot pay full tax: Foreclose
-      if (ownerBalance < amount) {
-        Debug.print("foreclosure: " # debug_show(thisPrincipal()) # ", balance: " # debug_show(ownerBalance));
-        foreclosureCount := foreclosureCount + 1;
+        if (amount > 0) {
+          let ownerBalance = Option.get(ledger.get(status.owner), 0);
+          let deductible = Nat.min(ownerBalance, amount);
 
-        // Transfer to self with 0-value
-        history := Array.append(history, [{
-          id = history.size();
-          from = status.owner;
-          to = thisPrincipal();
-          timestamp = now;
-          value = 0;
-        }]);
+          // Transfer deductible from owner to self
+          taxCollected := taxCollected + deductible;
+          ledger.put(thisPrincipal(), Option.get(ledger.get(thisPrincipal()), 0) + deductible);
+          ledger.put(status.owner, ownerBalance - deductible);
 
-        // Owner increases owned time but not value
-        let ownerId = Option.unwrap(ownerIds.get(status.owner));
-        blocks_post[ownerId] := blockWithTimeNow(blocks_post[ownerId]);
+          // Owner cannot pay full tax: Foreclose
+          if (ownerBalance < amount) {
+            Debug.print("foreclosure: " # debug_show(art.artId) # ", owner: " # debug_show(thisPrincipal()) # ", balance: " # debug_show(ownerBalance));
+            foreclosureCount := foreclosureCount + 1;
 
-        // Create new offer
-        status := {
-          owner = thisPrincipal();
-          offerTimestamp = now;
-          offerValue = FORECLOSURE_PRICE;
+            // Transfer to self with 0-value
+            let newTransfers = Array.append(transfers, [{
+              artId = art.artId;
+              id = transfers.size();
+              from = status.owner;
+              to = thisPrincipal();
+              timestamp = now;
+              value = 0;
+            }]);
+
+            // Owner increases owned time but not value
+            let ownerId = Option.unwrap(ownerIds.get(status.owner));
+            owners[ownerId] := blockWithTimeNow(owners[ownerId], status);
+
+            // Create new offer
+            let newStatus = {
+              owner = thisPrincipal();
+              offerTimestamp = now;
+              offerValue = FORECLOSURE_PRICE;
+            };
+
+            data[artId] := {
+              artId = artId;
+              owners = owners;
+              status = newStatus;
+              ownerIds = ownerIds;
+              transfers = newTransfers;
+            }
+          };
         };
       };
     };
 
     // Updated tax timestamp
     lastTaxTimestamp := now;
-
-    amount
   };
 
   /*
@@ -660,7 +684,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
   // ---- Helpers
 
-  func blockWithTimeNow(block: T.Block): T.Block {
+  func blockWithTimeNow(block: T.Block, status: T.Status): T.Block {
     {
       id = block.id;
       owner = block.owner;
@@ -673,10 +697,12 @@ shared actor class Cubic(init: T.Initialization) = this {
     }
   };
 
-  func latestBlocks(): [T.Block] {
-    Array.map<T.Block, T.Block>(Array.freeze(blocks_post), func (block) {
+  func latestBlocks(artId: Nat): [T.Block] {
+    let {owners; status} = data[artId];
+
+    Array.map<T.Block, T.Block>(Array.freeze(owners), func (block) {
       if (block.owner == status.owner) {
-        blockWithTimeNow(block)
+        blockWithTimeNow(block, status)
       } else {
         block
       }
