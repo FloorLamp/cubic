@@ -28,6 +28,10 @@ export const generateBlocks = (length = 100): Block[] => {
   return Array.from({ length }, (_, i) => {
     return {
       id: BigInt(i),
+      totalSaleCount: BigInt(0),
+      lastPurchasePrice: BigInt(0),
+      lastSaleTime: BigInt(0),
+      lastSalePrice: BigInt(0),
       totalValue: BigInt(Math.floor(randomNormal(1, 2000, 5)) * 1e12),
       totalOwnedTime: BigInt(Math.floor(randomNormal(0, 86_400 * 60, 5)) * 1e9),
       owner: randomPrincipal(),
@@ -47,6 +51,10 @@ export const generateAdditional = (data: Block[], count: number = 1) => {
         .concat({
           id,
           owner,
+          totalSaleCount: BigInt(0),
+          lastPurchasePrice: BigInt(0),
+          lastSaleTime: BigInt(0),
+          lastSalePrice: BigInt(0),
           totalValue:
             totalValue + BigInt(Math.floor(randomNormal(1, 100)) * 1e12),
           totalOwnedTime:
@@ -56,9 +64,13 @@ export const generateAdditional = (data: Block[], count: number = 1) => {
     } else {
       d = d.concat({
         id: BigInt(d.length),
+        owner: randomPrincipal(),
+        totalSaleCount: BigInt(0),
+        lastPurchasePrice: BigInt(0),
+        lastSaleTime: BigInt(0),
+        lastSalePrice: BigInt(0),
         totalValue: BigInt(Math.floor(randomNormal(1, 100)) * 1e12),
         totalOwnedTime: BigInt(Math.floor(randomNormal(0, 86_400)) * 1e9),
-        owner: randomPrincipal(),
       });
     }
     i++;
