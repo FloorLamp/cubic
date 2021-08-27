@@ -10,8 +10,12 @@ export const idlFactory = ({ IDL }) => {
   });
   const Block = IDL.Record({
     'id' : IDL.Nat,
+    'totalSaleCount' : IDL.Nat,
     'totalValue' : IDL.Nat,
     'owner' : IDL.Principal,
+    'lastPurchasePrice' : IDL.Int,
+    'lastSaleTime' : IDL.Int,
+    'lastSalePrice' : IDL.Int,
     'totalOwnedTime' : IDL.Int,
   });
   const ErrorCode = IDL.Variant({
@@ -53,7 +57,11 @@ export const idlFactory = ({ IDL }) => {
     'order' : IDL.Variant({ 'asc' : IDL.Null, 'desc' : IDL.Null }),
     'orderBy' : IDL.Variant({
       'id' : IDL.Null,
+      'totalSaleCount' : IDL.Null,
       'totalValue' : IDL.Null,
+      'lastPurchasePrice' : IDL.Null,
+      'lastSaleTime' : IDL.Null,
+      'lastSalePrice' : IDL.Null,
       'totalOwnedTime' : IDL.Null,
     }),
   });
@@ -108,6 +116,7 @@ export const idlFactory = ({ IDL }) => {
     'getHistory' : IDL.Func([], [IDL.Vec(Transfer)], ['query']),
     'getStatus' : IDL.Func([], [Status, IDL.Opt(Block)], ['query']),
     'info' : IDL.Func([], [Info], ['query']),
+    'info_secure' : IDL.Func([], [Info], []),
     'setCanisters' : IDL.Func([Canisters], [], []),
     'tokenTransferNotification' : IDL.Func(
         [TokenIdentifier, User, Balance, Memo],

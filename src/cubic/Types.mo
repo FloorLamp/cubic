@@ -13,16 +13,31 @@ module {
     value: Nat;
   };
 
-  public type Block = {
+  public type Block_pre = {
     id: Nat;
     owner: Principal;
     totalOwnedTime: Int;
     totalValue: Nat;
   };
 
+  public type Block = {
+    id: Nat;
+    owner: Principal;
+    lastPurchasePrice: Int;
+    lastSalePrice: Int;
+    lastSaleTime: Int;
+    totalOwnedTime: Int;
+    totalSaleCount: Nat;
+    totalValue: Nat;
+  };
+
   public type BlocksRequest = {
     orderBy: {
       #id;
+      #lastPurchasePrice;
+      #lastSalePrice;
+      #lastSaleTime;
+      #totalSaleCount;
       #totalOwnedTime;
       #totalValue;
     };

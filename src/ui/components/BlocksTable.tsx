@@ -1,6 +1,11 @@
+import { DateTime } from "luxon";
 import React, { useState } from "react";
 import { blockColor } from "../lib/blocks";
-import { formatDuration, secondsToDuration } from "../lib/datetime";
+import {
+  dateTimeFromNanos,
+  formatDuration,
+  secondsToDuration,
+} from "../lib/datetime";
 import { useArt } from "../lib/hooks/useArt";
 import { useBlocks } from "../lib/hooks/useBlocks";
 import { useStatus } from "../lib/hooks/useStatus";
@@ -23,8 +28,10 @@ export function BlocksTable() {
         <div className="flex-1">
           {art.data?.length} Unique {pluralize("Owner", art.data?.length)}
         </div>
-        <div className="hidden xs:block w-64 text-right">Total Time Owned</div>
-        <div className="hidden sm:block w-48 text-right">Total Sales</div>
+        <div className="hidden md:block w-40 text-right">Last Owned</div>
+        <div className="hidden xs:block w-40 text-right">Time Owned</div>
+        <div className="hidden md:block w-32 text-right">Last Sale</div>
+        <div className="hidden sm:block w-32 text-right">Total Sales</div>
       </div>
       <ul className="text-sm flex flex-col gap-2 xs:gap-0">
         {blocks.data?.map((block, i) => {
@@ -49,19 +56,30 @@ export function BlocksTable() {
                     id={block.owner}
                     isShort={true}
                   />
-                  {isOwner && (
-                    <span className="px-2 py-1 leading-none text-xs rounded-md bg-gray-300 text-gray-700 ml-2">
-                      Current Owner
-                    </span>
-                  )}
                 </div>
               </div>
-              <div className="ml-5 xs:ml-0 xs:w-64 xs:text-right">
+              <div className="hidden md:block w-40 text-right">
+                {block.lastSaleTime > 0 ? (
+                  dateTimeFromNanos(block.lastSaleTime)
+                    .toUTC()
+                    .toLocaleString({
+                      ...DateTime.DATETIME_SHORT,
+                    })
+                ) : (
+                  <span className="px-2 py-1 leading-none text-xs rounded-md bg-gray-300 text-gray-800 ml-2">
+                    Current Owner
+                  </span>
+                )}
+              </div>
+              <div className="ml-5 xs:ml-0 xs:w-40 xs:text-right">
                 {formatDuration(
                   secondsToDuration(block.totalOwnedTime / BigInt(1e9))
                 )}
               </div>
-              <div className="hidden sm:block w-48 text-right">
+              <div className="hidden md:block w-32 text-right">
+                {formatNumber(Number(block.lastSalePrice) / 1e12)} <TokenLogo />
+              </div>
+              <div className="hidden sm:block w-32 text-right">
                 {formatNumber(Number(block.totalValue) / 1e12)} <TokenLogo />
               </div>
             </li>

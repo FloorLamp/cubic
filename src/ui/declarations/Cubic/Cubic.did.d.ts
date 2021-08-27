@@ -3,15 +3,23 @@ export type AccountIdentifier = string;
 export type Balance = bigint;
 export interface Block {
   'id' : bigint,
+  'totalSaleCount' : bigint,
   'totalValue' : bigint,
   'owner' : Principal,
+  'lastPurchasePrice' : bigint,
+  'lastSaleTime' : bigint,
+  'lastSalePrice' : bigint,
   'totalOwnedTime' : bigint,
 }
 export interface BlocksRequest {
   'order' : { 'asc' : null } |
     { 'desc' : null },
   'orderBy' : { 'id' : null } |
+    { 'totalSaleCount' : null } |
     { 'totalValue' : null } |
+    { 'lastPurchasePrice' : null } |
+    { 'lastSaleTime' : null } |
+    { 'lastSalePrice' : null } |
     { 'totalOwnedTime' : null },
 }
 export interface Canisters { 'wtc' : Principal, 'xtc' : Principal }
@@ -26,6 +34,7 @@ export interface Cubic {
   'getHistory' : () => Promise<Array<Transfer>>,
   'getStatus' : () => Promise<[Status, [] | [Block]]>,
   'info' : () => Promise<Info>,
+  'info_secure' : () => Promise<Info>,
   'setCanisters' : (arg_0: Canisters) => Promise<undefined>,
   'tokenTransferNotification' : (
       arg_0: TokenIdentifier,

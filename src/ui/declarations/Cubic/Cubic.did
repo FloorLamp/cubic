@@ -106,6 +106,7 @@ type Cubic =
    getHistory: () -> (vec Transfer) query;
    getStatus: () -> (Status, opt Block) query;
    info: () -> (Info) query;
+   info_secure: () -> (Info);
    setCanisters: (Canisters) -> ();
    tokenTransferNotification: (TokenIdentifier, User, Balance, Memo) ->
     (opt Balance);
@@ -123,17 +124,26 @@ type BlocksRequest =
             asc;
             desc;
           };
-   orderBy: variant {
-              id;
-              totalOwnedTime;
-              totalValue;
-            };
+   orderBy:
+    variant {
+      id;
+      lastPurchasePrice;
+      lastSalePrice;
+      lastSaleTime;
+      totalOwnedTime;
+      totalSaleCount;
+      totalValue;
+    };
  };
 type Block = 
  record {
    id: nat;
+   lastPurchasePrice: int;
+   lastSalePrice: int;
+   lastSaleTime: int;
    owner: principal;
    totalOwnedTime: int;
+   totalSaleCount: nat;
    totalValue: nat;
  };
 type Balance = nat;
