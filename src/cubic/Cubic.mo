@@ -3,13 +3,17 @@ import Cycles "mo:base/ExperimentalCycles";
 import Debug "mo:base/Debug";
 import Error "mo:base/Error";
 import HashMap "mo:base/HashMap";
+import Http "./Http";
 import Int "mo:base/Int";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Nat64 "mo:base/Nat64";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
+
+import Svg000 "./Svg/000";
 import T "./Types";
+import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Wtc "./WtcTypes";
 import Xtc "./XtcTypes";
@@ -78,6 +82,22 @@ shared actor class Cubic(init: T.Initialization) = this {
 
   public query func art(artId: Nat): async [T.Block] {
     latestBlocks(artId)
+  };
+
+  public query func http_request(req: Http.HttpRequest): async (Http.HttpResponse) {
+    let path = Http.removeQuery(req.url);
+
+    switch (path) {
+      case ("/000.svg") { Http.svg(Svg000.make(latestBlocks(0))) };
+      case _ {
+        {
+          body = Text.encodeUtf8("404 Not found :" # path);
+          headers = [];
+          status_code = 404;
+          streaming_strategy = null;
+        };
+      }
+    };
   };
 
   /* Return 100 sorted blocks, no pagination */
