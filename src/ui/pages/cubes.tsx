@@ -21,10 +21,10 @@ import { Asset, TcAsset } from "../lib/types";
 import { formatNumber } from "../lib/utils";
 
 const Assets: { value: Asset; label: ReactNode }[] = [
-  // {
-  //   value: "XTC",
-  //   label: <img className="w-4" src="/img/XTC.svg" />,
-  // },
+  {
+    value: "XTC",
+    label: <img className="w-4" src="/img/XTC.svg" />,
+  },
   { value: "WTC", label: null },
   { value: "Cycles", label: null },
   {

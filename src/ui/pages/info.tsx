@@ -66,18 +66,15 @@ export default function InfoPage() {
               from ToniqLabs
             </li>
             <li>
-              <span className="line-through">
-                <a
-                  className="underline cursor-pointer"
-                  href="https://dank.ooo/xtc/"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  XTC
-                </a>{" "}
-                from Fleek
-              </span>{" "}
-              (not available currently)
+              <a
+                className="underline cursor-pointer"
+                href="https://dank.ooo/xtc/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                XTC
+              </a>{" "}
+              from Fleek
             </li>
             <li>
               <a

@@ -37,6 +37,7 @@ export interface Cubic {
   'getStatus' : (arg_0: bigint) => Promise<StatusAndOwner>,
   'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
   'info' : () => Promise<Info>,
+  'restore' : () => Promise<undefined>,
   'setCanisters' : (arg_0: Canisters) => Promise<undefined>,
   'tokenTransferNotification' : (
       arg_0: TokenIdentifier,

@@ -1,0 +1,57 @@
+type Transfer = 
+ record {
+   from: principal;
+   id: nat;
+   timestamp: int;
+   to: principal;
+   value: nat;
+ };
+type Status = 
+ record {
+   offerTimestamp: int;
+   offerValue: nat;
+   owner: principal;
+ };
+type PrincipalToNatEntry = 
+ record {
+   principal;
+   nat;
+ };
+type DataEntry_shared = 
+ record {
+   artId: nat;
+   ownerIdEntries: vec PrincipalToNatEntry;
+   owners: vec Block;
+   status: Status;
+   transfers: vec Transfer;
+ };
+type CubicBackup = 
+ service {
+   get: () -> (Backup);
+   load: (Backup) -> ();
+ };
+type Block = 
+ record {
+   id: nat;
+   lastPurchasePrice: int;
+   lastSalePrice: int;
+   lastSaleTime: int;
+   owner: principal;
+   totalOwnedTime: int;
+   totalSaleCount: nat;
+   totalValue: nat;
+ };
+type Backup = 
+ record {
+   cubesSupply: nat;
+   dataEntries: vec DataEntry_shared;
+   feesCollected: nat;
+   foreclosureCount: nat;
+   lastTaxTimestamp: int;
+   ledgerEntries: vec PrincipalToNatEntry;
+   salesTotal: nat;
+   taxCollected: nat;
+   wtcBalance: nat;
+   xtcBalance: nat;
+ };
+service : () -> CubicBackup

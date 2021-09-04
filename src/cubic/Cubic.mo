@@ -41,6 +41,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
   let wtc = actor (Principal.toText(canisters.wtc)) : Wtc.Self;
   let xtc = actor (Principal.toText(canisters.xtc)) : Xtc.Self;
+  let backup : T.BackupService = actor "b6e3n-dqaaa-aaaah-aaqyq-cai";
 
   // ---- Economic parameters
 
@@ -52,6 +53,10 @@ shared actor class Cubic(init: T.Initialization) = this {
   stable var TRANSACTION_FEE = 1_000_000; // 1%
   stable var ANNUAL_TAX_RATE = 5_000_000; // 5%
   stable var FORECLOSURE_PRICE = 1 * TC; // 1 TC
+
+  // ---- Backups
+  let BACKUP_INTERVAL = 30 * 60 * 1_000_000_000; // store backups every 30 min
+  stable var lastBackupTime = 0;
 
 
   // ---- Getters
@@ -460,6 +465,31 @@ shared actor class Cubic(init: T.Initialization) = this {
     canisters := newCanisters;
   };
 
+  // Restore from backup canister
+  public shared({ caller }) func restore(): async () {
+    assert(caller == controller);
+    let dump = await backup.get();
+
+    ledger := HashMap.fromIter<Principal, Nat>(dump.ledgerEntries.vals(), dump.ledgerEntries.size(), Principal.equal, Principal.hash);
+    data := Array.thaw(Array.map<T.DataEntry_shared, T.Data>(dump.dataEntries, func (d) {
+      {
+        artId = d.artId;
+        owners = Array.thaw(d.owners);
+        status = d.status;
+        ownerIds = HashMap.fromIter<Principal, Nat>(d.ownerIdEntries.vals(), d.ownerIdEntries.size(), Principal.equal, Principal.hash);
+        transfers = d.transfers;
+      }
+    }));
+    cubesSupply := dump.cubesSupply;
+    wtcBalance := dump.wtcBalance;
+    xtcBalance := dump.xtcBalance;
+    salesTotal := dump.salesTotal;
+    lastTaxTimestamp := dump.lastTaxTimestamp;
+    taxCollected := dump.taxCollected;
+    feesCollected := dump.feesCollected;
+    foreclosureCount := dump.foreclosureCount;
+  };
+
 
   // ---- System functions
 
@@ -467,6 +497,7 @@ shared actor class Cubic(init: T.Initialization) = this {
   public shared func canister_heartbeat(): async () {
     _tax();
     ignore _refill();
+    await _backup();
   };
 
   system func preupgrade() {
@@ -699,6 +730,40 @@ shared actor class Cubic(init: T.Initialization) = this {
     Cycles.add(amountWithMargin - wtcBalance);
     await wtc.mint(null);
     true
+  };
+
+  /*
+    Backup stable state to another canister every 30 mins
+  */
+  func _backup(): async () {
+    if (Time.now() - lastBackupTime < BACKUP_INTERVAL) {
+      return;
+    };
+
+    let dump = {
+      ledgerEntries = Array.filter<T.PrincipalToNatEntry>(Iter.toArray(ledger.entries()), func ((_, bal)) {
+        bal > 0
+      });
+      dataEntries = Array.map<T.Data, T.DataEntry_shared>(Array.freeze(data), func (d) {
+        {
+          artId = d.artId;
+          owners = Array.freeze(d.owners);
+          status = d.status;
+          ownerIdEntries = Iter.toArray(d.ownerIds.entries());
+          transfers = d.transfers;
+        }
+      });
+      cubesSupply = cubesSupply;
+      wtcBalance = wtcBalance;
+      xtcBalance = xtcBalance;
+      salesTotal = salesTotal;
+      lastTaxTimestamp = lastTaxTimestamp;
+      taxCollected = taxCollected;
+      feesCollected = feesCollected;
+      foreclosureCount = foreclosureCount;
+    };
+
+    await backup.load(dump);
   };
 
 

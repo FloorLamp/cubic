@@ -169,6 +169,7 @@ export const idlFactory = ({ IDL }) => {
     'getStatus' : IDL.Func([IDL.Nat], [StatusAndOwner], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'info' : IDL.Func([], [Info], ['query']),
+    'restore' : IDL.Func([], [], []),
     'setCanisters' : IDL.Func([Canisters], [], []),
     'tokenTransferNotification' : IDL.Func(
         [TokenIdentifier, User, Balance, Memo],

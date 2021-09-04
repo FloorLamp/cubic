@@ -14,6 +14,13 @@ module {
     transfers: [Transfer];
   };
 
+  public type DataEntry_shared = {
+    artId: Nat;
+    owners: [Block];
+    status: Status;
+    ownerIdEntries: [PrincipalToNatEntry];
+    transfers: [Transfer];
+  };
   public type DataEntry = {
     artId: Nat;
     owners: [var Block];
@@ -142,4 +149,22 @@ module {
   };
 
   public type Result = Result.Result<(), Error>;
+
+  public type BackupService = actor {
+    get : shared () -> async Backup;
+    load : shared Backup -> async ();
+  };
+
+  public type Backup = {
+    ledgerEntries: [PrincipalToNatEntry];
+    dataEntries: [DataEntry_shared];
+    cubesSupply: Nat;
+    wtcBalance: Nat;
+    xtcBalance: Nat;
+    salesTotal: Nat;
+    lastTaxTimestamp: Int;
+    taxCollected: Nat;
+    feesCollected: Nat;
+    foreclosureCount: Nat;
+  };
 };

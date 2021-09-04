@@ -166,6 +166,7 @@ type Cubic =
    getStatus: (nat) -> (StatusAndOwner) query;
    http_request: (HttpRequest) -> (HttpResponse) query;
    info: () -> (Info) query;
+   restore: () -> ();
    setCanisters: (Canisters) -> ();
    tokenTransferNotification: (TokenIdentifier, User, Balance, Memo) ->
     (opt Balance);
