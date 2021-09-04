@@ -1,34 +1,33 @@
 import classNames from "classnames";
-import React from "react";
-import { Block } from "../declarations/Cubic/Cubic.did";
-import { generateAdditional, generateBlocks } from "../lib/generate";
-import { useArt } from "../lib/hooks/useArt";
-import useArtId from "../lib/hooks/useArtId";
+import { DateTime } from "luxon";
+import React, { useState } from "react";
+import { dateTimeToNanos } from "../lib/datetime";
+import { generate } from "../lib/generate";
+import useInterval from "../lib/hooks/useInterval";
+import { INITIAL_MOCK_STATE, useMockData } from "./Store/Store";
 
-export const DevTools = ({
-  data,
-  setData,
-  isLive,
-  setIsLive,
-}: {
-  data: Block[];
-  setData: (arg: Block[]) => void;
-  isLive: boolean;
-  setIsLive: (arg: boolean) => void;
-}) => {
-  const artId = useArtId();
-  const { data: art } = useArt({ artId });
+export const DevTools = () => {
+  const [mockData, setMockData] = useMockData();
+  const [isPlaying, setIsPlaying] = useState(false);
+  useInterval(() => {
+    if (isPlaying) {
+      setMockData(generate(mockData));
+    }
+  }, 50);
+
   return (
     <div className="fixed z-10 bottom-0">
       <div className="p-2 flex gap-2 bg-black bg-opacity-50">
         <button
           className={classNames("btn-cta px-4 py-2", {
-            "btn-cta": !isLive,
-            "btn-secondary": isLive,
+            "btn-cta": mockData.active,
+            "btn-secondary": !mockData.active,
           })}
           onClick={() => {
-            setIsLive(true);
-            setData(art);
+            setMockData({
+              ...mockData,
+              active: false,
+            });
           }}
         >
           Live
@@ -36,38 +35,60 @@ export const DevTools = ({
         <button
           className="btn-cta px-4 py-2"
           onClick={() => {
-            setIsLive(false);
-            setData(generateAdditional(data));
+            setMockData({
+              ...INITIAL_MOCK_STATE,
+              active: true,
+              now: dateTimeToNanos(DateTime.utc()),
+            });
           }}
         >
-          Add 1
+          Reset
+        </button>
+        <button
+          className={classNames("btn-cta px-4 py-2", {
+            "btn-cta": !isPlaying,
+            "btn-secondary": isPlaying,
+          })}
+          onClick={() => {
+            setIsPlaying(!isPlaying);
+          }}
+        >
+          {isPlaying ? "Pause" : "Play"}
         </button>
         <button
           className="btn-cta px-4 py-2"
           onClick={() => {
-            setIsLive(false);
-            setData(generateAdditional(data, 10));
+            setMockData({ ...generate(mockData), active: true });
           }}
         >
-          Add 10
+          Add 1hr
         </button>
         <button
           className="btn-cta px-4 py-2"
           onClick={() => {
-            setIsLive(false);
-            setData(generateAdditional(data, 100));
+            setMockData({ ...generate(mockData, 24), active: true });
           }}
         >
-          Add 100
+          Add 1d
         </button>
         <button
           className="btn-cta px-4 py-2"
           onClick={() => {
-            setIsLive(false);
-            setData(generateBlocks(100));
+            setMockData({ ...generate(mockData, 24 * 30), active: true });
           }}
         >
-          Roll 100
+          Add 1mo
+        </button>
+        <button
+          className="btn-cta px-4 py-2"
+          onClick={() => {
+            setMockData({
+              ...generate(INITIAL_MOCK_STATE, 24 * 30),
+              active: true,
+            });
+          }}
+        >
+          Roll 1mo
         </button>
       </div>
     </div>

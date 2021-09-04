@@ -3,7 +3,7 @@ import { useCubic, useGlobalContext } from "../../components/Store/Store";
 import { ONE_MINUTES_MS } from "../constants";
 import useArtId from "./useArtId";
 
-export const useHistory = ({ onlyUser }: { onlyUser: boolean }) => {
+export const useHistory = (onlyUser?: boolean) => {
   const artId = useArtId();
   const cubic = useCubic();
   const {

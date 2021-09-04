@@ -7,27 +7,27 @@ export const cubicDescriptions = {
   "0": "This simple spiral square will produce a pleasing array of colors.",
 };
 
-export const principalColor = (principal?: Principal) => {
-  if (!principal) return "";
-
+export const principalHash = (principal: Principal) => {
   let hash = 0;
   const bytes = principal.toUint8Array();
   for (const byte of bytes) {
     hash = byte + (hash << 5) - hash;
     hash = hash & hash;
   }
+  return hash >>> 0;
+};
+
+export const principalColor = (principal?: Principal) => {
+  if (!principal) return "";
+
+  let hash = principalHash(principal);
   return `hsl(${hash % 360},100%,50%)`;
 };
 
 export const ownerColor = (owner: Block) => {
   if (!owner) return "";
 
-  let hash = 0;
-  const bytes = owner.owner.toUint8Array();
-  for (const byte of bytes) {
-    hash = byte + (hash << 5) - hash;
-    hash = hash & hash;
-  }
+  let hash = principalHash(owner.owner);
 
   const sat =
     owner.totalValue < BigInt(1e12)

@@ -36,6 +36,26 @@ type Transfer =
    value: nat;
  };
 type TokenIdentifier = text;
+type StreamingStrategy = variant {
+                           Callback:
+                            record {
+                              callback:
+                               func (StreamingCallbackToken) ->
+                                (StreamingCallbackHttpResponse) query;
+                              token: StreamingCallbackToken;
+                            };};
+type StreamingCallbackToken = 
+ record {
+   content_encoding: text;
+   index: nat;
+   key: text;
+   sha256: opt blob;
+ };
+type StreamingCallbackHttpResponse = 
+ record {
+   body: blob;
+   token: opt StreamingCallbackToken;
+ };
 type StatusAndOwner = 
  record {
    owner: opt Block;
@@ -80,6 +100,20 @@ type Info =
       xtcBalance: nat;
     };
  };
+type HttpResponse = 
+ record {
+   body: blob;
+   headers: vec HeaderField;
+   status_code: nat16;
+   streaming_strategy: opt StreamingStrategy;
+ };
+type HttpRequest = 
+ record {
+   body: blob;
+   headers: vec HeaderField;
+   method: text;
+   url: text;
+ };
 type HistoryResponse = 
  record {
    count: nat;
@@ -89,6 +123,11 @@ type HistoryRequest =
  record {
    artId: nat;
    "principal": opt principal;
+ };
+type HeaderField = 
+ record {
+   text;
+   text;
  };
 type ErrorCode = 
  variant {
@@ -125,6 +164,7 @@ type Cubic =
    getBlocks: (BlocksRequest) -> (vec Block) query;
    getHistory: (HistoryRequest) -> (HistoryResponse) query;
    getStatus: (nat) -> (StatusAndOwner) query;
+   http_request: (HttpRequest) -> (HttpResponse) query;
    info: () -> (Info) query;
    setCanisters: (Canisters) -> ();
    tokenTransferNotification: (TokenIdentifier, User, Balance, Memo) ->

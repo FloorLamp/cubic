@@ -4,16 +4,14 @@ import React from "react";
 import { CgSpinner } from "react-icons/cg";
 import { FiChevronRight } from "react-icons/fi";
 import { cubicName } from "../lib/blocks";
-import { useArt } from "../lib/hooks/useArt";
 import { useStatus } from "../lib/hooks/useStatus";
+import { assetUrl } from "../lib/url";
 import { formatNumber } from "../lib/utils";
-import { Art000 } from "./Canvas/000";
 import Panel from "./Containers/Panel";
 import { TokenLogo } from "./Labels/TokenLabel";
 
 export const Preview = ({ artId }: { artId: string }) => {
   const router = useRouter();
-  const art = useArt({ artId });
   const { data, isLoading } = useStatus({ artId });
 
   return (
@@ -22,7 +20,7 @@ export const Preview = ({ artId }: { artId: string }) => {
         className="group cursor-pointer"
         onClick={() => router.push(`/a/${artId}`)}
       >
-        {artId === "0" && art.data && <Art000 data={art.data} />}
+        {artId === "0" && <img src={assetUrl("000.svg")} className="w-full" />}
         <Link href={`/a/${artId}`}>
           <a className="pt-2 inline-flex gap-1 items-center group font-bold hover:underline">
             <span>{cubicName(artId)}</span>

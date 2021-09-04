@@ -1,26 +1,43 @@
-import React, { useState } from "react";
+import { DateTime } from "luxon";
+import React from "react";
+import { dateTimeToNanos } from "../../lib/datetime";
 import { useArt } from "../../lib/hooks/useArt";
 import useArtId from "../../lib/hooks/useArtId";
+import { useHistory } from "../../lib/hooks/useHistory";
+import { useStatus } from "../../lib/hooks/useStatus";
+import { assetUrl } from "../../lib/url";
 import Panel from "../Containers/Panel";
-import { Art000 } from "./000";
+import { DevTools } from "../DevTools";
+import { useMockData } from "../Store/Store";
+import { Art001 } from "./001";
+import { Art002 } from "./002";
+import { Art003 } from "./003";
+import { Art004 } from "./004";
 
 export default function Canvas() {
   const artId = useArtId();
   const art = useArt({ artId });
-  const [data, setData] = useState([]);
-  const [isLive, setIsLive] = useState(true);
-  const actualData = isLive ? art.data : data;
+  const status = useStatus({ artId });
+  const history = useHistory();
+  const [mockData] = useMockData();
+  const actualData = mockData.active ? mockData.art : art.data;
+  const actualStatus = mockData.active ? mockData.status : status.data;
+  const actualTransfers = mockData.active ? mockData.transfers : history.data;
+  const actualNow = mockData.active
+    ? mockData.now
+    : dateTimeToNanos(DateTime.utc());
 
   return (
     <Panel className="p-8 w-full flex flex-col items-center">
-      {artId === "0" && actualData && <Art000 data={actualData} />}
+      {artId === "0" && <img src={assetUrl("000.svg")} />}
+      {artId === "1" && <Art001 data={actualData} status={actualStatus} />}
+      {artId === "2" && <Art002 data={actualTransfers} now={actualNow} />}
+      {artId === "3" && <Art003 data={actualTransfers} />}
+      {artId === "4" && (
+        <Art004 owners={actualData} transfers={actualTransfers} />
+      )}
 
-      {/* <DevTools
-        data={data}
-        setData={setData}
-        isLive={isLive}
-        setIsLive={setIsLive}
-      /> */}
+      <DevTools />
     </Panel>
   );
 }

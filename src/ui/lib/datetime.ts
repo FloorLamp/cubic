@@ -3,8 +3,7 @@ import { DateTime, Duration } from "luxon";
 export const dateTimeFromNanos = (n: bigint) =>
   DateTime.fromSeconds(Number(n / BigInt(1e9)));
 
-export const dateTimeToNanos = (dt: DateTime) =>
-  BigInt(dt.toSeconds()) * BigInt(1e9);
+export const dateTimeToNanos = (dt: DateTime) => BigInt(dt.toSeconds() * 1e9);
 
 export const secondsToDuration = (n: number | bigint): Duration => {
   let seconds = n;

@@ -35,6 +35,7 @@ export interface Cubic {
   'getBlocks' : (arg_0: BlocksRequest) => Promise<Array<Block>>,
   'getHistory' : (arg_0: HistoryRequest) => Promise<HistoryResponse>,
   'getStatus' : (arg_0: bigint) => Promise<StatusAndOwner>,
+  'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
   'info' : () => Promise<Info>,
   'setCanisters' : (arg_0: Canisters) => Promise<undefined>,
   'tokenTransferNotification' : (
@@ -59,6 +60,7 @@ export type ErrorCode = { 'canister_error' : null } |
   { 'canister_reject' : null } |
   { 'destination_invalid' : null } |
   { 'system_fatal' : null };
+export type HeaderField = [string, string];
 export interface HistoryRequest {
   'principal' : [] | [Principal],
   'artId' : bigint,
@@ -66,6 +68,18 @@ export interface HistoryRequest {
 export interface HistoryResponse {
   'transfers' : Array<Transfer>,
   'count' : bigint,
+}
+export interface HttpRequest {
+  'url' : string,
+  'method' : string,
+  'body' : Array<number>,
+  'headers' : Array<HeaderField>,
+}
+export interface HttpResponse {
+  'body' : Array<number>,
+  'headers' : Array<HeaderField>,
+  'streaming_strategy' : [] | [StreamingStrategy],
+  'status_code' : number,
 }
 export interface Info {
   'arts' : bigint,
@@ -100,6 +114,22 @@ export interface Status {
   'offerValue' : bigint,
 }
 export interface StatusAndOwner { 'status' : Status, 'owner' : [] | [Block] }
+export interface StreamingCallbackHttpResponse {
+  'token' : [] | [StreamingCallbackToken],
+  'body' : Array<number>,
+}
+export interface StreamingCallbackToken {
+  'key' : string,
+  'sha256' : [] | [Array<number>],
+  'index' : bigint,
+  'content_encoding' : string,
+}
+export type StreamingStrategy = {
+    'Callback' : {
+      'token' : StreamingCallbackToken,
+      'callback' : [Principal, string],
+    }
+  };
 export type TokenIdentifier = string;
 export interface Transfer {
   'id' : bigint,

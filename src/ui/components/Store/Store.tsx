@@ -1,6 +1,7 @@
 import { HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import React, { createContext, useContext, useReducer } from "react";
+import { Block, HistoryResponse } from "../../declarations/Cubic/Cubic.did";
 import * as Cubic from "../../declarations/Cubic/index";
 import * as ledger from "../../declarations/ledger/index";
 import * as wtc from "../../declarations/wtc/index";
@@ -9,11 +10,12 @@ import { defaultAgent } from "../../lib/canisters";
 import {
   CubicService,
   LedgerService,
+  ParsedStatus,
   WtcService,
   XtcService,
 } from "../../lib/types";
 
-type State = {
+export type State = {
   agent: HttpAgent;
   cubic: CubicService;
   xtc: XtcService;
@@ -22,6 +24,29 @@ type State = {
   isAuthed: boolean;
   principal: Principal | null;
   showLoginModal: boolean;
+  mockData: {
+    active: boolean;
+    status: ParsedStatus;
+    transfers: HistoryResponse;
+    art: Block[];
+    now: bigint;
+  };
+};
+
+export const INITIAL_MOCK_STATE = {
+  active: true,
+  transfers: { transfers: [], count: BigInt(0) },
+  art: [],
+  status: {
+    status: {
+      owner: null,
+      offerValue: 1,
+      offerTimestamp: BigInt(0),
+    },
+    artId: "0",
+    owner: null,
+  },
+  now: BigInt(0),
 };
 
 const initialState: State = {
@@ -33,6 +58,7 @@ const initialState: State = {
   isAuthed: false,
   principal: null,
   showLoginModal: false,
+  mockData: INITIAL_MOCK_STATE,
 };
 
 type Action =
@@ -48,6 +74,10 @@ type Action =
   | {
       type: "SET_LOGIN_MODAL";
       open: boolean;
+    }
+  | {
+      type: "SET_MOCK_DATA";
+      data: State["mockData"];
     };
 
 const reducer = (state: State, action: Action): State => {
@@ -72,6 +102,11 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         showLoginModal: action.open,
+      };
+    case "SET_MOCK_DATA":
+      return {
+        ...state,
+        mockData: action.data,
       };
   }
 };
@@ -123,6 +158,15 @@ export const useWtc = () => {
 export const useLedger = () => {
   const context = useGlobalContext();
   return context.state.ledger;
+};
+
+export const useMockData = () => {
+  const context = useGlobalContext();
+  return [
+    context.state.mockData,
+    (data: State["mockData"]) =>
+      context.dispatch({ type: "SET_MOCK_DATA", data }),
+  ] as const;
 };
 
 export const useSetAgent = () => {

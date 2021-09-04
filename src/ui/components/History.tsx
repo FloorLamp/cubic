@@ -15,7 +15,7 @@ import { TokenLogo } from "./Labels/TokenLabel";
 
 export function History({ isPreview }: { isPreview?: boolean }) {
   const artId = useArtId();
-  const { data } = useHistory({ onlyUser: false });
+  const { data } = useHistory();
   const transfers = data
     ? isPreview
       ? data?.transfers.slice(0, 9)
