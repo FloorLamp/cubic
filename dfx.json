@@ -12,6 +12,12 @@
       "main": "src/minter/Minter.mo",
       "type": "motoko"
     },
+    "heartbeat": {
+      "build": "cargo build --target wasm32-unknown-unknown --package heartbeat --release",
+      "candid": "src/heartbeat/src/heartbeat.did",
+      "wasm": "target/wasm32-unknown-unknown/release/heartbeat.wasm",
+      "type": "custom"
+    },
     "cubic_assets": {
       "dependencies": ["cubic"],
       "frontend": {

@@ -7,5 +7,8 @@
   },
   "Minter": {
     "ic": "6jzga-hqaaa-aaaae-aac7q-cai"
+  },
+  "heartbeat": {
+    "ic": "bqgwf-yaaaa-aaaah-aaqzq-cai"
   }
 }

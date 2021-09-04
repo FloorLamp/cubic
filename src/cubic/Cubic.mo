@@ -517,8 +517,7 @@ shared actor class Cubic(init: T.Initialization) = this {
   };
 
   system func postupgrade() {
-    let filteredEntries = Array.filter<T.PrincipalToNatEntry>(ledgerEntries, func((_, balance)) { balance > 0 });
-    ledger := HashMap.fromIter<Principal, Nat>(filteredEntries.vals(), filteredEntries.size(), Principal.equal, Principal.hash);
+    ledger := HashMap.fromIter<Principal, Nat>(ledgerEntries.vals(), ledgerEntries.size(), Principal.equal, Principal.hash);
 
     cubesSupply := Array.foldLeft<T.PrincipalToNatEntry, Nat>(ledgerEntries, 0, func (sum, (_, bal)) {
       sum + bal
@@ -549,9 +548,8 @@ shared actor class Cubic(init: T.Initialization) = this {
     - Offer price is set to 0
   */
   func _tax(): () {
-    if (lastTaxTimestamp == 0 ) { return };
-
     let now = Time.now();
+    if (lastTaxTimestamp == 0 or now - lastTaxTimestamp < 10_000_000_000 ) { return };
 
     for (art in data.vals()) {
       let {artId; owners; ownerIds; status; transfers} = art;
