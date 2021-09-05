@@ -9,6 +9,7 @@ import SpinnerButton from "../components/Buttons/SpinnerButton";
 import Panel from "../components/Containers/Panel";
 import ErrorAlert from "../components/Labels/ErrorAlert";
 import { TokenLogo } from "../components/Labels/TokenLabel";
+import { MetaTags } from "../components/MetaTags";
 import { useGlobalContext, useLoginModal } from "../components/Store/Store";
 import { canisterId } from "../declarations/Cubic";
 import { useCubesBalance } from "../lib/hooks/useCubesBalance";
@@ -238,6 +239,10 @@ export default function Cubes() {
 
   return (
     <div className="flex justify-center my-16">
+      <MetaTags
+        title="CUBE"
+        description="Deposit and withdraw CUBE, the currency of cubic.place"
+      />
       <Panel className="max-w-xs w-full p-4">
         <h1 className="text-xl mb-4">Swap CUBE</h1>
         <form

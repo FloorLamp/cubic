@@ -30,7 +30,7 @@ export default function App({ Component, pageProps }) {
         <Head>
           <title>Cubic</title>
         </Head>
-        <div className="flex flex-col items-center bg-gradient-to-b from-blue-700 via-blue-800 to-gray-900">
+        <div className="flex flex-col items-center bg-blue-900">
           <div className="flex flex-col justify-between min-h-screen w-full sm:max-w-screen-lg px-4">
             <main className="flex flex-col justify-start">
               <Nav />

@@ -8,6 +8,7 @@ import Select from "react-select";
 import SpinnerButton from "../components/Buttons/SpinnerButton";
 import Panel from "../components/Containers/Panel";
 import ErrorAlert from "../components/Labels/ErrorAlert";
+import { MetaTags } from "../components/MetaTags";
 import { useGlobalContext, useLoginModal } from "../components/Store/Store";
 import { FEE_AMOUNT } from "../lib/constants";
 import { useCyclesPerIcp } from "../lib/hooks/useCyclesPerIcp";
@@ -253,16 +254,23 @@ export default function Minter() {
 
   return (
     <div className="flex justify-center my-16">
+      <MetaTags
+        title="Cycles Minter"
+        suffix={false}
+        description="Mint wrapped cycles from ICP"
+      />
       <Panel className="max-w-xs w-full p-4">
-        <h1 className="text-xl mb-4">Mint Cycles</h1>
-        <p className="text-sm mb-4">
-          Mint wrapped cycles from ICP.
-          <br />
-          This is a one way operation.
+        <h1 className="text-xl">Cycles Minter</h1>
+        <p className="text-sm mt-4">Use ICP to mint wrapped cycles.</p>
+        <p className="text-sm mt-1">
+          This is a <em>one way</em> operation.
+        </p>
+        <p className="text-sm mt-1">
+          Cycles can be used to pay for applications, or kept as stablecoins.
         </p>
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 mt-4"
           autoComplete="off"
           autoCorrect="off"
         >

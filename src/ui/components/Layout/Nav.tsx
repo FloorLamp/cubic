@@ -19,9 +19,11 @@ export default function Nav() {
 
   return (
     <nav className="py-4 flex flex-col gap-4 sm:gap-0 sm:flex-row items-center justify-between border-b border-black border-opacity-10 text-white">
-      <div className="flex items-baseline gap-8">
+      <div className="flex items-end leading-none gap-8">
         <Link href="/">
-          <a className="text-2xl font-bold uppercase">Cubic</a>
+          <a>
+            <img src="/img/cubic-type.svg" className="h-6" />
+          </a>
         </Link>
 
         <Link href="/info">

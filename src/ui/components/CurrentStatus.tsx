@@ -11,6 +11,7 @@ import {
 import useArtId from "../lib/hooks/useArtId";
 import { useCubesBalance } from "../lib/hooks/useCubesBalance";
 import useHeartbeat from "../lib/hooks/useHeartbeat";
+import { useHistory } from "../lib/hooks/useHistory";
 import { useInfo } from "../lib/hooks/useInfo";
 import { useStatus } from "../lib/hooks/useStatus";
 import { formatNumber, principalIsEqual } from "../lib/utils";
@@ -23,14 +24,22 @@ import PurchaseModal from "./Transaction/PurchaseModal";
 export function CurrentStatus() {
   const artId = useArtId();
   const { data, isLoading } = useStatus({ artId });
+  const history = useHistory();
   const {
     state: { principal },
   } = useGlobalContext();
   const info = useInfo();
   const ownerBalance = useCubesBalance(data?.status.owner);
-  const isOwned = data?.status.owner.toUint8Array().length > 0;
+  const ownerStatus = data
+    ? principalIsEqual(data.status.owner, Principal.fromText(canisterId))
+      ? history.data.count === BigInt(0)
+        ? "New"
+        : "Foreclosed"
+      : "Owned"
+    : null;
+
   const dailyTax =
-    data && info.data && isOwned
+    data && info.data && ownerStatus
       ? ((Number(info.data.stats.annualTaxRate) / 1e8) *
           data.status.offerValue) /
         365
@@ -41,8 +50,6 @@ export function CurrentStatus() {
       ? (ownerBalance.data / dailyTax) * 86400
       : null;
   const isOwner = data && principalIsEqual(data.status.owner, principal);
-  const isForeclosed =
-    data && principalIsEqual(data.status.owner, Principal.fromText(canisterId));
 
   const heartbeat = useHeartbeat();
   useEffect(() => {
@@ -65,10 +72,12 @@ export function CurrentStatus() {
           <CgSpinner className="inline-block animate-spin" />
         ) : (
           <h2 className="font-bold leading-tight">
-            {isForeclosed ? (
+            {ownerStatus === "Foreclosed" ? (
               <span className="text-red-500">Foreclosed</span>
-            ) : isOwned ? (
-              <div className="">
+            ) : ownerStatus === "New" ? (
+              <span className="text-gray-400">None</span>
+            ) : data ? (
+              <div>
                 <div
                   className="w-3 h-3 mr-2 inline-block"
                   style={{
@@ -78,7 +87,7 @@ export function CurrentStatus() {
                 {isOwner ? "You!" : data.status.owner.toText()}
               </div>
             ) : (
-              <span className="text-gray-400">None</span>
+              "—"
             )}
           </h2>
         )}
@@ -86,7 +95,9 @@ export function CurrentStatus() {
 
       <div>
         <label className="block text-gray-500 text-xs uppercase">
-          {isForeclosed ? "Foreclosed" : "Owned"} Since
+          {ownerStatus === "New"
+            ? "Launched"
+            : `${ownerStatus === "Foreclosed" ? "Foreclosed" : "Owned"} Since`}
         </label>
         {isLoading ? (
           <CgSpinner className="inline-block animate-spin" />
@@ -113,7 +124,7 @@ export function CurrentStatus() {
               <strong className="inline-flex items-center">
                 {formatNumber(data.status.offerValue, 12)} <TokenLogo />
               </strong>{" "}
-              {dailyTax > 0 && !isForeclosed && (
+              {dailyTax > 0 && ownerStatus === "Owned" && (
                 <span className="text-gray-400">
                   ({formatNumber(dailyTax)} daily tax)
                 </span>
@@ -123,7 +134,7 @@ export function CurrentStatus() {
         )}
       </div>
 
-      {!isForeclosed && (
+      {ownerStatus === "Owned" && (
         <div>
           <label className="block text-gray-500 text-xs uppercase">
             Estimated Ownership Period

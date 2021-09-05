@@ -1,9 +1,8 @@
 import { useRouter } from "next/dist/client/router";
-import Link from "next/link";
 import React from "react";
 import { CgSpinner } from "react-icons/cg";
 import { FiChevronRight } from "react-icons/fi";
-import { cubicName } from "../lib/blocks";
+import { padProjectId } from "../lib/blocks";
 import { useArt } from "../lib/hooks/useArt";
 import { useStatus } from "../lib/hooks/useStatus";
 import { assetUrl } from "../lib/url";
@@ -20,20 +19,18 @@ export const Preview = ({ artId }: { artId: string }) => {
     <Panel className="p-6 w-full max-w-xs">
       <div
         className="group cursor-pointer"
-        onClick={() => router.push(`/a/${artId}`)}
+        onClick={() => router.push(`/p/${artId}`)}
       >
         {artId === "0" && <img src={assetUrl("000.svg")} className="w-full" />}
         {artId === "1" && <img src={assetUrl("001.svg")} className="w-full" />}
-        <Link href={`/a/${artId}`}>
-          <a className="pt-2 inline-flex gap-1 items-center group font-bold hover:underline">
-            <span>
-              {cubicName(artId)}
-              {" — "}
-              {art ? art[0]?.name : "—"}
-            </span>
-            <FiChevronRight className="inline-block group-hover:translate-x-1 transform transition-transform duration-75" />
-          </a>
-        </Link>
+        <a className="pt-2 inline-flex gap-1 items-center group font-bold hover:underline">
+          <span>
+            {padProjectId(artId)}
+            {" — "}
+            {art ? art[0]?.name : "—"}
+          </span>
+          <FiChevronRight className="inline-block group-hover:translate-x-1 transform transition-transform duration-75" />
+        </a>
       </div>
       <div className="pt-2 flex justify-between">
         <div>

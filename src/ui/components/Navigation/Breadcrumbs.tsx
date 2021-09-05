@@ -18,7 +18,7 @@ export default function Breadcrumbs({ path }: { path: Path[] }) {
   const joined = join(path);
 
   return (
-    <div className="flex items-center gap-2 py-4 overflow-hidden">
+    <div className="flex items-center gap-2 py-4 overflow-hidden text-gray-100">
       <Link href="/">
         <a
           className={classNames({

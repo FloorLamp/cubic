@@ -1,6 +1,7 @@
 import React from "react";
 import Panel from "../components/Containers/Panel";
 import { TokenLabel } from "../components/Labels/TokenLabel";
+import { homeDescription, MetaTags } from "../components/MetaTags";
 import { useInfo } from "../lib/hooks/useInfo";
 import { formatPercent } from "../lib/utils";
 
@@ -8,13 +9,18 @@ export default function InfoPage() {
   const { data } = useInfo();
   return (
     <div className="py-8">
+      <MetaTags title="Info" image="hero" description={homeDescription} />
       <Panel className="w-full p-8 flex flex-col gap-4">
         <h1 className="text-3xl">What is Cubic?</h1>
         <p>
-          Cubic is a generative art project. Elements are dynamically added
-          based on ownership. When you first purchase Cubic, a seed is planted
-          based on your Principal ID. The longer you are the owner, the larger
-          your contribution will grow.
+          Cubic is a generative art project. Data such as ownership history and
+          transaction history are used in different ways to generate unique
+          canvases in a variety of styles.
+        </p>
+        <p>
+          Styles range from slower and subtly-evolving, to highly dynamic and
+          ephemeral. The unique properties of the Internet Computer enable a
+          whole new medium of ownable interactive experiences.
         </p>
         <p>
           Ownership is based on a{" "}
@@ -30,8 +36,9 @@ export default function InfoPage() {
         </p>
         <h3 className="text-xl">Taxes?</h3>
         <p>
-          When purchasing Cubic, you will need to set a new offer price — but
-          don't set this too high! You will be charged a tax based on this price
+          When purchasing an artwork, you will need to set a new offer price —
+          but don't set this too high! You will be charged a tax based on this
+          price
           {data &&
             ` (currently ${formatPercent(
               Number(data.stats.annualTaxRate) / 1e8
@@ -48,7 +55,7 @@ export default function InfoPage() {
         </h3>
         <p>
           You will need CUBE to make purchases. 1 CUBE is equivalent to 1
-          trillion cycles — the unit of compute that power the Internet
+          Trillion Cycles — the unit of compute that power the Internet
           Computer.
         </p>
         <div>
@@ -89,6 +96,20 @@ export default function InfoPage() {
             </li>
           </ul>
         </div>
+
+        <h3 className="text-xl">For Artists and Creatives</h3>
+        <p>
+          cubic.place is open to all creative coders, from beginners to p5js
+          veterans. Please{" "}
+          <a
+            className="underline"
+            href="https://t.me/joinchat/jozeWC4qZGxjYzRh"
+            target="_blank"
+          >
+            get in touch
+          </a>{" "}
+          if you'd like to contribute.
+        </p>
       </Panel>
     </div>
   );

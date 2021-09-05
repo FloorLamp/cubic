@@ -1,11 +1,7 @@
 import { Principal } from "@dfinity/principal";
 import { Block } from "../declarations/Cubic/Cubic.did";
 
-export const cubicName = (id: string) => id.padStart(3, "0");
-
-export const cubicDescriptions = {
-  "0": "This simple spiral square will produce a pleasing array of colors.",
-};
+export const padProjectId = (id: string) => id.padStart(3, "0");
 
 export const principalHash = (principal: Principal) => {
   let hash = 0;
