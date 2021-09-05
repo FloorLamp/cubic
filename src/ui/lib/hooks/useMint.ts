@@ -1,5 +1,9 @@
 import { useMutation, useQueryClient } from "react-query";
-import { useGlobalContext } from "../../components/Store/Store";
+import {
+  useGlobalContext,
+  useNotifications,
+} from "../../components/Store/Store";
+import { Response } from "../../declarations/Minter/Minter.did";
 import { WrappedTcAsset } from "../types";
 
 export default function useMint({
@@ -13,6 +17,7 @@ export default function useMint({
   const {
     state: { principal },
   } = useGlobalContext();
+  const { add } = useNotifications();
 
   return useMutation(
     "mint",
@@ -27,13 +32,20 @@ export default function useMint({
           recipient,
         }),
       });
-      return await res.json();
+      return (await res.json()) as Response;
     },
     {
       onError: (data) => {
         console.warn("mint error", data);
       },
       onSuccess: async (data) => {
+        if ("Ok" in data) {
+          add({
+            type: "Mint",
+            asset: token,
+            amount: Number(data.Ok.amount) / 1e12,
+          });
+        }
         console.log("mint success", data);
 
         queryClient.resetQueries(["icpBalance", principal.toText()]);

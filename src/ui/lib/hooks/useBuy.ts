@@ -22,10 +22,10 @@ export default function useBuy({ artId }: { artId: string }) {
     {
       onSuccess: async (data) => {
         queryClient.resetQueries("cubesBalance");
-        queryClient.refetchQueries("art");
-        queryClient.refetchQueries("blocks");
-        queryClient.refetchQueries("status");
-        queryClient.refetchQueries("history");
+        queryClient.refetchQueries(["art", artId]);
+        queryClient.refetchQueries(["blocks", artId]);
+        queryClient.refetchQueries(["status", artId]);
+        queryClient.refetchQueries(["history", artId]);
         queryClient.refetchQueries("info");
       },
     }

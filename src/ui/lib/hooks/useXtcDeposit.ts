@@ -2,7 +2,11 @@ import { IDL } from "@dfinity/candid";
 import { decode, encode, Nat } from "@dfinity/candid/lib/cjs/idl";
 import { Principal } from "@dfinity/principal";
 import { useMutation, useQueryClient } from "react-query";
-import { useGlobalContext, useXtc } from "../../components/Store/Store";
+import {
+  useGlobalContext,
+  useNotifications,
+  useXtc,
+} from "../../components/Store/Store";
 import { canisterId } from "../../declarations/Cubic";
 
 export default function useXtcDeposit() {
@@ -11,6 +15,7 @@ export default function useXtcDeposit() {
   } = useGlobalContext();
   const queryClient = useQueryClient();
   const xtc = useXtc();
+  const { add } = useNotifications();
 
   return useMutation(
     "xtcDeposit",
@@ -30,7 +35,8 @@ export default function useXtcDeposit() {
       }
     },
     {
-      onSuccess: async (data) => {
+      onSuccess: async (data, tcAmount) => {
+        add({ type: "Withdraw", asset: "XTC", amount: tcAmount });
         queryClient.resetQueries("cubesBalance");
         queryClient.resetQueries("xtcBalance");
       },

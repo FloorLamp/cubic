@@ -3,12 +3,12 @@ import React, { ReactNode, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 
 export const Notification = ({
-  open,
+  open = true,
   handleClose,
   children,
   autoCloseDelay,
 }: {
-  open: boolean;
+  open?: boolean;
   handleClose: () => void;
   children: ReactNode;
   autoCloseDelay?: number;
@@ -29,7 +29,7 @@ export const Notification = ({
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
     >
-      <div className="fixed z-50 top-8 right-8 shadow-xl bg-white px-4 py-3 rounded-md">
+      <div className="shadow-xl bg-white px-4 py-3 rounded-md">
         <div className="relative pr-8">
           <button
             type="button"

@@ -1,5 +1,6 @@
 import { HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
+import { DateTime } from "luxon";
 import React, { createContext, useContext, useReducer } from "react";
 import { Block, HistoryResponse } from "../../declarations/Cubic/Cubic.did";
 import * as Cubic from "../../declarations/Cubic/index";
@@ -14,6 +15,10 @@ import {
   WtcService,
   XtcService,
 } from "../../lib/types";
+import {
+  NewNotification,
+  NotificationType,
+} from "../Notifications/Notifications";
 
 export type State = {
   agent: HttpAgent;
@@ -24,6 +29,7 @@ export type State = {
   isAuthed: boolean;
   principal: Principal | null;
   showLoginModal: boolean;
+  notifications: NotificationType[];
   mockData: {
     active: boolean;
     status: ParsedStatus;
@@ -58,6 +64,7 @@ const initialState: State = {
   isAuthed: false,
   principal: null,
   showLoginModal: false,
+  notifications: [],
   mockData: INITIAL_MOCK_STATE,
 };
 
@@ -74,6 +81,17 @@ type Action =
   | {
       type: "SET_LOGIN_MODAL";
       open: boolean;
+    }
+  | {
+      type: "ADD_NOTIFICATION";
+      payload: NewNotification;
+    }
+  | {
+      type: "REMOVE_NOTIFICATION";
+      id: string;
+    }
+  | {
+      type: "REMOVE_ALL_NOTIFICATION";
     }
   | {
       type: "SET_MOCK_DATA";
@@ -102,6 +120,24 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         showLoginModal: action.open,
+      };
+    case "ADD_NOTIFICATION":
+      return {
+        ...state,
+        notifications: state.notifications.concat({
+          ...action.payload,
+          id: `${DateTime.utc().toMillis()}-${Math.random()}`,
+        }),
+      };
+    case "REMOVE_NOTIFICATION":
+      return {
+        ...state,
+        notifications: state.notifications.filter(({ id }) => id !== action.id),
+      };
+    case "REMOVE_ALL_NOTIFICATION":
+      return {
+        ...state,
+        notifications: [],
       };
     case "SET_MOCK_DATA":
       return {
@@ -158,6 +194,18 @@ export const useWtc = () => {
 export const useLedger = () => {
   const context = useGlobalContext();
   return context.state.ledger;
+};
+
+export const useNotifications = () => {
+  const context = useGlobalContext();
+  return {
+    list: context.state.notifications,
+    add: (payload: NewNotification) =>
+      context.dispatch({ type: "ADD_NOTIFICATION", payload }),
+    remove: (id: string) =>
+      context.dispatch({ type: "REMOVE_NOTIFICATION", id }),
+    clear: () => context.dispatch({ type: "REMOVE_ALL_NOTIFICATION" }),
+  };
 };
 
 export const useMockData = () => {

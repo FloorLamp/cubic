@@ -1,6 +1,10 @@
 import { Principal } from "@dfinity/principal";
 import { useMutation, useQueryClient } from "react-query";
-import { useGlobalContext, useWtc } from "../../components/Store/Store";
+import {
+  useGlobalContext,
+  useNotifications,
+  useWtc,
+} from "../../components/Store/Store";
 import { canisterId } from "../../declarations/Cubic";
 import { extErrorToString } from "../utils";
 
@@ -10,6 +14,7 @@ export default function useWtcDeposit() {
   } = useGlobalContext();
   const queryClient = useQueryClient();
   const wtc = useWtc();
+  const { add } = useNotifications();
 
   return useMutation(
     "wtcDeposit",
@@ -31,7 +36,8 @@ export default function useWtcDeposit() {
       }
     },
     {
-      onSuccess: async (data) => {
+      onSuccess: async (data, tcAmount) => {
+        add({ type: "Withdraw", asset: "WTC", amount: tcAmount });
         queryClient.resetQueries("cubesBalance");
         queryClient.resetQueries("wtcBalance");
       },

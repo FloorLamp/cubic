@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import Footer from "../components/Layout/Footer";
 import Nav from "../components/Layout/Nav";
+import { Notifications } from "../components/Notifications/Notifications";
 import { Subscriptions } from "../components/Query/Subscriptions";
 import Store from "../components/Store/Store";
 import { ONE_HOUR_MS, ONE_MINUTES_MS } from "../lib/constants";
@@ -33,6 +34,7 @@ export default function App({ Component, pageProps }) {
           <div className="flex flex-col justify-between min-h-screen w-full sm:max-w-screen-lg px-4">
             <main className="flex flex-col justify-start">
               <Nav />
+              <Notifications />
 
               <Component {...pageProps} />
             </main>

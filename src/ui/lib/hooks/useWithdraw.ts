@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "react-query";
-import { useCubic } from "../../components/Store/Store";
+import { useCubic, useNotifications } from "../../components/Store/Store";
 import { WithdrawRequest } from "../../declarations/Cubic/Cubic.did";
 import { TcAsset } from "../types";
 import { errorToString } from "../utils";
@@ -7,6 +7,7 @@ import { errorToString } from "../utils";
 export default function useWithdraw() {
   const queryClient = useQueryClient();
   const cubic = useCubic();
+  const { add } = useNotifications();
 
   return useMutation(
     "withdraw",
@@ -27,8 +28,9 @@ export default function useWithdraw() {
           queryClient.resetQueries("cubesBalance");
         }
       },
-      onSuccess: async (data, { asset }) => {
+      onSuccess: async (data, { asset, tcAmount }) => {
         queryClient.resetQueries("cubesBalance");
+        add({ type: "Withdraw", asset, amount: tcAmount });
         if (asset === "WTC") {
           queryClient.resetQueries("wtcBalance");
         } else {
