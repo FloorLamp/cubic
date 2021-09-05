@@ -14,7 +14,7 @@ export const useArt = ({ artId }: { artId: string }) => {
     {
       enabled: !!artId,
       keepPreviousData: true,
-      placeholderData: [],
+      placeholderData: [null, []],
       refetchInterval: ONE_MINUTES_MS,
     }
   );

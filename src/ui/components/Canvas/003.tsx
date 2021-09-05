@@ -8,24 +8,20 @@ export function Art003({ data }: { data: HistoryResponse }) {
   const count = 20;
   const recentTransfers = data.transfers.slice(-count);
 
-  const dx = 1.5;
-  const height = 15;
   const inputs = recentTransfers.map((d, i) => {
     const arr = d.to.toUint8Array();
     let dir = 1;
     const qs = Array.from(arr, (n, i) => {
       dir = i === 0 ? (n - 128 < 0 ? -1 : 1) : -dir;
-      const y = Math.abs(((n - 128) / 256) * height * 3) * dir;
+      const y = Math.abs(((n - 128) / 256) * 45) * dir;
 
-      return `q ${dx} ${y},${dx * 2} ${0} q ${dx / 2} ${-y / 3}, ${dx} ${0} q ${
-        dx / 2
-      } ${y / 2}, ${dx} ${0}`;
+      return `q 1.5 ${y},3 0 q .75 ${-y / 3}, 1.5 0 q .75 ${y / 2}, 1.5 0`;
     }).join(" ");
 
     return {
       ...d,
       color: principalColor(d.to),
-      path: `M0 ${i * height * 0.25} h10 ${qs} h10`,
+      path: `M0 ${i * 3.75} h10 ${qs} h10`,
       strokeWidth: i * 0.005 + 0.05,
     };
   });
@@ -35,7 +31,7 @@ export function Art003({ data }: { data: HistoryResponse }) {
     <svg className="max-w-lg w-full" viewBox={`0 0 ${side} ${side}`}>
       <defs>
         <clipPath id="clip">
-          <rect x="5" y="0" width="90" height="95" />
+          <rect x="5" y="0" width="90" height="90" />
         </clipPath>
         <filter id="shadow" x="0" y="0" width="175" height="200">
           <feOffset result="offOut" in="SourceAlpha" dx="2" dy="2" />
@@ -75,7 +71,6 @@ export function Art003({ data }: { data: HistoryResponse }) {
               y1="0%"
               x2="100%"
               y2="0%"
-              gradientUnits="objectBoundingBox"
             >
               <stop offset="0%" stopColor="#fff" />
               <stop offset="100%" stopColor={color} />
@@ -101,11 +96,7 @@ export function Art003({ data }: { data: HistoryResponse }) {
                 key={id.toString()}
                 transform={`translate(${(count - i) * 1.5}, 15)`}
               >
-                <path
-                  d={path + ` v${height} h${-side} z`}
-                  stroke="none"
-                  fill="#333"
-                />
+                <path d={path + ` v15 h-100 z`} stroke="none" fill="#333" />
                 <path
                   d={path}
                   strokeWidth={strokeWidth}

@@ -9,7 +9,6 @@ import { assetUrl } from "../../lib/url";
 import Panel from "../Containers/Panel";
 import { DevTools } from "../DevTools";
 import { useMockData } from "../Store/Store";
-import { Art001 } from "./001";
 import { Art002 } from "./002";
 import { Art003 } from "./003";
 import { Art004 } from "./004";
@@ -20,7 +19,7 @@ export default function Canvas() {
   const status = useStatus({ artId });
   const history = useHistory();
   const [mockData] = useMockData();
-  const actualData = mockData.active ? mockData.art : art.data;
+  const actualData = mockData.active ? mockData.art : art.data[1];
   const actualStatus = mockData.active ? mockData.status : status.data;
   const actualTransfers = mockData.active ? mockData.transfers : history.data;
   const actualNow = mockData.active
@@ -30,7 +29,7 @@ export default function Canvas() {
   return (
     <Panel className="p-8 w-full flex flex-col items-center">
       {artId === "0" && <img src={assetUrl("000.svg")} />}
-      {artId === "1" && <Art001 data={actualData} status={actualStatus} />}
+      {artId === "1" && <img src={assetUrl("001.svg")} />}
       {artId === "2" && <Art002 data={actualTransfers} now={actualNow} />}
       {artId === "3" && <Art003 data={actualTransfers} />}
       {artId === "4" && (

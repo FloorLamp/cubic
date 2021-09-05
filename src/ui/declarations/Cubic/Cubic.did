@@ -67,6 +67,14 @@ type Status =
    offerValue: nat;
    owner: principal;
  };
+type SetDetailsRequest = 
+ record {
+   artId: nat;
+   createdTime: opt int;
+   creator: opt text;
+   description: opt text;
+   name: opt text;
+ };
 type Result = 
  variant {
    err: Error;
@@ -77,7 +85,6 @@ type Initialization =
  record {
    canisters: Canisters;
    controller: principal;
-   defaultValue: nat;
  };
 type Info = 
  record {
@@ -152,7 +159,8 @@ type Error =
 type Cubic = 
  service {
    acceptCycles: () -> ();
-   art: (nat) -> (vec Block) query;
+   addArt: (ArtDetails) -> ();
+   art: (nat) -> (ArtDetails, vec Block) query;
    balance: (opt principal) -> (nat) query;
    buy: (record {
            artId: nat;
@@ -168,6 +176,7 @@ type Cubic =
    info: () -> (Info) query;
    restore: () -> ();
    setCanisters: (Canisters) -> ();
+   setDetails: (SetDetailsRequest) -> ();
    tokenTransferNotification: (TokenIdentifier, User, Balance, Memo) ->
     (opt Balance);
    wallet_receive: () -> (nat);
@@ -208,5 +217,12 @@ type Block =
    totalValue: nat;
  };
 type Balance = nat;
+type ArtDetails = 
+ record {
+   createdTime: int;
+   creator: text;
+   description: text;
+   name: text;
+ };
 type AccountIdentifier = text;
 service : (Initialization) -> Cubic

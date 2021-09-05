@@ -12,6 +12,7 @@ import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 
 import Svg000 "./Svg/000";
+import Svg001 "./Svg/001";
 import T "./Types";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
@@ -24,7 +25,7 @@ shared actor class Cubic(init: T.Initialization) = this {
   stable var ledgerEntries: [T.PrincipalToNatEntry] = [];
 
   var data: [var T.Data] = [var];
-  stable var dataEntries: [T.DataEntry] = [];
+  stable var dataEntries_post: [T.DataEntry_post] = [];
 
   // ---- Stats
   stable var cubesSupply: Nat = 0;
@@ -85,8 +86,9 @@ shared actor class Cubic(init: T.Initialization) = this {
     }
   };
 
-  public query func art(artId: Nat): async [T.Block] {
-    latestBlocks(artId)
+  public query func art(artId: Nat): async (T.ArtDetails, [T.Block]) {
+    let {details} = data[artId];
+    (details, latestBlocks(artId))
   };
 
   public query func http_request(req: Http.HttpRequest): async (Http.HttpResponse) {
@@ -94,6 +96,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
     switch (path) {
       case ("/000.svg") { Http.svg(Svg000.make(latestBlocks(0))) };
+      case ("/001.svg") { Http.svg(Svg001.make(data[1].transfers)) };
       case _ {
         {
           body = Text.encodeUtf8("404 Not found :" # path);
@@ -360,7 +363,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
   // Transfer ownership to buyer and update the offer
   public shared({ caller }) func buy(request: {artId: Nat; newOffer: Nat}): async T.Result {
-    let {status; ownerIds; owners; transfers} = data[request.artId];
+    let {details; status; ownerIds; owners; transfers} = data[request.artId];
 
     let buyerBalance = Option.get(ledger.get(caller), 0);
     if (buyerBalance < status.offerValue) {
@@ -448,6 +451,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
     data[request.artId] := {
       artId = request.artId;
+      details = details;
       owners = newOwners;
       status = newStatus;
       ownerIds = ownerIds;
@@ -459,6 +463,42 @@ shared actor class Cubic(init: T.Initialization) = this {
 
 
   // ---- Controller functions
+
+  public shared({ caller }) func addArt(details: T.ArtDetails): async () {
+    assert(caller == controller);
+    let item : T.Data = {
+      artId = data.size();
+      details = details;
+      owners = [var];
+      status = {
+        owner = thisPrincipal();
+        offerTimestamp = Time.now();
+        offerValue = 1_000_000_000_000;
+      };
+      ownerIds = HashMap.HashMap<Principal, Nat>(1, Principal.equal, Principal.hash);
+      transfers = [];
+    };
+    data := Array.thaw(Array.append(Array.freeze(data), [item]));
+  };
+
+  public shared({ caller }) func setDetails(request: T.SetDetailsRequest): async () {
+    assert(caller == controller);
+    let {artId; details; owners; ownerIds; status; transfers} = data[request.artId];
+
+    data[artId] := {
+      artId = artId;
+      details = {
+        name = Option.get(request.name, details.name);
+        description = Option.get(request.description, details.description);
+        creator = Option.get(request.creator, details.creator);
+        createdTime  = Option.get(request.createdTime, details.createdTime);
+      };
+      owners = owners;
+      status = status;
+      ownerIds = ownerIds;
+      transfers = transfers;
+    }
+  };
 
   public shared({ caller }) func setCanisters(newCanisters: T.Canisters): async () {
     assert(caller == controller);
@@ -474,6 +514,7 @@ shared actor class Cubic(init: T.Initialization) = this {
     data := Array.thaw(Array.map<T.DataEntry_shared, T.Data>(dump.dataEntries, func (d) {
       {
         artId = d.artId;
+        details = d.details;
         owners = Array.thaw(d.owners);
         status = d.status;
         ownerIds = HashMap.fromIter<Principal, Nat>(d.ownerIdEntries.vals(), d.ownerIdEntries.size(), Principal.equal, Principal.hash);
@@ -501,9 +542,10 @@ shared actor class Cubic(init: T.Initialization) = this {
   };
 
   system func preupgrade() {
-    dataEntries := Array.map<T.Data, T.DataEntry>(Array.freeze(data), func (d) {
+    dataEntries_post := Array.map<T.Data, T.DataEntry_post>(Array.freeze(data), func (d) {
       {
         artId = d.artId;
+        details = d.details;
         owners = d.owners;
         status = d.status;
         ownerIdEntries = Iter.toArray(d.ownerIds.entries());
@@ -523,9 +565,10 @@ shared actor class Cubic(init: T.Initialization) = this {
       sum + bal
     });
 
-    data := Array.thaw(Array.map<T.DataEntry, T.Data>(dataEntries, func (d) {
+    data := Array.thaw(Array.map<T.DataEntry_post, T.Data>(dataEntries_post, func (d) {
       {
         artId = d.artId;
+        details = d.details;
         owners = d.owners;
         status = d.status;
         ownerIds = HashMap.fromIter<Principal, Nat>(d.ownerIdEntries.vals(), d.ownerIdEntries.size(), Principal.equal, Principal.hash);
@@ -552,7 +595,7 @@ shared actor class Cubic(init: T.Initialization) = this {
     if (lastTaxTimestamp == 0 or now - lastTaxTimestamp < 10_000_000_000 ) { return };
 
     for (art in data.vals()) {
-      let {artId; owners; ownerIds; status; transfers} = art;
+      let {artId; details; owners; ownerIds; status; transfers} = art;
 
       if (art.status.owner != thisPrincipal()) {
         let seconds = Int.abs(now - lastTaxTimestamp) / 1_000_000_000;
@@ -596,6 +639,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
             data[artId] := {
               artId = artId;
+              details = details;
               owners = owners;
               status = newStatus;
               ownerIds = ownerIds;
@@ -745,6 +789,7 @@ shared actor class Cubic(init: T.Initialization) = this {
       dataEntries = Array.map<T.Data, T.DataEntry_shared>(Array.freeze(data), func (d) {
         {
           artId = d.artId;
+          details = d.details;
           owners = Array.freeze(d.owners);
           status = d.status;
           ownerIdEntries = Iter.toArray(d.ownerIds.entries());

@@ -1,5 +1,11 @@
 import type { Principal } from '@dfinity/principal';
 export type AccountIdentifier = string;
+export interface ArtDetails {
+  'creator' : string,
+  'name' : string,
+  'description' : string,
+  'createdTime' : bigint,
+}
 export type Balance = bigint;
 export interface Block {
   'id' : bigint,
@@ -26,7 +32,8 @@ export interface BlocksRequest {
 export interface Canisters { 'wtc' : Principal, 'xtc' : Principal }
 export interface Cubic {
   'acceptCycles' : () => Promise<undefined>,
-  'art' : (arg_0: bigint) => Promise<Array<Block>>,
+  'addArt' : (arg_0: ArtDetails) => Promise<undefined>,
+  'art' : (arg_0: bigint) => Promise<[ArtDetails, Array<Block>]>,
   'balance' : (arg_0: [] | [Principal]) => Promise<bigint>,
   'buy' : (arg_0: { 'artId' : bigint, 'newOffer' : bigint }) => Promise<Result>,
   'canister_heartbeat' : () => Promise<undefined>,
@@ -39,6 +46,7 @@ export interface Cubic {
   'info' : () => Promise<Info>,
   'restore' : () => Promise<undefined>,
   'setCanisters' : (arg_0: Canisters) => Promise<undefined>,
+  'setDetails' : (arg_0: SetDetailsRequest) => Promise<undefined>,
   'tokenTransferNotification' : (
       arg_0: TokenIdentifier,
       arg_1: User,
@@ -104,11 +112,17 @@ export interface Info {
 export interface Initialization {
   'controller' : Principal,
   'canisters' : Canisters,
-  'defaultValue' : bigint,
 }
 export type Memo = Array<number>;
 export type Result = { 'ok' : null } |
   { 'err' : Error };
+export interface SetDetailsRequest {
+  'creator' : [] | [string],
+  'artId' : bigint,
+  'name' : [] | [string],
+  'description' : [] | [string],
+  'createdTime' : [] | [bigint],
+}
 export interface Status {
   'offerTimestamp' : bigint,
   'owner' : Principal,

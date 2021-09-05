@@ -6,7 +6,12 @@ export const idlFactory = ({ IDL }) => {
   const Initialization = IDL.Record({
     'controller' : IDL.Principal,
     'canisters' : Canisters,
-    'defaultValue' : IDL.Nat,
+  });
+  const ArtDetails = IDL.Record({
+    'creator' : IDL.Text,
+    'name' : IDL.Text,
+    'description' : IDL.Text,
+    'createdTime' : IDL.Int,
   });
   const Block = IDL.Record({
     'id' : IDL.Nat,
@@ -142,6 +147,13 @@ export const idlFactory = ({ IDL }) => {
     }),
     'canisters' : Canisters,
   });
+  const SetDetailsRequest = IDL.Record({
+    'creator' : IDL.Opt(IDL.Text),
+    'artId' : IDL.Nat,
+    'name' : IDL.Opt(IDL.Text),
+    'description' : IDL.Opt(IDL.Text),
+    'createdTime' : IDL.Opt(IDL.Int),
+  });
   const User = IDL.Variant({
     'principal' : IDL.Principal,
     'address' : AccountIdentifier,
@@ -154,7 +166,8 @@ export const idlFactory = ({ IDL }) => {
   });
   const Cubic = IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
-    'art' : IDL.Func([IDL.Nat], [IDL.Vec(Block)], ['query']),
+    'addArt' : IDL.Func([ArtDetails], [], []),
+    'art' : IDL.Func([IDL.Nat], [ArtDetails, IDL.Vec(Block)], ['query']),
     'balance' : IDL.Func([IDL.Opt(IDL.Principal)], [IDL.Nat], ['query']),
     'buy' : IDL.Func(
         [IDL.Record({ 'artId' : IDL.Nat, 'newOffer' : IDL.Nat })],
@@ -171,6 +184,7 @@ export const idlFactory = ({ IDL }) => {
     'info' : IDL.Func([], [Info], ['query']),
     'restore' : IDL.Func([], [], []),
     'setCanisters' : IDL.Func([Canisters], [], []),
+    'setDetails' : IDL.Func([SetDetailsRequest], [], []),
     'tokenTransferNotification' : IDL.Func(
         [TokenIdentifier, User, Balance, Memo],
         [IDL.Opt(Balance)],
@@ -189,7 +203,6 @@ export const init = ({ IDL }) => {
   const Initialization = IDL.Record({
     'controller' : IDL.Principal,
     'canisters' : Canisters,
-    'defaultValue' : IDL.Nat,
   });
   return [Initialization];
 };

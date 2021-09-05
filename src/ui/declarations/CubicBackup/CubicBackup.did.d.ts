@@ -1,4 +1,10 @@
 import type { Principal } from '@dfinity/principal';
+export interface ArtDetails {
+  'creator' : string,
+  'name' : string,
+  'description' : string,
+  'createdTime' : bigint,
+}
 export interface Backup {
   'foreclosureCount' : bigint,
   'wtcBalance' : bigint,
@@ -31,6 +37,7 @@ export interface DataEntry_shared {
   'owners' : Array<Block>,
   'transfers' : Array<Transfer>,
   'ownerIdEntries' : Array<PrincipalToNatEntry>,
+  'details' : ArtDetails,
 }
 export type PrincipalToNatEntry = [Principal, bigint];
 export interface Status {

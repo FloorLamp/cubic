@@ -8,21 +8,38 @@ import Xtc "./XtcTypes";
 module {
   public type Data = {
     artId: Nat;
+    details: ArtDetails;
     owners: [var Block];
     status: Status;
     ownerIds: PrincipalToNat;
     transfers: [Transfer];
   };
 
+  public type ArtDetails = {
+    name: Text;
+    description: Text;
+    creator: Text;
+    createdTime: Int;
+  };
+  public type SetDetailsRequest = {
+    artId: Nat;
+    name: ?Text;
+    description: ?Text;
+    creator: ?Text;
+    createdTime: ?Int;
+  };
+
   public type DataEntry_shared = {
     artId: Nat;
+    details: ArtDetails;
     owners: [Block];
     status: Status;
     ownerIdEntries: [PrincipalToNatEntry];
     transfers: [Transfer];
   };
-  public type DataEntry = {
+  public type DataEntry_post = {
     artId: Nat;
+    details: ArtDetails;
     owners: [var Block];
     status: Status;
     ownerIdEntries: [PrincipalToNatEntry];
@@ -99,7 +116,6 @@ module {
 
   public type Initialization = {
     controller: Principal;
-    defaultValue: Nat;
     canisters: Canisters;
   };
 

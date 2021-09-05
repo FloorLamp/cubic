@@ -20,6 +20,7 @@ type PrincipalToNatEntry =
 type DataEntry_shared = 
  record {
    artId: nat;
+   details: ArtDetails;
    ownerIdEntries: vec PrincipalToNatEntry;
    owners: vec Block;
    status: Status;
@@ -53,5 +54,12 @@ type Backup =
    taxCollected: nat;
    wtcBalance: nat;
    xtcBalance: nat;
+ };
+type ArtDetails = 
+ record {
+   createdTime: int;
+   creator: text;
+   description: text;
+   name: text;
  };
 service : () -> CubicBackup
