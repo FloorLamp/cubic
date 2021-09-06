@@ -8,10 +8,10 @@ import {
   formatDuration,
   secondsToDuration,
 } from "../lib/datetime";
-import useArtId from "../lib/hooks/useArtId";
 import { useCubesBalance } from "../lib/hooks/useCubesBalance";
 import useHeartbeat from "../lib/hooks/useHeartbeat";
 import { useHistory } from "../lib/hooks/useHistory";
+import useId from "../lib/hooks/useId";
 import { useInfo } from "../lib/hooks/useInfo";
 import { useStatus } from "../lib/hooks/useStatus";
 import { formatNumber, principalIsEqual } from "../lib/utils";
@@ -22,8 +22,8 @@ import { useGlobalContext } from "./Store/Store";
 import PurchaseModal from "./Transaction/PurchaseModal";
 
 export function CurrentStatus() {
-  const artId = useArtId();
-  const { data, isLoading } = useStatus({ artId });
+  const id = useId();
+  const { data, isLoading } = useStatus({ id });
   const history = useHistory();
   const {
     state: { principal },

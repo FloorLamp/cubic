@@ -7,22 +7,6 @@ export const idlFactory = ({ IDL }) => {
     'controller' : IDL.Principal,
     'canisters' : Canisters,
   });
-  const ArtDetails = IDL.Record({
-    'creator' : IDL.Text,
-    'name' : IDL.Text,
-    'description' : IDL.Text,
-    'createdTime' : IDL.Int,
-  });
-  const Block = IDL.Record({
-    'id' : IDL.Nat,
-    'totalSaleCount' : IDL.Nat,
-    'totalValue' : IDL.Nat,
-    'owner' : IDL.Principal,
-    'lastPurchasePrice' : IDL.Int,
-    'lastSaleTime' : IDL.Int,
-    'lastSalePrice' : IDL.Int,
-    'totalOwnedTime' : IDL.Int,
-  });
   const ErrorCode = IDL.Variant({
     'canister_error' : IDL.Null,
     'system_transient' : IDL.Null,
@@ -58,6 +42,22 @@ export const idlFactory = ({ IDL }) => {
     'InsufficientLiquidity' : IDL.Null,
   });
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Error });
+  const ProjectDetails = IDL.Record({
+    'creator' : IDL.Text,
+    'name' : IDL.Text,
+    'description' : IDL.Text,
+    'createdTime' : IDL.Int,
+  });
+  const Block = IDL.Record({
+    'id' : IDL.Nat,
+    'totalSaleCount' : IDL.Nat,
+    'totalValue' : IDL.Nat,
+    'owner' : IDL.Principal,
+    'lastPurchasePrice' : IDL.Int,
+    'lastSaleTime' : IDL.Int,
+    'lastSalePrice' : IDL.Int,
+    'totalOwnedTime' : IDL.Int,
+  });
   const Status = IDL.Record({
     'offerTimestamp' : IDL.Int,
     'owner' : IDL.Principal,
@@ -68,7 +68,6 @@ export const idlFactory = ({ IDL }) => {
     'owner' : IDL.Opt(Block),
   });
   const BlocksRequest = IDL.Record({
-    'artId' : IDL.Nat,
     'order' : IDL.Variant({ 'asc' : IDL.Null, 'desc' : IDL.Null }),
     'orderBy' : IDL.Variant({
       'id' : IDL.Null,
@@ -79,10 +78,11 @@ export const idlFactory = ({ IDL }) => {
       'lastSalePrice' : IDL.Null,
       'totalOwnedTime' : IDL.Null,
     }),
+    'projectId' : IDL.Nat,
   });
   const HistoryRequest = IDL.Record({
     'principal' : IDL.Opt(IDL.Principal),
-    'artId' : IDL.Nat,
+    'projectId' : IDL.Nat,
   });
   const Transfer = IDL.Record({
     'id' : IDL.Nat,
@@ -129,7 +129,6 @@ export const idlFactory = ({ IDL }) => {
     'status_code' : IDL.Nat16,
   });
   const Info = IDL.Record({
-    'arts' : IDL.Nat,
     'stats' : IDL.Record({
       'foreclosureCount' : IDL.Nat,
       'transactionFee' : IDL.Nat,
@@ -146,13 +145,14 @@ export const idlFactory = ({ IDL }) => {
       'taxCollected' : IDL.Nat,
     }),
     'canisters' : Canisters,
+    'projectCount' : IDL.Nat,
   });
   const SetDetailsRequest = IDL.Record({
     'creator' : IDL.Opt(IDL.Text),
-    'artId' : IDL.Nat,
     'name' : IDL.Opt(IDL.Text),
     'description' : IDL.Opt(IDL.Text),
     'createdTime' : IDL.Opt(IDL.Int),
+    'projectId' : IDL.Nat,
   });
   const User = IDL.Variant({
     'principal' : IDL.Principal,
@@ -166,22 +166,26 @@ export const idlFactory = ({ IDL }) => {
   });
   const Cubic = IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
-    'addArt' : IDL.Func([ArtDetails], [], []),
-    'art' : IDL.Func([IDL.Nat], [ArtDetails, IDL.Vec(Block)], ['query']),
     'balance' : IDL.Func([IDL.Opt(IDL.Principal)], [IDL.Nat], ['query']),
     'buy' : IDL.Func(
-        [IDL.Record({ 'artId' : IDL.Nat, 'newOffer' : IDL.Nat })],
+        [IDL.Record({ 'newOffer' : IDL.Nat, 'projectId' : IDL.Nat })],
         [Result],
         [],
       ),
     'canister_heartbeat' : IDL.Func([], [], []),
     'depositXtc' : IDL.Func([IDL.Principal], [IDL.Nat], []),
+    'details' : IDL.Func(
+        [IDL.Nat],
+        [ProjectDetails, IDL.Vec(Block)],
+        ['query'],
+      ),
     'getAllStatus' : IDL.Func([], [IDL.Vec(StatusAndOwner)], ['query']),
     'getBlocks' : IDL.Func([BlocksRequest], [IDL.Vec(Block)], ['query']),
     'getHistory' : IDL.Func([HistoryRequest], [HistoryResponse], ['query']),
     'getStatus' : IDL.Func([IDL.Nat], [StatusAndOwner], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'info' : IDL.Func([], [Info], ['query']),
+    'newProject' : IDL.Func([ProjectDetails], [], []),
     'restore' : IDL.Func([], [], []),
     'setCanisters' : IDL.Func([Canisters], [], []),
     'setDetails' : IDL.Func([SetDetailsRequest], [], []),

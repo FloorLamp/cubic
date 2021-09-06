@@ -6,15 +6,15 @@ import { FiChevronRight } from "react-icons/fi";
 import { canisterId } from "../declarations/Cubic";
 import { principalColor } from "../lib/blocks";
 import { dateTimeFromNanos } from "../lib/datetime";
-import useArtId from "../lib/hooks/useArtId";
 import { useHistory } from "../lib/hooks/useHistory";
+import useId from "../lib/hooks/useId";
 import { formatNumber, pluralize } from "../lib/utils";
 import IdentifierLabelWithButtons from "./Buttons/IdentifierLabelWithButtons";
 import Panel from "./Containers/Panel";
 import { TokenLogo } from "./Labels/TokenLabel";
 
 export function History({ isPreview }: { isPreview?: boolean }) {
-  const artId = useArtId();
+  const id = useId();
   const { data, isSuccess } = useHistory();
   const transfers = data
     ? isPreview
@@ -38,7 +38,7 @@ export function History({ isPreview }: { isPreview?: boolean }) {
         {isPreview ? (
           <>
             <span>Latest Transactions</span>
-            <Link href={`/p/${artId}/details`}>
+            <Link href={`/p/${id}/details`}>
               <a className="text-gray-500 text-xs group hover:underline">
                 View All
                 <FiChevronRight className="inline-block group-hover:translate-x-1 transform transition-transform duration-75" />

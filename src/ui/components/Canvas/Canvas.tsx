@@ -1,9 +1,9 @@
 import { DateTime } from "luxon";
 import React from "react";
 import { dateTimeToNanos } from "../../lib/datetime";
-import { useArt } from "../../lib/hooks/useArt";
-import useArtId from "../../lib/hooks/useArtId";
+import { useDetails } from "../../lib/hooks/useDetails";
 import { useHistory } from "../../lib/hooks/useHistory";
+import useId from "../../lib/hooks/useId";
 import { useStatus } from "../../lib/hooks/useStatus";
 import { assetUrl } from "../../lib/url";
 import Panel from "../Containers/Panel";
@@ -13,9 +13,9 @@ import { Art003 } from "./003";
 import { Art004 } from "./004";
 
 export default function Canvas() {
-  const artId = useArtId();
-  const art = useArt({ artId });
-  const status = useStatus({ artId });
+  const id = useId();
+  const art = useDetails({ id });
+  const status = useStatus({ id });
   const history = useHistory();
   const [mockData] = useMockData();
   const actualData = mockData.active ? mockData.art : art.data[1];
@@ -27,13 +27,11 @@ export default function Canvas() {
 
   return (
     <Panel className="p-8 w-full flex flex-col items-center">
-      {artId === "0" && <img src={assetUrl("000.svg")} />}
-      {artId === "1" && <img src={assetUrl("001.svg")} />}
-      {artId === "2" && <img src={assetUrl("002.svg")} />}
-      {artId === "3" && <Art003 data={actualTransfers} />}
-      {artId === "4" && (
-        <Art004 owners={actualData} transfers={actualTransfers} />
-      )}
+      {id === "0" && <img src={assetUrl("000.svg")} />}
+      {id === "1" && <img src={assetUrl("001.svg")} />}
+      {id === "2" && <img src={assetUrl("002.svg")} />}
+      {id === "3" && <Art003 data={actualTransfers} />}
+      {id === "4" && <Art004 owners={actualData} transfers={actualTransfers} />}
 
       <DevTools />
     </Panel>

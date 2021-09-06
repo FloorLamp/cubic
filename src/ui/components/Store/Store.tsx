@@ -49,7 +49,7 @@ export const INITIAL_MOCK_STATE = {
       offerValue: 1,
       offerTimestamp: BigInt(0),
     },
-    artId: "0",
+    projectId: "0",
     owner: null,
   },
   now: BigInt(0),

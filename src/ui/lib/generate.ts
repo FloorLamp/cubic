@@ -124,7 +124,7 @@ export const generate = (
 
     if (newOwner) {
       newStatus = {
-        artId: status.artId,
+        projectId: status.projectId,
         status: {
           owner: newOwner,
           offerTimestamp: newTransfer.timestamp,

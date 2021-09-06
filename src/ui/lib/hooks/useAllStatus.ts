@@ -11,7 +11,7 @@ export const useAllStatus = () => {
     async () => {
       const results = await cubic.getAllStatus();
       return results.map(({ status, owner }, i) => ({
-        artId: i.toString(),
+        projectId: i.toString(),
         status: { ...status, offerValue: Number(status.offerValue) / 1e12 },
         owner: owner[0] ? owner[0] : null,
       }));

@@ -1,11 +1,5 @@
 import type { Principal } from '@dfinity/principal';
 export type AccountIdentifier = string;
-export interface ArtDetails {
-  'creator' : string,
-  'name' : string,
-  'description' : string,
-  'createdTime' : bigint,
-}
 export type Balance = bigint;
 export interface Block {
   'id' : bigint,
@@ -18,7 +12,6 @@ export interface Block {
   'totalOwnedTime' : bigint,
 }
 export interface BlocksRequest {
-  'artId' : bigint,
   'order' : { 'asc' : null } |
     { 'desc' : null },
   'orderBy' : { 'id' : null } |
@@ -28,22 +21,25 @@ export interface BlocksRequest {
     { 'lastSaleTime' : null } |
     { 'lastSalePrice' : null } |
     { 'totalOwnedTime' : null },
+  'projectId' : bigint,
 }
 export interface Canisters { 'wtc' : Principal, 'xtc' : Principal }
 export interface Cubic {
   'acceptCycles' : () => Promise<undefined>,
-  'addArt' : (arg_0: ArtDetails) => Promise<undefined>,
-  'art' : (arg_0: bigint) => Promise<[ArtDetails, Array<Block>]>,
   'balance' : (arg_0: [] | [Principal]) => Promise<bigint>,
-  'buy' : (arg_0: { 'artId' : bigint, 'newOffer' : bigint }) => Promise<Result>,
+  'buy' : (arg_0: { 'newOffer' : bigint, 'projectId' : bigint }) => Promise<
+      Result
+    >,
   'canister_heartbeat' : () => Promise<undefined>,
   'depositXtc' : (arg_0: Principal) => Promise<bigint>,
+  'details' : (arg_0: bigint) => Promise<[ProjectDetails, Array<Block>]>,
   'getAllStatus' : () => Promise<Array<StatusAndOwner>>,
   'getBlocks' : (arg_0: BlocksRequest) => Promise<Array<Block>>,
   'getHistory' : (arg_0: HistoryRequest) => Promise<HistoryResponse>,
   'getStatus' : (arg_0: bigint) => Promise<StatusAndOwner>,
   'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
   'info' : () => Promise<Info>,
+  'newProject' : (arg_0: ProjectDetails) => Promise<undefined>,
   'restore' : () => Promise<undefined>,
   'setCanisters' : (arg_0: Canisters) => Promise<undefined>,
   'setDetails' : (arg_0: SetDetailsRequest) => Promise<undefined>,
@@ -72,7 +68,7 @@ export type ErrorCode = { 'canister_error' : null } |
 export type HeaderField = [string, string];
 export interface HistoryRequest {
   'principal' : [] | [Principal],
-  'artId' : bigint,
+  'projectId' : bigint,
 }
 export interface HistoryResponse {
   'transfers' : Array<Transfer>,
@@ -91,7 +87,6 @@ export interface HttpResponse {
   'status_code' : number,
 }
 export interface Info {
-  'arts' : bigint,
   'stats' : {
     'foreclosureCount' : bigint,
     'transactionFee' : bigint,
@@ -108,20 +103,27 @@ export interface Info {
     'taxCollected' : bigint,
   },
   'canisters' : Canisters,
+  'projectCount' : bigint,
 }
 export interface Initialization {
   'controller' : Principal,
   'canisters' : Canisters,
 }
 export type Memo = Array<number>;
+export interface ProjectDetails {
+  'creator' : string,
+  'name' : string,
+  'description' : string,
+  'createdTime' : bigint,
+}
 export type Result = { 'ok' : null } |
   { 'err' : Error };
 export interface SetDetailsRequest {
   'creator' : [] | [string],
-  'artId' : bigint,
   'name' : [] | [string],
   'description' : [] | [string],
   'createdTime' : [] | [bigint],
+  'projectId' : bigint,
 }
 export interface Status {
   'offerTimestamp' : bigint,

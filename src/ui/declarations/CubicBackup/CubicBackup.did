@@ -12,6 +12,13 @@ type Status =
    offerValue: nat;
    owner: principal;
  };
+type ProjectDetails = 
+ record {
+   createdTime: int;
+   creator: text;
+   description: text;
+   name: text;
+ };
 type PrincipalToNatEntry = 
  record {
    principal;
@@ -19,10 +26,10 @@ type PrincipalToNatEntry =
  };
 type DataEntry_shared = 
  record {
-   artId: nat;
-   details: ArtDetails;
+   details: ProjectDetails;
    ownerIdEntries: vec PrincipalToNatEntry;
    owners: vec Block;
+   projectId: nat;
    status: Status;
    transfers: vec Transfer;
  };
@@ -54,12 +61,5 @@ type Backup =
    taxCollected: nat;
    wtcBalance: nat;
    xtcBalance: nat;
- };
-type ArtDetails = 
- record {
-   createdTime: int;
-   creator: text;
-   description: text;
-   name: text;
  };
 service : () -> CubicBackup

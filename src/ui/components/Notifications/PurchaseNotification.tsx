@@ -44,7 +44,7 @@ export const PurchaseNotification = ({
           />
         ) : (
           <span>
-            Purchased {padProjectId(purchaser.artId)} from you for{" "}
+            Purchased {padProjectId(purchaser.projectId)} from you for{" "}
             <strong className="inline-flex items-center">
               {myPurchase?.status.offerValue} <TokenLogo />
             </strong>

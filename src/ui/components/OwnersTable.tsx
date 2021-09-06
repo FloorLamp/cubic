@@ -6,9 +6,9 @@ import {
   formatDuration,
   secondsToDuration,
 } from "../lib/datetime";
-import { useArt } from "../lib/hooks/useArt";
-import useArtId from "../lib/hooks/useArtId";
 import { useBlocks } from "../lib/hooks/useBlocks";
+import { useDetails } from "../lib/hooks/useDetails";
+import useId from "../lib/hooks/useId";
 import { Order, OrderBy } from "../lib/types";
 import { formatNumber, pluralize } from "../lib/utils";
 import IdentifierLabelWithButtons from "./Buttons/IdentifierLabelWithButtons";
@@ -16,11 +16,11 @@ import Panel from "./Containers/Panel";
 import { TokenLogo } from "./Labels/TokenLabel";
 
 export function OwnersTable() {
-  const artId = useArtId();
-  const art = useArt({ artId });
+  const id = useId();
+  const art = useDetails({ id });
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<OrderBy>("id");
-  const blocks = useBlocks({ artId, order, orderBy });
+  const blocks = useBlocks({ id, order, orderBy });
   const count = art.data ? art.data[1].length : 0;
 
   return (

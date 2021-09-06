@@ -3,16 +3,16 @@ import { FIVE_SECONDS_MS } from "../constants";
 import { ParsedStatus } from "../types";
 import { useAllStatus } from "./useAllStatus";
 
-export const useStatus = ({ artId }: { artId: string }) => {
+export const useStatus = ({ id }: { id: string }) => {
   const allStatus = useAllStatus();
 
   return useQuery<ParsedStatus>(
-    ["status", artId],
+    ["status", id],
     async () => {
-      return allStatus.data?.find((item) => item.artId === artId);
+      return allStatus.data?.find((item) => item.projectId === id);
     },
     {
-      enabled: !!artId,
+      enabled: !!id,
       keepPreviousData: true,
       refetchInterval: FIVE_SECONDS_MS,
     }

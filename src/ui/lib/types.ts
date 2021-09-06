@@ -26,7 +26,7 @@ export type OrderBy = KeysOfUnion<BlocksRequest["orderBy"]>;
 export type Order = KeysOfUnion<BlocksRequest["order"]>;
 
 export type ParsedStatus = {
-  artId: string;
+  projectId: string;
   status: Modify<StatusAndOwner["status"], { offerValue: number }>;
   owner: Block | null;
 };

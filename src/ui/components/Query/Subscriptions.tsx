@@ -33,14 +33,15 @@ export const Subscriptions = () => {
     );
     if (owned.length > latestOwned.length) {
       const sold = owned.filter(
-        ({ artId }) => !latestOwned.find((current) => current.artId === artId)
+        ({ projectId }) =>
+          !latestOwned.find((current) => current.projectId === projectId)
       );
       sold.forEach((myPurchase) => {
         add({
           type: "Sale",
           myPurchase,
           purchaser: latestStatuses.data.find(
-            ({ artId }) => artId === myPurchase.artId
+            ({ projectId }) => projectId === myPurchase.projectId
           ),
         });
       });

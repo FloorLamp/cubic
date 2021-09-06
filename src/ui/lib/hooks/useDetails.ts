@@ -2,17 +2,17 @@ import { useQuery } from "react-query";
 import { useCubic } from "../../components/Store/Store";
 import { ONE_MINUTES_MS } from "../constants";
 
-export const useArt = ({ artId }: { artId: string }) => {
+export const useDetails = ({ id }: { id: string }) => {
   const cubic = useCubic();
 
   return useQuery(
-    ["art", artId],
+    ["details", id],
     async () => {
-      const result = await cubic.art(BigInt(artId));
+      const result = await cubic.details(BigInt(id));
       return result;
     },
     {
-      enabled: !!artId,
+      enabled: !!id,
       keepPreviousData: true,
       placeholderData: [null, []],
       refetchInterval: ONE_MINUTES_MS,

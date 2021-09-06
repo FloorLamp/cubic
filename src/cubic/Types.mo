@@ -7,22 +7,22 @@ import Xtc "./XtcTypes";
 
 module {
   public type Data = {
-    artId: Nat;
-    details: ArtDetails;
+    projectId: Nat;
+    details: ProjectDetails;
     owners: [var Block];
     status: Status;
     ownerIds: PrincipalToNat;
     transfers: [Transfer];
   };
 
-  public type ArtDetails = {
+  public type ProjectDetails = {
     name: Text;
     description: Text;
     creator: Text;
     createdTime: Int;
   };
   public type SetDetailsRequest = {
-    artId: Nat;
+    projectId: Nat;
     name: ?Text;
     description: ?Text;
     creator: ?Text;
@@ -30,16 +30,16 @@ module {
   };
 
   public type DataEntry_shared = {
-    artId: Nat;
-    details: ArtDetails;
+    projectId: Nat;
+    details: ProjectDetails;
     owners: [Block];
     status: Status;
     ownerIdEntries: [PrincipalToNatEntry];
     transfers: [Transfer];
   };
-  public type DataEntry_post = {
-    artId: Nat;
-    details: ArtDetails;
+  public type DataEntry_v2 = {
+    projectId: Nat;
+    details: ProjectDetails;
     owners: [var Block];
     status: Status;
     ownerIdEntries: [PrincipalToNatEntry];
@@ -55,7 +55,7 @@ module {
   };
 
   public type HistoryRequest = {
-    artId: Nat;
+    projectId: Nat;
     principal: ?Principal;
   };
 
@@ -76,7 +76,7 @@ module {
   };
 
   public type BlocksRequest = {
-    artId: Nat;
+    projectId: Nat;
     orderBy: {
       #id;
       #lastPurchasePrice;
@@ -122,7 +122,7 @@ module {
   public type PrincipalToNat = HashMap.HashMap<Principal, Nat>;
 
   public type Info = {
-    arts: Nat;
+    projectCount: Nat;
     stats: {
       wtcBalance: Nat;
       xtcBalance: Nat;
@@ -133,7 +133,6 @@ module {
       taxCollected: Nat;
       transactionsCount: Nat;
       foreclosureCount: Nat;
-      // ownerCount: Nat;
       salesTotal: Nat;
       transactionFee: Nat;
       annualTaxRate: Nat;

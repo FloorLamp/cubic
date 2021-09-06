@@ -69,16 +69,23 @@ type Status =
  };
 type SetDetailsRequest = 
  record {
-   artId: nat;
    createdTime: opt int;
    creator: opt text;
    description: opt text;
    name: opt text;
+   projectId: nat;
  };
 type Result = 
  variant {
    err: Error;
    ok;
+ };
+type ProjectDetails = 
+ record {
+   createdTime: int;
+   creator: text;
+   description: text;
+   name: text;
  };
 type Memo = vec nat8;
 type Initialization = 
@@ -88,8 +95,8 @@ type Initialization =
  };
 type Info = 
  record {
-   arts: nat;
    canisters: Canisters;
+   projectCount: nat;
    stats:
     record {
       annualTaxRate: nat;
@@ -128,8 +135,8 @@ type HistoryResponse =
  };
 type HistoryRequest = 
  record {
-   artId: nat;
    "principal": opt principal;
+   projectId: nat;
  };
 type HeaderField = 
  record {
@@ -159,21 +166,21 @@ type Error =
 type Cubic = 
  service {
    acceptCycles: () -> ();
-   addArt: (ArtDetails) -> ();
-   art: (nat) -> (ArtDetails, vec Block) query;
    balance: (opt principal) -> (nat) query;
    buy: (record {
-           artId: nat;
            newOffer: nat;
+           projectId: nat;
          }) -> (Result);
    canister_heartbeat: () -> ();
    depositXtc: (principal) -> (nat);
+   details: (nat) -> (ProjectDetails, vec Block) query;
    getAllStatus: () -> (vec StatusAndOwner) query;
    getBlocks: (BlocksRequest) -> (vec Block) query;
    getHistory: (HistoryRequest) -> (HistoryResponse) query;
    getStatus: (nat) -> (StatusAndOwner) query;
    http_request: (HttpRequest) -> (HttpResponse) query;
    info: () -> (Info) query;
+   newProject: (ProjectDetails) -> ();
    restore: () -> ();
    setCanisters: (Canisters) -> ();
    setDetails: (SetDetailsRequest) -> ();
@@ -189,7 +196,6 @@ type Canisters =
  };
 type BlocksRequest = 
  record {
-   artId: nat;
    order: variant {
             asc;
             desc;
@@ -204,6 +210,7 @@ type BlocksRequest =
       totalSaleCount;
       totalValue;
     };
+   projectId: nat;
  };
 type Block = 
  record {
@@ -217,12 +224,5 @@ type Block =
    totalValue: nat;
  };
 type Balance = nat;
-type ArtDetails = 
- record {
-   createdTime: int;
-   creator: text;
-   description: text;
-   name: text;
- };
 type AccountIdentifier = text;
 service : (Initialization) -> Cubic

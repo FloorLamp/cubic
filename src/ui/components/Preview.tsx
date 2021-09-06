@@ -3,30 +3,30 @@ import React from "react";
 import { CgSpinner } from "react-icons/cg";
 import { FiChevronRight } from "react-icons/fi";
 import { padProjectId } from "../lib/blocks";
-import { useArt } from "../lib/hooks/useArt";
+import { useDetails } from "../lib/hooks/useDetails";
 import { useStatus } from "../lib/hooks/useStatus";
 import { assetUrl } from "../lib/url";
 import { formatNumber } from "../lib/utils";
 import Panel from "./Containers/Panel";
 import { TokenLogo } from "./Labels/TokenLabel";
 
-export const Preview = ({ artId }: { artId: string }) => {
+export const Preview = ({ id }: { id: string }) => {
   const router = useRouter();
-  const { data, isLoading } = useStatus({ artId });
-  const { data: art } = useArt({ artId });
+  const { data, isLoading } = useStatus({ id });
+  const { data: art } = useDetails({ id });
 
   return (
     <Panel className="p-6 w-full max-w-xs">
       <div
         className="group cursor-pointer flex flex-col"
-        onClick={() => router.push(`/p/${artId}`)}
+        onClick={() => router.push(`/p/${id}`)}
       >
-        {artId === "0" && <img src={assetUrl("000.svg")} />}
-        {artId === "1" && <img src={assetUrl("001.svg")} />}
-        {artId === "2" && <img src={assetUrl("002.svg")} />}
+        {id === "0" && <img src={assetUrl("000.svg")} />}
+        {id === "1" && <img src={assetUrl("001.svg")} />}
+        {id === "2" && <img src={assetUrl("002.svg")} />}
         <a className="pt-2 inline-flex gap-1 items-center group font-bold hover:underline">
           <span>
-            {padProjectId(artId)}
+            {padProjectId(id)}
             {" — "}
             {art ? art[0]?.name : "—"}
           </span>

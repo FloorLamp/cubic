@@ -22,7 +22,7 @@ export const idlFactory = ({ IDL }) => {
     'from' : IDL.Principal,
     'timestamp' : IDL.Int,
   });
-  const ArtDetails = IDL.Record({
+  const ProjectDetails = IDL.Record({
     'creator' : IDL.Text,
     'name' : IDL.Text,
     'description' : IDL.Text,
@@ -30,11 +30,11 @@ export const idlFactory = ({ IDL }) => {
   });
   const DataEntry_shared = IDL.Record({
     'status' : Status,
-    'artId' : IDL.Nat,
     'owners' : IDL.Vec(Block),
     'transfers' : IDL.Vec(Transfer),
     'ownerIdEntries' : IDL.Vec(PrincipalToNatEntry),
-    'details' : ArtDetails,
+    'projectId' : IDL.Nat,
+    'details' : ProjectDetails,
   });
   const Backup = IDL.Record({
     'foreclosureCount' : IDL.Nat,

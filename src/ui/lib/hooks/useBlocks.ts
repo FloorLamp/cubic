@@ -5,28 +5,28 @@ import { ONE_MINUTES_MS } from "../constants";
 import { Order, OrderBy } from "../types";
 
 export const useBlocks = ({
-  artId,
+  id,
   order,
   orderBy,
 }: {
-  artId: string;
+  id: string;
   order: Order;
   orderBy: OrderBy;
 }) => {
   const cubic = useCubic();
 
   return useQuery(
-    ["blocks", artId],
+    ["blocks", id],
     async () => {
       const result = await cubic.getBlocks({
-        artId: BigInt(artId),
+        projectId: BigInt(id),
         order: { [order]: null },
         orderBy: { [orderBy]: null },
       } as BlocksRequest);
       return result;
     },
     {
-      enabled: !!artId,
+      enabled: !!id,
       keepPreviousData: true,
       placeholderData: [],
       refetchInterval: ONE_MINUTES_MS,

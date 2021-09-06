@@ -6,7 +6,7 @@ import { History } from "../../../components/History";
 import { MetaTags } from "../../../components/MetaTags";
 import Breadcrumbs from "../../../components/Navigation/Breadcrumbs";
 import { padProjectId } from "../../../lib/blocks";
-import { useArt } from "../../../lib/hooks/useArt";
+import { useDetails } from "../../../lib/hooks/useDetails";
 
 const CanvasContainer = dynamic(
   () => import("../../../components/Canvas/Canvas"),
@@ -24,7 +24,7 @@ export async function getServerSideProps({ params }) {
 }
 
 export default function ProjectPage({ id }: { id: string }) {
-  const { data: art } = useArt({ artId: id });
+  const { data } = useDetails({ id });
   const paddedId = padProjectId(id);
 
   return (
@@ -39,9 +39,9 @@ export default function ProjectPage({ id }: { id: string }) {
 
         <Panel className="w-full p-8">
           <h1 className="text-2xl">
-            {art && art[0] ? `${paddedId} — ${art[0].name}` : "—"}
+            {data && data[0] ? `${paddedId} — ${data[0].name}` : "—"}
           </h1>
-          <p>{art && art[0]?.description}</p>
+          <p>{data && data[0]?.description}</p>
         </Panel>
 
         <div className="w-full flex flex-col lg:flex-row gap-8">

@@ -2,9 +2,9 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { BsFillExclamationCircleFill } from "react-icons/bs";
 import { FiChevronRight } from "react-icons/fi";
-import useArtId from "../../lib/hooks/useArtId";
 import useBuy from "../../lib/hooks/useBuy";
 import { useCubesBalance } from "../../lib/hooks/useCubesBalance";
+import useId from "../../lib/hooks/useId";
 import { useInfo } from "../../lib/hooks/useInfo";
 import { useStatus } from "../../lib/hooks/useStatus";
 import { formatNumber } from "../../lib/utils";
@@ -15,7 +15,7 @@ import Modal from "../Layout/Modal";
 import { useGlobalContext, useLoginModal } from "../Store/Store";
 
 export default function PurchaseModal({}: {}) {
-  const artId = useArtId();
+  const id = useId();
   const {
     state: { isAuthed },
   } = useGlobalContext();
@@ -27,8 +27,8 @@ export default function PurchaseModal({}: {}) {
 
   const [newOffer, setNewOffer] = useState("");
   const [error, setError] = useState("");
-  const buy = useBuy({ artId });
-  const status = useStatus({ artId });
+  const buy = useBuy({ id });
+  const status = useStatus({ id });
   const cubesBalance = useCubesBalance();
   const newOfferAmount = Number(newOffer);
 

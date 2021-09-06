@@ -1,26 +1,26 @@
 import { useQuery } from "react-query";
 import { useCubic, useGlobalContext } from "../../components/Store/Store";
 import { ONE_MINUTES_MS } from "../constants";
-import useArtId from "./useArtId";
+import useId from "./useId";
 
 export const useHistory = (onlyUser?: boolean) => {
-  const artId = useArtId();
+  const id = useId();
   const cubic = useCubic();
   const {
     state: { principal },
   } = useGlobalContext();
 
   return useQuery(
-    ["history", artId],
+    ["history", id],
     async () => {
       const result = await cubic.getHistory({
-        artId: BigInt(artId),
+        projectId: BigInt(id),
         principal: onlyUser ? [principal] : [],
       });
       return result;
     },
     {
-      enabled: !!artId && (!onlyUser || !!principal),
+      enabled: !!id && (!onlyUser || !!principal),
       keepPreviousData: true,
       refetchInterval: ONE_MINUTES_MS,
     }
