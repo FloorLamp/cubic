@@ -269,7 +269,7 @@ export default function Cubes() {
                 We recommend using WTC to buy CUBE. If you'd like to use raw
                 cycles, use the cycles wallet UI or dfx, and send the desired
                 amount to:
-                <div className="border border-gray-300 my-2 rounded-md p-2 text-xs">
+                <div className="border border-gray-300 my-2 rounded-sm p-2 text-xs">
                   <IdentifierLabelWithButtons
                     type="Principal"
                     id={canisterId}

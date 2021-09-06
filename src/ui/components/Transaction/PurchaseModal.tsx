@@ -227,7 +227,7 @@ export default function PurchaseModal({}: {}) {
             </SpinnerButton>
           ) : (
             <Link href="/cubes">
-              <a className="p-3 w-full btn-cta rounded-md text-center">
+              <a className="p-3 w-full btn-cta rounded-sm text-center">
                 Buy more Cubes
               </a>
             </Link>

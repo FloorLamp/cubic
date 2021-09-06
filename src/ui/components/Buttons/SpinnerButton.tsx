@@ -26,7 +26,7 @@ const SpinnerButton = ({
     <button
       onClick={onClick}
       className={classNames(
-        "rounded-md leading-none inline-flex items-center justify-center",
+        "rounded-sm leading-none inline-flex items-center justify-center",
         {
           [activeClassName]: !disabled,
           [disabledClassName]: disabled,

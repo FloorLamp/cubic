@@ -324,7 +324,7 @@ export default function Minter() {
           {error && <ErrorAlert>{error}</ErrorAlert>}
 
           {pendingIcp > 0 && (
-            <div className="border border-gray-300 rounded-md px-2 py-1 flex justify-between text-sm">
+            <div className="border border-gray-300 rounded-sm px-2 py-1 flex justify-between text-sm">
               <label className="text-gray-500">Pending Mint</label>
               <div
                 className={classNames({

@@ -18,13 +18,13 @@ export const Preview = ({ id }: { id: string }) => {
   return (
     <Panel className="p-6 w-full max-w-xs">
       <div
-        className="group cursor-pointer flex flex-col"
+        className="group cursor-pointer flex flex-col items-center"
         onClick={() => router.push(`/p/${id}`)}
       >
         <div style={{ width: 250, height: 250 }}>
           <Asset id={id} />
         </div>
-        <a className="pt-2 inline-flex gap-1 items-center group font-bold hover:underline">
+        <a className="w-full pt-2 inline-flex gap-1 items-center group font-bold">
           <span>
             {padProjectId(id)}
             {" — "}

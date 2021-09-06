@@ -69,7 +69,7 @@ export function OwnersTable() {
                         ...DateTime.DATETIME_SHORT,
                       })
                   ) : (
-                    <span className="px-2 py-1 leading-none text-xs rounded-md bg-gray-300 text-gray-800 ml-2">
+                    <span className="px-2 py-1 leading-none text-xs rounded-sm bg-gray-300 text-gray-800 ml-2">
                       Current Owner
                     </span>
                   )}

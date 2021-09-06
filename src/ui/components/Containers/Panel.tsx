@@ -10,7 +10,7 @@ export default function Panel({
 }) {
   return (
     <section
-      className={classNames("bg-gray-50 rounded-lg shadow-lg", className)}
+      className={classNames("bg-gray-50 rounded-sm shadow-lg", className)}
     >
       {children}
     </section>

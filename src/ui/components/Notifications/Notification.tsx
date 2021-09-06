@@ -29,7 +29,7 @@ export const Notification = ({
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
     >
-      <div className="shadow-xl bg-white px-4 py-3 rounded-md">
+      <div className="shadow-xl bg-white px-4 py-3 rounded-sm">
         <div className="relative pr-8">
           <button
             type="button"

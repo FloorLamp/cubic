@@ -152,7 +152,7 @@ export default function LoginButton() {
   return (
     <>
       <button
-        className="px-2 py-1 rounded-md bg-transparent border-2 border-white opacity-70 hover:opacity-100 transition-opacity"
+        className="px-2 py-1 rounded-sm bg-transparent border-2 border-white opacity-70 hover:opacity-100 transition-opacity"
         onClick={isAuthed ? handleLogout : openModal}
       >
         {isAuthed ? "Logout" : "Login"}
@@ -164,7 +164,7 @@ export default function LoginButton() {
         title="Login"
         className="max-w-xs w-full"
       >
-        <div className="flex flex-col items-stretch gap-4">
+        <div className="flex flex-col items-stretch gap-4 py-4">
           {showIILogin && (
             <div className="text-sm">
               Internet Identity is not recommended due to difficulty in holding

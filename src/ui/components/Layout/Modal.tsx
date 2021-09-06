@@ -52,7 +52,7 @@ export default function Modal({
           >
             <div
               className={classNames(
-                "inline-block p-4 my-8 text-left align-middle transition-all transform bg-gray-100 dark:bg-gray-800 shadow-xl rounded-2xl",
+                "inline-block p-4 my-8 text-left align-middle transition-all transform bg-gray-100 dark:bg-gray-800 shadow-xl rounded-md",
                 className
               )}
             >
