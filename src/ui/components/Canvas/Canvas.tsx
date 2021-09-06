@@ -5,12 +5,12 @@ import { useDetails } from "../../lib/hooks/useDetails";
 import { useHistory } from "../../lib/hooks/useHistory";
 import useId from "../../lib/hooks/useId";
 import { useStatus } from "../../lib/hooks/useStatus";
-import { assetUrl } from "../../lib/url";
 import Panel from "../Containers/Panel";
 import { DevTools } from "../DevTools";
 import { useMockData } from "../Store/Store";
-import { Art003 } from "./003";
-import { Art004 } from "./004";
+import Asset from "./Asset";
+import { Art003 } from "./Testing/003";
+import { Art004 } from "./Testing/004";
 
 export default function Canvas() {
   const id = useId();
@@ -27,13 +27,11 @@ export default function Canvas() {
 
   return (
     <Panel className="p-8 w-full flex flex-col items-center">
-      {id === "0" && <img src={assetUrl("000.svg")} />}
-      {id === "1" && <img src={assetUrl("001.svg")} />}
-      {id === "2" && <img src={assetUrl("002.svg")} />}
+      <Asset id={id} />
       {id === "3" && <Art003 data={actualTransfers} />}
       {id === "4" && <Art004 owners={actualData} transfers={actualTransfers} />}
 
-      <DevTools />
+      {process.env.NEXT_PUBLIC_DFX_NETWORK === "local" && <DevTools />}
     </Panel>
   );
 }

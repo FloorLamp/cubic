@@ -1,8 +1,8 @@
 import React from "react";
-import { Block } from "../../declarations/Cubic/Cubic.did";
-import { principalHash } from "../../lib/blocks";
-import { ParsedStatus } from "../../lib/types";
-import { principalIsEqual } from "../../lib/utils";
+import { Block } from "../../../declarations/Cubic/Cubic.did";
+import { principalHash } from "../../../lib/blocks";
+import { ParsedStatus } from "../../../lib/types";
+import { principalIsEqual } from "../../../lib/utils";
 
 function groupBy<T>(
   xs: T[],

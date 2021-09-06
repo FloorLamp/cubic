@@ -1,6 +1,6 @@
 import React from "react";
-import { HistoryResponse } from "../../declarations/Cubic/Cubic.did";
-import { principalColor } from "../../lib/blocks";
+import { HistoryResponse } from "../../../declarations/Cubic/Cubic.did";
+import { principalColor } from "../../../lib/blocks";
 
 const ONE_YEAR_SECONDS = 365 * 24 * 60 * 60;
 

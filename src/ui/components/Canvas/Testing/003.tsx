@@ -1,6 +1,6 @@
 import React from "react";
-import { HistoryResponse } from "../../declarations/Cubic/Cubic.did";
-import { principalColor } from "../../lib/blocks";
+import { HistoryResponse } from "../../../declarations/Cubic/Cubic.did";
+import { principalColor } from "../../../lib/blocks";
 
 export function Art003({ data }: { data: HistoryResponse }) {
   if (!data?.transfers) return null;

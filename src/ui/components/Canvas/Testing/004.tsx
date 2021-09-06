@@ -1,7 +1,7 @@
 import { Principal } from "@dfinity/principal";
 import React from "react";
-import { Block, HistoryResponse } from "../../declarations/Cubic/Cubic.did";
-import { principalHash } from "../../lib/blocks";
+import { Block, HistoryResponse } from "../../../declarations/Cubic/Cubic.did";
+import { principalHash } from "../../../lib/blocks";
 
 const generate = (p: Principal) => {
   const hash = principalHash(p);

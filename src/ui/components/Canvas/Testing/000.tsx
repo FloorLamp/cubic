@@ -1,6 +1,6 @@
 import React from "react";
-import { Block } from "../../declarations/Cubic/Cubic.did";
-import { ownerColor } from "../../lib/blocks";
+import { Block } from "../../../declarations/Cubic/Cubic.did";
+import { ownerColor } from "../../../lib/blocks";
 
 export function Art000({ data }: { data: Block[] }) {
   const inputs = data.map((d) => ({
