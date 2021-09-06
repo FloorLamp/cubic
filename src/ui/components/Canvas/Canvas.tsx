@@ -9,7 +9,6 @@ import { assetUrl } from "../../lib/url";
 import Panel from "../Containers/Panel";
 import { DevTools } from "../DevTools";
 import { useMockData } from "../Store/Store";
-import { Art002 } from "./002";
 import { Art003 } from "./003";
 import { Art004 } from "./004";
 
@@ -30,7 +29,7 @@ export default function Canvas() {
     <Panel className="p-8 w-full flex flex-col items-center">
       {artId === "0" && <img src={assetUrl("000.svg")} />}
       {artId === "1" && <img src={assetUrl("001.svg")} />}
-      {artId === "2" && <Art002 data={actualTransfers} now={actualNow} />}
+      {artId === "2" && <img src={assetUrl("002.svg")} />}
       {artId === "3" && <Art003 data={actualTransfers} />}
       {artId === "4" && (
         <Art004 owners={actualData} transfers={actualTransfers} />

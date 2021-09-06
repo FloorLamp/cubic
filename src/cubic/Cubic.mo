@@ -13,6 +13,7 @@ import Principal "mo:base/Principal";
 
 import Svg000 "./Svg/000";
 import Svg001 "./Svg/001";
+import Svg002 "./Svg/002";
 import T "./Types";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
@@ -97,6 +98,7 @@ shared actor class Cubic(init: T.Initialization) = this {
     switch (path) {
       case ("/000.svg") { Http.svg(Svg000.make(latestBlocks(0))) };
       case ("/001.svg") { Http.svg(Svg001.make(data[1].transfers)) };
+      case ("/002.svg") { Http.svg(Svg002.make(data[2].transfers)) };
       case _ {
         {
           body = Text.encodeUtf8("404 Not found :" # path);

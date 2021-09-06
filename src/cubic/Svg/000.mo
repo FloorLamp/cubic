@@ -3,6 +3,8 @@ import Float "mo:base/Float";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
 import Principal "mo:base/Principal";
+
+import Shared "./Shared";
 import T "../Types";
 
 module {
@@ -40,7 +42,7 @@ module {
         (1 - minCubeScale) + minCubeScale;
     let translate = ((1 - cubeScale) * 80) / 2 + 10;
 
-    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><filter id='shadow' x='0' y='0' width='175' height='200'><feOffset result='offOut' in='SourceAlpha' dx='2' dy='2'/><feColorMatrix result='matrixOut' in='offOut' type='matrix' values='0.49 0 0 0 0 0 0.49 0 0 0 0 0 0.49 0 0 0 0 0 0.2 0'/><feGaussianBlur result='blurOut' in='matrixOut' stdDeviation='1'/><feBlend in='SourceGraphic' in2='blurOut' mode='normal'/></filter><style>#_cubic000 polyline { fill: none; stroke-width: 9; }</style></defs><rect x='5' y='5' width='90' height='90' fill='#ebe4d8' filter='url(#shadow)'/>" #
+    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs>" # Shared.SHADOW # "<style>#_cubic000 polyline { fill: none; stroke-width: 9; }</style></defs><rect x='5' y='5' width='90' height='90' fill='#ebe4d8' filter='url(#shadow)'/>" #
     "<g id='_cubic000' transform='translate(" # Float.toText(translate) # "," # Float.toText(translate) #
     ")scale(" # Float.toText(cubeScale) # ")'>" #
     Array.foldLeft<Data, (Text, Float)>(inputs, ("", 0), func((lines, pos), { color; size }) {

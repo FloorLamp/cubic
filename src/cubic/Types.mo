@@ -46,13 +46,6 @@ module {
     transfers: [Transfer];
   };
 
-  public type Transfer_pre = {
-    id: Nat;
-    from: Principal;
-    to: Principal;
-    timestamp: Int;
-    value: Nat;
-  };
   public type Transfer = {
     id: Nat;
     from: Principal;
@@ -69,13 +62,6 @@ module {
   public type HistoryResponse = {
     transfers: [Transfer];
     count: Nat;
-  };
-
-  public type Block_pre = {
-    id: Nat;
-    owner: Principal;
-    totalOwnedTime: Int;
-    totalValue: Nat;
   };
 
   public type Block = {

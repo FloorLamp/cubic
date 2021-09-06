@@ -18,11 +18,12 @@ export const Preview = ({ artId }: { artId: string }) => {
   return (
     <Panel className="p-6 w-full max-w-xs">
       <div
-        className="group cursor-pointer"
+        className="group cursor-pointer flex flex-col"
         onClick={() => router.push(`/p/${artId}`)}
       >
-        {artId === "0" && <img src={assetUrl("000.svg")} className="w-full" />}
-        {artId === "1" && <img src={assetUrl("001.svg")} className="w-full" />}
+        {artId === "0" && <img src={assetUrl("000.svg")} />}
+        {artId === "1" && <img src={assetUrl("001.svg")} />}
+        {artId === "2" && <img src={assetUrl("002.svg")} />}
         <a className="pt-2 inline-flex gap-1 items-center group font-bold hover:underline">
           <span>
             {padProjectId(artId)}

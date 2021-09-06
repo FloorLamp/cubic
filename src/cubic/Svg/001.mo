@@ -8,8 +8,10 @@ import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
 import Nat8 "mo:base/Nat8";
 import Principal "mo:base/Principal";
-import T "../Types";
 import Text "mo:base/Text";
+
+import Shared "./Shared";
+import T "../Types";
 
 module {
   type Data = {
@@ -47,7 +49,7 @@ module {
       g # "<linearGradient id='gradient-" # id # "' x1='0%' y1='0%' x2='100%' y2='0%' > <stop offset='0%' stop-color='#fff' /> <stop offset='100%' stop-color='" # color # "' /> </linearGradient>"
     });
 
-    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><clipPath id='clip'> <rect x='5' y='5' width='90' height='90' /> </clipPath><filter id='shadow' x='0' y='0' width='175' height='200'><feOffset result='offOut' in='SourceAlpha' dx='2' dy='2'/><feColorMatrix result='matrixOut' in='offOut' type='matrix' values='0.49 0 0 0 0 0 0.49 0 0 0 0 0 0.49 0 0 0 0 0 0.2 0'/><feGaussianBlur result='blurOut' in='matrixOut' stdDeviation='1'/><feBlend in='SourceGraphic' in2='blurOut' mode='normal'/></filter><style>#_cubic001 .path { fill: none; stroke-dasharray: .2 .8; animation: dash 5s linear infinite; } @keyframes dash { 0% { stroke-dashoffset: 1; } 100% { stroke-dashoffset: 0; } }</style>" #
+    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><clipPath id='clip'> <rect x='5' y='5' width='90' height='90' /> </clipPath>" # Shared.SHADOW # "<style>#_cubic001 .path { fill: none; stroke-dasharray: .2 .8; animation: dash 5s linear infinite; } @keyframes dash { 0% { stroke-dashoffset: 1; } 100% { stroke-dashoffset: 0; } }</style>" #
     gradients #
     "</defs><rect x='5' y='5' width='90' height='90' fill='#333' filter='url(#shadow)'/>" #
     "<g clip-path='url(#clip)'>" #

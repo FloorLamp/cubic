@@ -32,7 +32,7 @@ export function CurrentStatus() {
   const ownerBalance = useCubesBalance(data?.status.owner);
   const ownerStatus = data
     ? principalIsEqual(data.status.owner, Principal.fromText(canisterId))
-      ? history.data.count === BigInt(0)
+      ? history.data?.count === BigInt(0)
         ? "New"
         : "Foreclosed"
       : "Owned"
