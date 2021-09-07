@@ -48,6 +48,7 @@ export const INITIAL_MOCK_STATE = {
       owner: null,
       offerValue: 1,
       offerTimestamp: BigInt(0),
+      isForeclosed: false,
     },
     projectId: "0",
     owner: null,

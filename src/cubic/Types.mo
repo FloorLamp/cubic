@@ -8,21 +8,23 @@ import Xtc "./XtcTypes";
 module {
   public type Data = {
     projectId: Nat;
-    details: ProjectDetails;
+    details: ProjectDetails_v2;
     owners: [var Block];
-    status: Status;
+    status: Status_v2;
     ownerIds: PrincipalToNat;
     transfers: [Transfer];
   };
 
-  public type ProjectDetails = {
+  public type ProjectDetails_v2 = {
     name: Text;
     description: Text;
     creator: Text;
     createdTime: Int;
+    isActive: Bool;
   };
   public type SetDetailsRequest = {
     projectId: Nat;
+    isActive: ?Bool;
     name: ?Text;
     description: ?Text;
     creator: ?Text;
@@ -31,17 +33,17 @@ module {
 
   public type DataEntry_shared = {
     projectId: Nat;
-    details: ProjectDetails;
+    details: ProjectDetails_v2;
     owners: [Block];
-    status: Status;
+    status: Status_v2;
     ownerIdEntries: [PrincipalToNatEntry];
     transfers: [Transfer];
   };
-  public type DataEntry_v2 = {
+  public type DataEntry_v3 = {
     projectId: Nat;
-    details: ProjectDetails;
+    details: ProjectDetails_v2;
     owners: [var Block];
-    status: Status;
+    status: Status_v2;
     ownerIdEntries: [PrincipalToNatEntry];
     transfers: [Transfer];
   };
@@ -94,9 +96,15 @@ module {
     offerTimestamp: Int;
     offerValue: Nat;
   };
+  public type Status_v2 = {
+    isForeclosed: Bool;
+    owner: Principal;
+    offerTimestamp: Int;
+    offerValue: Nat;
+  };
 
   public type StatusAndOwner = {
-    status: Status;
+    status: Status_v2;
     owner: ?Block;
   };
 
@@ -139,9 +147,11 @@ module {
       lastTaxTimestamp: Int;
     };
     canisters: Canisters;
+    controllers: [Principal];
   };
 
   public type Error = {
+    #CannotPurchase;
     #InsufficientBalance;
     #InsufficientLiquidity;
     #WtcTransferError: Wtc.TransferError;

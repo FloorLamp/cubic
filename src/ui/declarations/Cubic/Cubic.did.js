@@ -39,14 +39,16 @@ export const idlFactory = ({ IDL }) => {
     'InsufficientBalance' : IDL.Null,
     'XtcTransferError' : TransferError__1,
     'WtcTransferError' : TransferError,
+    'CannotPurchase' : IDL.Null,
     'InsufficientLiquidity' : IDL.Null,
   });
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Error });
-  const ProjectDetails = IDL.Record({
+  const ProjectDetails_v2 = IDL.Record({
     'creator' : IDL.Text,
     'name' : IDL.Text,
     'description' : IDL.Text,
     'createdTime' : IDL.Int,
+    'isActive' : IDL.Bool,
   });
   const Block = IDL.Record({
     'id' : IDL.Nat,
@@ -58,13 +60,14 @@ export const idlFactory = ({ IDL }) => {
     'lastSalePrice' : IDL.Int,
     'totalOwnedTime' : IDL.Int,
   });
-  const Status = IDL.Record({
+  const Status_v2 = IDL.Record({
     'offerTimestamp' : IDL.Int,
     'owner' : IDL.Principal,
+    'isForeclosed' : IDL.Bool,
     'offerValue' : IDL.Nat,
   });
   const StatusAndOwner = IDL.Record({
-    'status' : Status,
+    'status' : Status_v2,
     'owner' : IDL.Opt(Block),
   });
   const BlocksRequest = IDL.Record({
@@ -129,6 +132,7 @@ export const idlFactory = ({ IDL }) => {
     'status_code' : IDL.Nat16,
   });
   const Info = IDL.Record({
+    'controllers' : IDL.Vec(IDL.Principal),
     'stats' : IDL.Record({
       'foreclosureCount' : IDL.Nat,
       'transactionFee' : IDL.Nat,
@@ -152,6 +156,7 @@ export const idlFactory = ({ IDL }) => {
     'name' : IDL.Opt(IDL.Text),
     'description' : IDL.Opt(IDL.Text),
     'createdTime' : IDL.Opt(IDL.Int),
+    'isActive' : IDL.Opt(IDL.Bool),
     'projectId' : IDL.Nat,
   });
   const User = IDL.Variant({
@@ -176,7 +181,7 @@ export const idlFactory = ({ IDL }) => {
     'depositXtc' : IDL.Func([IDL.Principal], [IDL.Nat], []),
     'details' : IDL.Func(
         [IDL.Nat],
-        [ProjectDetails, IDL.Vec(Block)],
+        [ProjectDetails_v2, IDL.Vec(Block)],
         ['query'],
       ),
     'getAllStatus' : IDL.Func([], [IDL.Vec(StatusAndOwner)], ['query']),
@@ -185,9 +190,10 @@ export const idlFactory = ({ IDL }) => {
     'getStatus' : IDL.Func([IDL.Nat], [StatusAndOwner], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'info' : IDL.Func([], [Info], ['query']),
-    'newProject' : IDL.Func([ProjectDetails], [], []),
+    'newProject' : IDL.Func([ProjectDetails_v2], [], []),
     'restore' : IDL.Func([], [], []),
     'setCanisters' : IDL.Func([Canisters], [], []),
+    'setControllers' : IDL.Func([IDL.Vec(IDL.Principal)], [], []),
     'setDetails' : IDL.Func([SetDetailsRequest], [], []),
     'tokenTransferNotification' : IDL.Func(
         [TokenIdentifier, User, Balance, Memo],

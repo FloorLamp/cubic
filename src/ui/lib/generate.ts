@@ -22,7 +22,7 @@ function randomNormal(min: number, max: number, skew: number = 1) {
 }
 
 export const randomPrincipal = () => {
-  const array = new Uint8Array(8);
+  const array = new Uint8Array(29);
   typeof window !== "undefined" && window.crypto.getRandomValues(array);
   return Principal.fromUint8Array(array);
 };
@@ -129,6 +129,7 @@ export const generate = (
           owner: newOwner,
           offerTimestamp: newTransfer.timestamp,
           offerValue: Math.floor(randomNormal(1, 100)),
+          isForeclosed: false,
         },
         owner: null,
       };

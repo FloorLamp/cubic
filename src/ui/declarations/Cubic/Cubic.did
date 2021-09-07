@@ -56,22 +56,24 @@ type StreamingCallbackHttpResponse =
    body: blob;
    token: opt StreamingCallbackToken;
  };
-type StatusAndOwner = 
+type Status_v2 = 
  record {
-   owner: opt Block;
-   status: Status;
- };
-type Status = 
- record {
+   isForeclosed: bool;
    offerTimestamp: int;
    offerValue: nat;
    owner: principal;
+ };
+type StatusAndOwner = 
+ record {
+   owner: opt Block;
+   status: Status_v2;
  };
 type SetDetailsRequest = 
  record {
    createdTime: opt int;
    creator: opt text;
    description: opt text;
+   isActive: opt bool;
    name: opt text;
    projectId: nat;
  };
@@ -80,11 +82,12 @@ type Result =
    err: Error;
    ok;
  };
-type ProjectDetails = 
+type ProjectDetails_v2 = 
  record {
    createdTime: int;
    creator: text;
    description: text;
+   isActive: bool;
    name: text;
  };
 type Memo = vec nat8;
@@ -96,6 +99,7 @@ type Initialization =
 type Info = 
  record {
    canisters: Canisters;
+   controllers: vec principal;
    projectCount: nat;
    stats:
     record {
@@ -154,6 +158,7 @@ type ErrorCode =
  };
 type Error = 
  variant {
+   CannotPurchase;
    Error: record {
             error_message: text;
             error_type: ErrorCode;
@@ -173,16 +178,17 @@ type Cubic =
          }) -> (Result);
    canister_heartbeat: () -> ();
    depositXtc: (principal) -> (nat);
-   details: (nat) -> (ProjectDetails, vec Block) query;
+   details: (nat) -> (ProjectDetails_v2, vec Block) query;
    getAllStatus: () -> (vec StatusAndOwner) query;
    getBlocks: (BlocksRequest) -> (vec Block) query;
    getHistory: (HistoryRequest) -> (HistoryResponse) query;
    getStatus: (nat) -> (StatusAndOwner) query;
    http_request: (HttpRequest) -> (HttpResponse) query;
    info: () -> (Info) query;
-   newProject: (ProjectDetails) -> ();
+   newProject: (ProjectDetails_v2) -> ();
    restore: () -> ();
    setCanisters: (Canisters) -> ();
+   setControllers: (vec principal) -> ();
    setDetails: (SetDetailsRequest) -> ();
    tokenTransferNotification: (TokenIdentifier, User, Balance, Memo) ->
     (opt Balance);

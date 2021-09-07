@@ -26,7 +26,7 @@ shared actor class Cubic(init: T.Initialization) = this {
   stable var ledgerEntries: [T.PrincipalToNatEntry] = [];
 
   var data: [var T.Data] = [var];
-  stable var dataEntries_v2: [T.DataEntry_v2] = [];
+  stable var dataEntries_v3: [T.DataEntry_v3] = [];
 
   // ---- Stats
   stable var cubesSupply: Nat = 0;
@@ -39,6 +39,7 @@ shared actor class Cubic(init: T.Initialization) = this {
   stable var foreclosureCount: Nat = 0;
 
   stable var controller: Principal = init.controller;
+  stable var controllers: [Principal] = [init.controller];
   stable var canisters: T.Canisters = init.canisters;
 
   let wtc = actor (Principal.toText(canisters.wtc)) : Wtc.Self;
@@ -84,10 +85,11 @@ shared actor class Cubic(init: T.Initialization) = this {
         lastTaxTimestamp = lastTaxTimestamp;
       };
       canisters = canisters;
+      controllers = controllers;
     }
   };
 
-  public query func details(projectId: Nat): async (T.ProjectDetails, [T.Block]) {
+  public query func details(projectId: Nat): async (T.ProjectDetails_v2, [T.Block]) {
     let {details} = data[projectId];
     (details, latestBlocks(projectId))
   };
@@ -368,6 +370,10 @@ shared actor class Cubic(init: T.Initialization) = this {
   public shared({ caller }) func buy(request: {projectId: Nat; newOffer: Nat}): async T.Result {
     let {details; status; ownerIds; owners; transfers} = data[request.projectId];
 
+    if (not details.isActive) {
+      return #err(#CannotPurchase);
+    };
+
     let buyerBalance = Option.get(ledger.get(caller), 0);
     if (buyerBalance < status.offerValue) {
       return #err(#InsufficientBalance);
@@ -447,6 +453,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
     // Set new status
     let newStatus = {
+      isForeclosed = false;
       owner = caller;
       offerTimestamp = now;
       offerValue = request.newOffer;
@@ -467,8 +474,9 @@ shared actor class Cubic(init: T.Initialization) = this {
 
   // ---- Controller functions
 
-  public shared({ caller }) func newProject(details: T.ProjectDetails): async () {
-    assert(caller == controller);
+  public shared({ caller }) func newProject(details: T.ProjectDetails_v2): async () {
+    onlyController(caller);
+
     let item : T.Data = {
       projectId = data.size();
       details = details;
@@ -477,6 +485,7 @@ shared actor class Cubic(init: T.Initialization) = this {
         owner = thisPrincipal();
         offerTimestamp = Time.now();
         offerValue = 1_000_000_000_000;
+        isForeclosed = false;
       };
       ownerIds = HashMap.HashMap<Principal, Nat>(1, Principal.equal, Principal.hash);
       transfers = [];
@@ -485,7 +494,8 @@ shared actor class Cubic(init: T.Initialization) = this {
   };
 
   public shared({ caller }) func setDetails(request: T.SetDetailsRequest): async () {
-    assert(caller == controller);
+    onlyController(caller);
+
     let {projectId; details; owners; ownerIds; status; transfers} = data[request.projectId];
 
     data[projectId] := {
@@ -495,6 +505,7 @@ shared actor class Cubic(init: T.Initialization) = this {
         description = Option.get(request.description, details.description);
         creator = Option.get(request.creator, details.creator);
         createdTime  = Option.get(request.createdTime, details.createdTime);
+        isActive = Option.get(request.isActive, details.isActive);
       };
       owners = owners;
       status = status;
@@ -504,13 +515,21 @@ shared actor class Cubic(init: T.Initialization) = this {
   };
 
   public shared({ caller }) func setCanisters(newCanisters: T.Canisters): async () {
-    assert(caller == controller);
+    onlyController(caller);
+
     canisters := newCanisters;
+  };
+
+  public shared({ caller }) func setControllers(newControllers: [Principal]): async () {
+    onlyController(caller);
+
+    controllers := newControllers;
   };
 
   // Restore from backup canister
   public shared({ caller }) func restore(): async () {
-    assert(caller == controller);
+    onlyController(caller);
+
     let dump = await backup.get();
 
     ledger := HashMap.fromIter<Principal, Nat>(dump.ledgerEntries.vals(), dump.ledgerEntries.size(), Principal.equal, Principal.hash);
@@ -545,7 +564,7 @@ shared actor class Cubic(init: T.Initialization) = this {
   };
 
   system func preupgrade() {
-    dataEntries_v2 := Array.map<T.Data, T.DataEntry_v2>(Array.freeze(data), func (d) {
+    dataEntries_v3 := Array.map<T.Data, T.DataEntry_v3>(Array.freeze(data), func (d) {
       {
         projectId = d.projectId;
         details = d.details;
@@ -568,7 +587,7 @@ shared actor class Cubic(init: T.Initialization) = this {
       sum + bal
     });
 
-    data := Array.thaw(Array.map<T.DataEntry_v2, T.Data>(dataEntries_v2, func (d) {
+    data := Array.thaw(Array.map<T.DataEntry_v3, T.Data>(dataEntries_v3, func (d) {
       {
         projectId = d.projectId;
         details = d.details;
@@ -600,7 +619,8 @@ shared actor class Cubic(init: T.Initialization) = this {
     for (project in data.vals()) {
       let {projectId; details; owners; ownerIds; status; transfers} = project;
 
-      if (project.status.owner != thisPrincipal()) {
+      // Only tax active, non-foreclosed items
+      if (details.isActive and status.owner != thisPrincipal()) {
         let seconds = Int.abs(now - lastTaxTimestamp) / 1_000_000_000;
         let amount = percentOf(seconds * status.offerValue, ANNUAL_TAX_RATE) / 365 / 24 / 60 / 60;
         Debug.print("tax: " # debug_show(seconds) # "s, price: " # debug_show(status.offerValue) # ", tax amount: " # debug_show(amount));
@@ -635,6 +655,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
             // Create new offer
             let newStatus = {
+              isForeclosed = true;
               owner = thisPrincipal();
               offerTimestamp = now;
               offerValue = FORECLOSURE_PRICE;
@@ -815,7 +836,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
   // ---- Helpers
 
-  func blockWithTimeNow(block: T.Block, status: T.Status): T.Block {
+  func blockWithTimeNow(block: T.Block, status: T.Status_v2): T.Block {
     {
       id = block.id;
       owner = block.owner;
@@ -838,6 +859,10 @@ shared actor class Cubic(init: T.Initialization) = this {
         block
       }
     })
+  };
+
+  func onlyController(caller: Principal): () {
+    assert(Option.isSome(Array.find<Principal>(controllers, func (c) { c == caller })))
   };
 
   func thisPrincipal(): Principal { Principal.fromActor(this) };

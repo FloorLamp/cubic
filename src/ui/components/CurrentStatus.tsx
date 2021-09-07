@@ -9,8 +9,6 @@ import {
   secondsToDuration,
 } from "../lib/datetime";
 import { useCubesBalance } from "../lib/hooks/useCubesBalance";
-import useHeartbeat from "../lib/hooks/useHeartbeat";
-import { useHistory } from "../lib/hooks/useHistory";
 import useId from "../lib/hooks/useId";
 import { useInfo } from "../lib/hooks/useInfo";
 import { useStatus } from "../lib/hooks/useStatus";
@@ -24,7 +22,6 @@ import PurchaseModal from "./Transaction/PurchaseModal";
 export function CurrentStatus() {
   const id = useId();
   const { data, isLoading } = useStatus({ id });
-  const history = useHistory();
   const {
     state: { principal },
   } = useGlobalContext();
@@ -32,9 +29,9 @@ export function CurrentStatus() {
   const ownerBalance = useCubesBalance(data?.status.owner);
   const ownerStatus = data
     ? principalIsEqual(data.status.owner, Principal.fromText(canisterId))
-      ? history.data?.count === BigInt(0)
-        ? "New"
-        : "Foreclosed"
+      ? data.status.isForeclosed
+        ? "Foreclosed"
+        : "New"
       : "Owned"
     : null;
 
@@ -51,14 +48,9 @@ export function CurrentStatus() {
       : null;
   const isOwner = data && principalIsEqual(data.status.owner, principal);
 
-  const heartbeat = useHeartbeat();
   useEffect(() => {
     if (ownershipSeconds != null && ownershipSeconds < 600) {
-      console.log(
-        `low ownershipSeconds: ${ownershipSeconds}, calling heartbeat...`
-      );
-
-      heartbeat.mutate();
+      info.refetch();
     }
   }, [ownershipSeconds]);
 

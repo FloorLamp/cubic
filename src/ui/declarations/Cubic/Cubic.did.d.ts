@@ -32,16 +32,17 @@ export interface Cubic {
     >,
   'canister_heartbeat' : () => Promise<undefined>,
   'depositXtc' : (arg_0: Principal) => Promise<bigint>,
-  'details' : (arg_0: bigint) => Promise<[ProjectDetails, Array<Block>]>,
+  'details' : (arg_0: bigint) => Promise<[ProjectDetails_v2, Array<Block>]>,
   'getAllStatus' : () => Promise<Array<StatusAndOwner>>,
   'getBlocks' : (arg_0: BlocksRequest) => Promise<Array<Block>>,
   'getHistory' : (arg_0: HistoryRequest) => Promise<HistoryResponse>,
   'getStatus' : (arg_0: bigint) => Promise<StatusAndOwner>,
   'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
   'info' : () => Promise<Info>,
-  'newProject' : (arg_0: ProjectDetails) => Promise<undefined>,
+  'newProject' : (arg_0: ProjectDetails_v2) => Promise<undefined>,
   'restore' : () => Promise<undefined>,
   'setCanisters' : (arg_0: Canisters) => Promise<undefined>,
+  'setControllers' : (arg_0: Array<Principal>) => Promise<undefined>,
   'setDetails' : (arg_0: SetDetailsRequest) => Promise<undefined>,
   'tokenTransferNotification' : (
       arg_0: TokenIdentifier,
@@ -58,6 +59,7 @@ export type Error = {
   { 'InsufficientBalance' : null } |
   { 'XtcTransferError' : TransferError__1 } |
   { 'WtcTransferError' : TransferError } |
+  { 'CannotPurchase' : null } |
   { 'InsufficientLiquidity' : null };
 export type ErrorCode = { 'canister_error' : null } |
   { 'system_transient' : null } |
@@ -87,6 +89,7 @@ export interface HttpResponse {
   'status_code' : number,
 }
 export interface Info {
+  'controllers' : Array<Principal>,
   'stats' : {
     'foreclosureCount' : bigint,
     'transactionFee' : bigint,
@@ -110,11 +113,12 @@ export interface Initialization {
   'canisters' : Canisters,
 }
 export type Memo = Array<number>;
-export interface ProjectDetails {
+export interface ProjectDetails_v2 {
   'creator' : string,
   'name' : string,
   'description' : string,
   'createdTime' : bigint,
+  'isActive' : boolean,
 }
 export type Result = { 'ok' : null } |
   { 'err' : Error };
@@ -123,14 +127,16 @@ export interface SetDetailsRequest {
   'name' : [] | [string],
   'description' : [] | [string],
   'createdTime' : [] | [bigint],
+  'isActive' : [] | [boolean],
   'projectId' : bigint,
 }
-export interface Status {
+export interface StatusAndOwner { 'status' : Status_v2, 'owner' : [] | [Block] }
+export interface Status_v2 {
   'offerTimestamp' : bigint,
   'owner' : Principal,
+  'isForeclosed' : boolean,
   'offerValue' : bigint,
 }
-export interface StatusAndOwner { 'status' : Status, 'owner' : [] | [Block] }
 export interface StreamingCallbackHttpResponse {
   'token' : [] | [StreamingCallbackToken],
   'body' : Array<number>,
