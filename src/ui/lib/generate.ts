@@ -1,7 +1,7 @@
 import { Principal } from "@dfinity/principal";
 import { INITIAL_MOCK_STATE, State } from "../components/Store/Store";
 import { canisterId } from "../declarations/Cubic";
-import { ParsedStatus } from "./types";
+import { ParsedSummary } from "./types";
 import { principalIsEqual } from "./utils";
 
 function randomNormal(min: number, max: number, skew: number = 1) {
@@ -43,7 +43,7 @@ export const generate = (
   let newNow = now;
 
   let newOwner, newTransfer;
-  let newStatus: ParsedStatus = status;
+  let newStatus: ParsedSummary = status;
 
   while (i < count) {
     let newTimeDiff: bigint;
@@ -132,6 +132,7 @@ export const generate = (
           isForeclosed: false,
         },
         owner: null,
+        details: null,
       };
     }
 

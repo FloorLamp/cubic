@@ -7,6 +7,34 @@ export const idlFactory = ({ IDL }) => {
     'controller' : IDL.Principal,
     'canisters' : Canisters,
   });
+  const Status_v2 = IDL.Record({
+    'offerTimestamp' : IDL.Int,
+    'owner' : IDL.Principal,
+    'isForeclosed' : IDL.Bool,
+    'offerValue' : IDL.Nat,
+  });
+  const Block = IDL.Record({
+    'id' : IDL.Nat,
+    'totalSaleCount' : IDL.Nat,
+    'totalValue' : IDL.Nat,
+    'owner' : IDL.Principal,
+    'lastPurchasePrice' : IDL.Int,
+    'lastSaleTime' : IDL.Int,
+    'lastSalePrice' : IDL.Int,
+    'totalOwnedTime' : IDL.Int,
+  });
+  const ProjectDetails_v2 = IDL.Record({
+    'creator' : IDL.Text,
+    'name' : IDL.Text,
+    'description' : IDL.Text,
+    'createdTime' : IDL.Int,
+    'isActive' : IDL.Bool,
+  });
+  const Summary = IDL.Record({
+    'status' : Status_v2,
+    'owner' : IDL.Opt(Block),
+    'details' : ProjectDetails_v2,
+  });
   const ErrorCode = IDL.Variant({
     'canister_error' : IDL.Null,
     'system_transient' : IDL.Null,
@@ -43,33 +71,6 @@ export const idlFactory = ({ IDL }) => {
     'InsufficientLiquidity' : IDL.Null,
   });
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Error });
-  const ProjectDetails_v2 = IDL.Record({
-    'creator' : IDL.Text,
-    'name' : IDL.Text,
-    'description' : IDL.Text,
-    'createdTime' : IDL.Int,
-    'isActive' : IDL.Bool,
-  });
-  const Block = IDL.Record({
-    'id' : IDL.Nat,
-    'totalSaleCount' : IDL.Nat,
-    'totalValue' : IDL.Nat,
-    'owner' : IDL.Principal,
-    'lastPurchasePrice' : IDL.Int,
-    'lastSaleTime' : IDL.Int,
-    'lastSalePrice' : IDL.Int,
-    'totalOwnedTime' : IDL.Int,
-  });
-  const Status_v2 = IDL.Record({
-    'offerTimestamp' : IDL.Int,
-    'owner' : IDL.Principal,
-    'isForeclosed' : IDL.Bool,
-    'offerValue' : IDL.Nat,
-  });
-  const StatusAndOwner = IDL.Record({
-    'status' : Status_v2,
-    'owner' : IDL.Opt(Block),
-  });
   const BlocksRequest = IDL.Record({
     'order' : IDL.Variant({ 'asc' : IDL.Null, 'desc' : IDL.Null }),
     'orderBy' : IDL.Variant({
@@ -171,6 +172,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const Cubic = IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
+    'allSummary' : IDL.Func([], [IDL.Vec(Summary)], ['query']),
     'balance' : IDL.Func([IDL.Opt(IDL.Principal)], [IDL.Nat], ['query']),
     'buy' : IDL.Func(
         [IDL.Record({ 'newOffer' : IDL.Nat, 'projectId' : IDL.Nat })],
@@ -179,22 +181,18 @@ export const idlFactory = ({ IDL }) => {
       ),
     'canister_heartbeat' : IDL.Func([], [], []),
     'depositXtc' : IDL.Func([IDL.Principal], [IDL.Nat], []),
-    'details' : IDL.Func(
-        [IDL.Nat],
-        [ProjectDetails_v2, IDL.Vec(Block)],
-        ['query'],
-      ),
-    'getAllStatus' : IDL.Func([], [IDL.Vec(StatusAndOwner)], ['query']),
+    'details' : IDL.Func([IDL.Nat], [ProjectDetails_v2], ['query']),
     'getBlocks' : IDL.Func([BlocksRequest], [IDL.Vec(Block)], ['query']),
     'getHistory' : IDL.Func([HistoryRequest], [HistoryResponse], ['query']),
-    'getStatus' : IDL.Func([IDL.Nat], [StatusAndOwner], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'info' : IDL.Func([], [Info], ['query']),
     'newProject' : IDL.Func([ProjectDetails_v2], [], []),
+    'owners' : IDL.Func([IDL.Nat], [IDL.Vec(Block)], ['query']),
     'restore' : IDL.Func([], [], []),
     'setCanisters' : IDL.Func([Canisters], [], []),
     'setControllers' : IDL.Func([IDL.Vec(IDL.Principal)], [], []),
     'setDetails' : IDL.Func([SetDetailsRequest], [], []),
+    'summary' : IDL.Func([IDL.Nat], [Summary], ['query']),
     'tokenTransferNotification' : IDL.Func(
         [TokenIdentifier, User, Balance, Memo],
         [IDL.Opt(Balance)],

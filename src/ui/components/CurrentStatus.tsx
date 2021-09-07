@@ -8,10 +8,11 @@ import {
   formatDuration,
   secondsToDuration,
 } from "../lib/datetime";
+import { useAllSummary } from "../lib/hooks/useAllSummary";
 import { useCubesBalance } from "../lib/hooks/useCubesBalance";
 import useId from "../lib/hooks/useId";
 import { useInfo } from "../lib/hooks/useInfo";
-import { useStatus } from "../lib/hooks/useStatus";
+import { useSummary } from "../lib/hooks/useSummary";
 import { formatNumber, principalIsEqual } from "../lib/utils";
 import Panel from "./Containers/Panel";
 import { TimestampLabel } from "./Labels/TimestampLabel";
@@ -21,7 +22,8 @@ import PurchaseModal from "./Transaction/PurchaseModal";
 
 export function CurrentStatus() {
   const id = useId();
-  const { data, isLoading } = useStatus({ id });
+  const { isLoading } = useAllSummary();
+  const data = useSummary({ id });
   const {
     state: { principal },
   } = useGlobalContext();

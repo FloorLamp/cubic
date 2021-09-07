@@ -1,7 +1,7 @@
 import React from "react";
 import { Block } from "../../../declarations/Cubic/Cubic.did";
 import { principalHash } from "../../../lib/blocks";
-import { ParsedStatus } from "../../../lib/types";
+import { ParsedSummary } from "../../../lib/types";
 import { principalIsEqual } from "../../../lib/utils";
 
 function groupBy<T>(
@@ -25,7 +25,7 @@ export function Art001({
   status,
 }: {
   data: Block[];
-  status: ParsedStatus;
+  status: ParsedSummary;
 }) {
   if (!status.status.owner) {
     return null;

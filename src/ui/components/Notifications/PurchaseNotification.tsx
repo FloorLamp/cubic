@@ -3,7 +3,7 @@ import { BsFillExclamationCircleFill } from "react-icons/bs";
 import { canisterId } from "../../declarations/Cubic";
 import { ownerColor, padProjectId } from "../../lib/blocks";
 import { dateTimeFromNanos } from "../../lib/datetime";
-import { ParsedStatus } from "../../lib/types";
+import { ParsedSummary } from "../../lib/types";
 import { shortPrincipal } from "../../lib/utils";
 import { TimestampLabel } from "../Labels/TimestampLabel";
 import { TokenLogo } from "../Labels/TokenLabel";
@@ -12,8 +12,8 @@ export const PurchaseNotification = ({
   purchaser,
   myPurchase,
 }: {
-  purchaser: ParsedStatus;
-  myPurchase: ParsedStatus;
+  purchaser: ParsedSummary;
+  myPurchase: ParsedSummary;
 }) => {
   const isForeclosure = purchaser.status.owner.toText() === canisterId;
 

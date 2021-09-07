@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQueryClient } from "react-query";
-import { useAllStatus } from "../../lib/hooks/useAllStatus";
-import { ParsedStatus } from "../../lib/types";
+import { useAllSummary } from "../../lib/hooks/useAllSummary";
+import { ParsedSummary } from "../../lib/types";
 import { principalIsEqual } from "../../lib/utils";
 import { useGlobalContext, useNotifications } from "../Store/Store";
 
@@ -10,7 +10,7 @@ export const Subscriptions = () => {
     state: { principal, isAuthed },
   } = useGlobalContext();
   const queryClient = useQueryClient();
-  const latestStatuses = useAllStatus();
+  const latestStatuses = useAllSummary();
 
   const { add, clear } = useNotifications();
   useEffect(() => {
@@ -22,7 +22,7 @@ export const Subscriptions = () => {
   }, [isAuthed]);
 
   // Show notification if we have sold something
-  const [owned, setOwned] = useState<ParsedStatus[]>([]);
+  const [owned, setOwned] = useState<ParsedSummary[]>([]);
   useEffect(() => {
     if (!latestStatuses.data) {
       return;

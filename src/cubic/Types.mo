@@ -103,8 +103,9 @@ module {
     offerValue: Nat;
   };
 
-  public type StatusAndOwner = {
+  public type Summary = {
     status: Status_v2;
+    details: ProjectDetails_v2;
     owner: ?Block;
   };
 

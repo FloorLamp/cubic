@@ -14,7 +14,7 @@ export default function useBuy({ id }: { id: string }) {
         return result.ok;
       } else {
         if ("InsufficientBalance" in result.err) {
-          queryClient.refetchQueries("status");
+          queryClient.refetchQueries("allSummary");
         }
         throw errorToString(result.err);
       }
@@ -22,11 +22,11 @@ export default function useBuy({ id }: { id: string }) {
     {
       onSuccess: async (data) => {
         queryClient.resetQueries("cubesBalance");
+        queryClient.refetchQueries("allSummary");
+        queryClient.refetchQueries("info");
         queryClient.refetchQueries(["details", id]);
         queryClient.refetchQueries(["blocks", id]);
-        queryClient.refetchQueries(["status", id]);
         queryClient.refetchQueries(["history", id]);
-        queryClient.refetchQueries("info");
       },
     }
   );

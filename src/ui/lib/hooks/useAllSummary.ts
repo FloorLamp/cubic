@@ -1,17 +1,18 @@
 import { useQuery } from "react-query";
 import { useCubic } from "../../components/Store/Store";
 import { FIVE_SECONDS_MS } from "../constants";
-import { ParsedStatus } from "../types";
+import { ParsedSummary } from "../types";
 
-export const useAllStatus = () => {
+export const useAllSummary = () => {
   const cubic = useCubic();
 
-  return useQuery<ParsedStatus[]>(
-    "allStatus",
+  return useQuery<ParsedSummary[]>(
+    "allSummary",
     async () => {
-      const results = await cubic.getAllStatus();
-      return results.map(({ status, owner }, i) => ({
+      const results = await cubic.allSummary();
+      return results.map(({ status, details, owner }, i) => ({
         projectId: i.toString(),
+        details,
         status: { ...status, offerValue: Number(status.offerValue) / 1e12 },
         owner: owner[0] ? owner[0] : null,
       }));

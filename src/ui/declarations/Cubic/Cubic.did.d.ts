@@ -26,24 +26,25 @@ export interface BlocksRequest {
 export interface Canisters { 'wtc' : Principal, 'xtc' : Principal }
 export interface Cubic {
   'acceptCycles' : () => Promise<undefined>,
+  'allSummary' : () => Promise<Array<Summary>>,
   'balance' : (arg_0: [] | [Principal]) => Promise<bigint>,
   'buy' : (arg_0: { 'newOffer' : bigint, 'projectId' : bigint }) => Promise<
       Result
     >,
   'canister_heartbeat' : () => Promise<undefined>,
   'depositXtc' : (arg_0: Principal) => Promise<bigint>,
-  'details' : (arg_0: bigint) => Promise<[ProjectDetails_v2, Array<Block>]>,
-  'getAllStatus' : () => Promise<Array<StatusAndOwner>>,
+  'details' : (arg_0: bigint) => Promise<ProjectDetails_v2>,
   'getBlocks' : (arg_0: BlocksRequest) => Promise<Array<Block>>,
   'getHistory' : (arg_0: HistoryRequest) => Promise<HistoryResponse>,
-  'getStatus' : (arg_0: bigint) => Promise<StatusAndOwner>,
   'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
   'info' : () => Promise<Info>,
   'newProject' : (arg_0: ProjectDetails_v2) => Promise<undefined>,
+  'owners' : (arg_0: bigint) => Promise<Array<Block>>,
   'restore' : () => Promise<undefined>,
   'setCanisters' : (arg_0: Canisters) => Promise<undefined>,
   'setControllers' : (arg_0: Array<Principal>) => Promise<undefined>,
   'setDetails' : (arg_0: SetDetailsRequest) => Promise<undefined>,
+  'summary' : (arg_0: bigint) => Promise<Summary>,
   'tokenTransferNotification' : (
       arg_0: TokenIdentifier,
       arg_1: User,
@@ -130,7 +131,6 @@ export interface SetDetailsRequest {
   'isActive' : [] | [boolean],
   'projectId' : bigint,
 }
-export interface StatusAndOwner { 'status' : Status_v2, 'owner' : [] | [Block] }
 export interface Status_v2 {
   'offerTimestamp' : bigint,
   'owner' : Principal,
@@ -153,6 +153,11 @@ export type StreamingStrategy = {
       'callback' : [Principal, string],
     }
   };
+export interface Summary {
+  'status' : Status_v2,
+  'owner' : [] | [Block],
+  'details' : ProjectDetails_v2,
+}
 export type TokenIdentifier = string;
 export interface Transfer {
   'id' : bigint,

@@ -2,7 +2,7 @@ import { ActorSubclass } from "@dfinity/agent";
 import Cubic, {
   Block,
   BlocksRequest,
-  StatusAndOwner,
+  Summary,
 } from "../declarations/Cubic/Cubic.did";
 import ledger from "../declarations/ledger/ledger.did";
 import Wtc, { TransferResponse } from "../declarations/wtc/wtc.did";
@@ -25,8 +25,9 @@ export type Asset = TcAsset | "CUBE" | "ICP";
 export type OrderBy = KeysOfUnion<BlocksRequest["orderBy"]>;
 export type Order = KeysOfUnion<BlocksRequest["order"]>;
 
-export type ParsedStatus = {
+export type ParsedSummary = {
   projectId: string;
-  status: Modify<StatusAndOwner["status"], { offerValue: number }>;
+  details: Summary["details"];
+  status: Modify<Summary["status"], { offerValue: number }>;
   owner: Block | null;
 };

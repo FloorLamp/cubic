@@ -11,7 +11,7 @@ import { defaultAgent } from "../../lib/canisters";
 import {
   CubicService,
   LedgerService,
-  ParsedStatus,
+  ParsedSummary,
   WtcService,
   XtcService,
 } from "../../lib/types";
@@ -32,7 +32,7 @@ export type State = {
   notifications: NotificationType[];
   mockData: {
     active: boolean;
-    status: ParsedStatus;
+    status: ParsedSummary;
     transfers: HistoryResponse;
     art: Block[];
     now: bigint;
@@ -50,6 +50,7 @@ export const INITIAL_MOCK_STATE = {
       offerTimestamp: BigInt(0),
       isForeclosed: false,
     },
+    details: null,
     projectId: "0",
     owner: null,
   },

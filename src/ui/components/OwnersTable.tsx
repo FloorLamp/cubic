@@ -7,8 +7,8 @@ import {
   secondsToDuration,
 } from "../lib/datetime";
 import { useBlocks } from "../lib/hooks/useBlocks";
-import { useDetails } from "../lib/hooks/useDetails";
 import useId from "../lib/hooks/useId";
+import { useOwners } from "../lib/hooks/useOwners";
 import { Order, OrderBy } from "../lib/types";
 import { formatNumber, pluralize } from "../lib/utils";
 import IdentifierLabelWithButtons from "./Buttons/IdentifierLabelWithButtons";
@@ -17,11 +17,11 @@ import { TokenLogo } from "./Labels/TokenLabel";
 
 export function OwnersTable() {
   const id = useId();
-  const art = useDetails({ id });
+  const owners = useOwners({ id });
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<OrderBy>("id");
   const blocks = useBlocks({ id, order, orderBy });
-  const count = art.data ? art.data[1].length : 0;
+  const count = owners.data ? owners.data.length : 0;
 
   return (
     <Panel className="p-8 w-full">

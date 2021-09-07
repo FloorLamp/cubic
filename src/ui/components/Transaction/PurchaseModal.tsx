@@ -1,12 +1,14 @@
+import classNames from "classnames";
 import Link from "next/link";
 import React, { useState } from "react";
 import { BsFillExclamationCircleFill } from "react-icons/bs";
 import { FiChevronRight } from "react-icons/fi";
 import useBuy from "../../lib/hooks/useBuy";
 import { useCubesBalance } from "../../lib/hooks/useCubesBalance";
+import { useDetails } from "../../lib/hooks/useDetails";
 import useId from "../../lib/hooks/useId";
 import { useInfo } from "../../lib/hooks/useInfo";
-import { useStatus } from "../../lib/hooks/useStatus";
+import { useSummary } from "../../lib/hooks/useSummary";
 import { formatNumber } from "../../lib/utils";
 import SpinnerButton from "../Buttons/SpinnerButton";
 import ErrorAlert from "../Labels/ErrorAlert";
@@ -14,12 +16,13 @@ import { TokenLabel, TokenLogo } from "../Labels/TokenLabel";
 import Modal from "../Layout/Modal";
 import { useGlobalContext, useLoginModal } from "../Store/Store";
 
-export default function PurchaseModal({}: {}) {
+export default function PurchaseModal() {
   const id = useId();
   const {
     state: { isAuthed },
   } = useGlobalContext();
   const info = useInfo();
+  const { data: details } = useDetails({ id });
 
   const [isOpen, setIsOpen] = useState(false);
   const openModal = () => setIsOpen(true);
@@ -28,7 +31,7 @@ export default function PurchaseModal({}: {}) {
   const [newOffer, setNewOffer] = useState("");
   const [error, setError] = useState("");
   const buy = useBuy({ id });
-  const status = useStatus({ id });
+  const summary = useSummary({ id });
   const cubesBalance = useCubesBalance();
   const newOfferAmount = Number(newOffer);
 
@@ -38,8 +41,8 @@ export default function PurchaseModal({}: {}) {
       : 0;
 
   const ownershipPeriod =
-    dailyTax > 0 && cubesBalance.isSuccess && status.data
-      ? (cubesBalance.data - status.data.status.offerValue) / dailyTax
+    dailyTax > 0 && cubesBalance.isSuccess && summary
+      ? (cubesBalance.data - summary.status.offerValue) / dailyTax
       : null;
 
   const [_, setLoginIsOpen] = useLoginModal();
@@ -64,13 +67,21 @@ export default function PurchaseModal({}: {}) {
     });
   };
 
-  const hasSufficientBalance =
-    cubesBalance.data > status.data?.status.offerValue;
+  const hasSufficientBalance = cubesBalance.data > summary?.status.offerValue;
+  const modalDisabled = details && !details.isActive;
 
   return (
     <>
-      <button type="button" onClick={openModal} className="w-full p-2 btn-cta">
-        Purchase
+      <button
+        type="button"
+        onClick={openModal}
+        className={classNames("w-full p-2", {
+          "btn-cta": !modalDisabled,
+          "cursor-not-allowed btn-cta-disabled": modalDisabled,
+        })}
+        disabled={modalDisabled}
+      >
+        {modalDisabled ? "Project not active" : "Purchase"}
       </button>
       <Modal
         isOpen={isOpen}
@@ -80,7 +91,7 @@ export default function PurchaseModal({}: {}) {
       >
         <div className="flex flex-col gap-2">
           {cubesBalance.isSuccess &&
-            status.data &&
+            summary &&
             (!isAuthed || hasSufficientBalance ? (
               <>
                 <div>
@@ -91,8 +102,8 @@ export default function PurchaseModal({}: {}) {
                       className="text-xs px-2 py-1 cursor-pointer btn-secondary"
                       value="Set to Current"
                       onClick={() =>
-                        status.data &&
-                        setNewOffer(status.data.status.offerValue.toString())
+                        summary &&
+                        setNewOffer(summary.status.offerValue.toString())
                       }
                     />
                   </div>
@@ -159,7 +170,7 @@ export default function PurchaseModal({}: {}) {
                     <label>Current Price</label>
                     <span>
                       <strong>
-                        {formatNumber(status.data?.status.offerValue, 12)}
+                        {formatNumber(summary?.status.offerValue, 12)}
                       </strong>{" "}
                       <TokenLogo />
                     </span>
@@ -170,7 +181,7 @@ export default function PurchaseModal({}: {}) {
                     <div>
                       <div className="text-right">
                         <strong>
-                          {formatNumber(status.data?.status.offerValue, 12)}
+                          {formatNumber(summary?.status.offerValue, 12)}
                         </strong>{" "}
                         <TokenLogo />
                       </div>
@@ -194,7 +205,7 @@ export default function PurchaseModal({}: {}) {
                     Current offer price
                   </label>
                   <h2 className="text-xl font-bold inline-flex items-center">
-                    {formatNumber(status.data?.status.offerValue, 12)}{" "}
+                    {formatNumber(summary?.status.offerValue, 12)}{" "}
                     <TokenLabel />
                   </h2>
                 </div>

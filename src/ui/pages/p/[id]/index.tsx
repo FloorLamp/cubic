@@ -1,5 +1,7 @@
+import { DateTime } from "luxon";
 import dynamic from "next/dynamic";
 import React from "react";
+import EditProjectButton from "../../../components/Admin/EditProjectButton";
 import Panel from "../../../components/Containers/Panel";
 import { CurrentStatus } from "../../../components/CurrentStatus";
 import { History } from "../../../components/History";
@@ -33,15 +35,28 @@ export default function ProjectPage({ id }: { id: string }) {
         title={`Project ${paddedId}`}
         description={`Project ${paddedId} on cubic.place`}
       />
-      <Breadcrumbs path={[{ path: `p/${id}`, label: `Project ${paddedId}` }]} />
+      <div className="xs:flex justify-between items-center">
+        <Breadcrumbs
+          path={[{ path: `p/${id}`, label: `Project ${paddedId}` }]}
+        />
+        <EditProjectButton id={id} />
+      </div>
       <div className="flex flex-col items-center gap-8 pt-8">
         <CanvasContainer />
 
         <Panel className="w-full p-8">
           <h1 className="text-2xl">
-            {data && data[0] ? `${paddedId} — ${data[0].name}` : "—"}
+            {data ? `${paddedId} — ${data.name}` : "—"}
           </h1>
-          <p>{data && data[0]?.description}</p>
+          <p>{data?.description}</p>
+          {data && (
+            <p className="text-gray-500 mt-4">
+              {data.creator || "Unknown"} •{" "}
+              {data.createdTime
+                ? DateTime.fromSeconds(Number(data.createdTime)).year
+                : null}
+            </p>
+          )}
         </Panel>
 
         <div className="w-full flex flex-col lg:flex-row gap-8">

@@ -1,7 +1,12 @@
 import { Principal } from "@dfinity/principal";
 import { Block } from "../declarations/Cubic/Cubic.did";
 
-export const padProjectId = (id: string) => id.padStart(3, "0");
+export const padProjectId = (id: bigint | string) => {
+  if (typeof id === "bigint") {
+    id = id.toString();
+  }
+  return id.padStart(3, "0");
+};
 
 export const principalHash = (principal: Principal) => {
   let hash = 0;

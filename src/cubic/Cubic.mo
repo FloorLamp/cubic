@@ -89,9 +89,12 @@ shared actor class Cubic(init: T.Initialization) = this {
     }
   };
 
-  public query func details(projectId: Nat): async (T.ProjectDetails_v2, [T.Block]) {
-    let {details} = data[projectId];
-    (details, latestBlocks(projectId))
+  public query func details(projectId: Nat): async T.ProjectDetails_v2 {
+    data[projectId].details
+  };
+
+  public query func owners(projectId: Nat): async [T.Block] {
+    latestBlocks(projectId)
   };
 
   /* Serve assets */
@@ -165,11 +168,12 @@ shared actor class Cubic(init: T.Initialization) = this {
     });
   };
 
-  public query func getStatus(projectId: Nat): async T.StatusAndOwner {
-    let {status; ownerIds; owners} = data[projectId];
+  public query func summary(projectId: Nat): async T.Summary {
+    let {status; details; ownerIds; owners} = data[projectId];
 
     {
       status = status;
+      details = details;
       owner = switch (ownerIds.get(status.owner)) {
         case (?id) { ?blockWithTimeNow(owners[id], status); };
         case _ { null };
@@ -177,12 +181,13 @@ shared actor class Cubic(init: T.Initialization) = this {
     }
   };
 
-  public query func getAllStatus(): async [T.StatusAndOwner] {
-    Array.map<T.Data, T.StatusAndOwner>(Array.freeze(data), func (d) {
-      let {status; ownerIds; owners} = d;
+  public query func allSummary(): async [T.Summary] {
+    Array.map<T.Data, T.Summary>(Array.freeze(data), func (d) {
+      let {status; details; ownerIds; owners} = d;
 
       {
         status = status;
+        details = details;
         owner = switch (ownerIds.get(status.owner)) {
           case (?id) { ?blockWithTimeNow(owners[id], status); };
           case _ { null };

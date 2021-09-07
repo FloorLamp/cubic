@@ -1,5 +1,5 @@
 import React from "react";
-import { ParsedStatus, TcAsset } from "../../lib/types";
+import { ParsedSummary, TcAsset } from "../../lib/types";
 import { useNotifications } from "../Store/Store";
 import { Notification } from "./Notification";
 import { PurchaseNotification } from "./PurchaseNotification";
@@ -25,8 +25,8 @@ export type NewNotification =
   | NewSwapNotification
   | {
       type: "Sale";
-      purchaser: ParsedStatus;
-      myPurchase: ParsedStatus;
+      purchaser: ParsedSummary;
+      myPurchase: ParsedSummary;
     }
   | {
       type: "Purchase";

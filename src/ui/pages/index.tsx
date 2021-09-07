@@ -1,22 +1,37 @@
 import React from "react";
+import NewProjectButton from "../components/Admin/NewProjectButton";
 import { Preview } from "../components/Canvas/Preview";
 import { homeDescription, MetaTags } from "../components/MetaTags";
-import { useInfo } from "../lib/hooks/useInfo";
+import Breadcrumbs from "../components/Navigation/Breadcrumbs";
+import { useAllSummary } from "../lib/hooks/useAllSummary";
+import { useIsController } from "../lib/hooks/useIsController";
 
 export default function Home() {
-  const { data } = useInfo();
+  const allSummary = useAllSummary();
+  const isController = useIsController();
+
   return (
-    <div className="flex flex-wrap justify-center items-center gap-4 pt-8">
+    <>
       <MetaTags
         title="cubic.place | Generative art on the IC"
         suffix={false}
         image="hero"
         description={homeDescription}
       />
-      {data &&
-        Array.from({ length: Number(data.projectCount) }, (_, id) => (
-          <Preview id={id.toString()} key={id} />
-        ))}
-    </div>
+      <div className="xs:flex justify-between items-center">
+        <Breadcrumbs path={[]} />
+        <NewProjectButton />
+      </div>
+
+      <div className="flex flex-wrap items-center gap-4 pt-8">
+        {allSummary.data?.map(({ projectId, details }) => {
+          if (details && !details.isActive && !isController) {
+            return null;
+          }
+
+          return <Preview id={projectId} key={projectId} />;
+        })}
+      </div>
+    </>
   );
 }

@@ -36,6 +36,12 @@ type Transfer =
    value: nat;
  };
 type TokenIdentifier = text;
+type Summary = 
+ record {
+   details: ProjectDetails_v2;
+   owner: opt Block;
+   status: Status_v2;
+ };
 type StreamingStrategy = variant {
                            Callback:
                             record {
@@ -62,11 +68,6 @@ type Status_v2 =
    offerTimestamp: int;
    offerValue: nat;
    owner: principal;
- };
-type StatusAndOwner = 
- record {
-   owner: opt Block;
-   status: Status_v2;
  };
 type SetDetailsRequest = 
  record {
@@ -171,6 +172,7 @@ type Error =
 type Cubic = 
  service {
    acceptCycles: () -> ();
+   allSummary: () -> (vec Summary) query;
    balance: (opt principal) -> (nat) query;
    buy: (record {
            newOffer: nat;
@@ -178,18 +180,18 @@ type Cubic =
          }) -> (Result);
    canister_heartbeat: () -> ();
    depositXtc: (principal) -> (nat);
-   details: (nat) -> (ProjectDetails_v2, vec Block) query;
-   getAllStatus: () -> (vec StatusAndOwner) query;
+   details: (nat) -> (ProjectDetails_v2) query;
    getBlocks: (BlocksRequest) -> (vec Block) query;
    getHistory: (HistoryRequest) -> (HistoryResponse) query;
-   getStatus: (nat) -> (StatusAndOwner) query;
    http_request: (HttpRequest) -> (HttpResponse) query;
    info: () -> (Info) query;
    newProject: (ProjectDetails_v2) -> ();
+   owners: (nat) -> (vec Block) query;
    restore: () -> ();
    setCanisters: (Canisters) -> ();
    setControllers: (vec principal) -> ();
    setDetails: (SetDetailsRequest) -> ();
+   summary: (nat) -> (Summary) query;
    tokenTransferNotification: (TokenIdentifier, User, Balance, Memo) ->
     (opt Balance);
    wallet_receive: () -> (nat);
