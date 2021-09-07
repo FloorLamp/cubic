@@ -11,7 +11,7 @@ import { useMockData } from "../Store/Store";
 import Asset from "./Asset";
 import { Art003 } from "./Testing/003";
 import { Art004 } from "./Testing/004";
-import { Art005 } from "./Testing/005";
+// import { Art005 } from "./Testing/005";
 
 export default function Canvas() {
   const id = useId();
@@ -31,13 +31,13 @@ export default function Canvas() {
       <Asset id={id} />
       {id === "3" && <Art003 data={actualTransfers} />}
       {id === "4" && <Art004 owners={actualData} transfers={actualTransfers} />}
-      {id === "5" && (
+      {/* {id === "5" && (
         <Art005
           owners={actualData}
           transfers={actualTransfers}
           now={actualNow}
         />
-      )}
+      )} */}
 
       {process.env.NEXT_PUBLIC_DFX_NETWORK === "local" && <DevTools />}
     </Panel>
