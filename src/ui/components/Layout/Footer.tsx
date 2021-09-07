@@ -1,5 +1,5 @@
 import React from "react";
-import { FaGithub } from "react-icons/fa";
+import { FaGithub, FaTelegram } from "react-icons/fa";
 import { canisterId } from "../../declarations/Cubic";
 
 export default function Footer() {
@@ -21,14 +21,14 @@ export default function Footer() {
       >
         <FaGithub />
       </a>
-      {/* <a
-        href="https://twitter.com"
+      <a
+        href="https://t.me/joinchat/jozeWC4qZGxjYzRh"
         className="opacity-50 hover:opacity-100"
         target="_blank"
         rel="noopener noreferrer"
       >
-        <FaTwitter />
-      </a> */}
+        <FaTelegram />
+      </a>
     </footer>
   );
 }

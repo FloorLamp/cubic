@@ -31,7 +31,7 @@ export default function App({ Component, pageProps }) {
           <title>Cubic</title>
         </Head>
         <div className="flex flex-col items-center bg-blue-900">
-          <div className="flex flex-col justify-between min-h-screen w-full sm:max-w-screen-lg px-4">
+          <div className="flex flex-col gap-10 justify-between min-h-screen w-full sm:max-w-screen-lg px-4">
             <main className="flex flex-col justify-start">
               <Nav />
               <Notifications />
