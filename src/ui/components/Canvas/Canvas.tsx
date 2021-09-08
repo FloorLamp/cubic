@@ -21,7 +21,7 @@ export default function Canvas() {
   const [mockData] = useMockData();
   const actualData = mockData.active ? mockData.art : owners.data;
   const actualStatus = mockData.active ? mockData.status : summary;
-  const actualTransfers = mockData.active ? mockData.transfers : history.data;
+  const actualEvents = mockData.active ? mockData.events : history.data;
   const actualNow = mockData.active
     ? mockData.now
     : dateTimeToNanos(DateTime.utc());
@@ -29,12 +29,12 @@ export default function Canvas() {
   return (
     <Panel className="p-8 w-full flex flex-col items-center">
       <Asset id={id} />
-      {id === "3" && <Art003 data={actualTransfers} />}
-      {id === "4" && <Art004 owners={actualData} transfers={actualTransfers} />}
+      {id === "3" && <Art003 data={actualEvents} />}
+      {id === "4" && <Art004 owners={actualData} events={actualEvents} />}
       {/* {id === "5" && (
         <Art005
           owners={actualData}
-          transfers={actualTransfers}
+          events={actualEvents}
           now={actualNow}
         />
       )} */}

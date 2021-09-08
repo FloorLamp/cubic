@@ -88,16 +88,27 @@ export const idlFactory = ({ IDL }) => {
     'principal' : IDL.Opt(IDL.Principal),
     'projectId' : IDL.Nat,
   });
-  const Transfer = IDL.Record({
-    'id' : IDL.Nat,
+  const TransferEvent = IDL.Record({
     'to' : IDL.Principal,
     'value' : IDL.Nat,
     'from' : IDL.Principal,
+  });
+  const PriceChange = IDL.Record({
+    'to' : IDL.Nat,
+    'owner' : IDL.Principal,
+    'from' : IDL.Nat,
+  });
+  const Event = IDL.Record({
+    'id' : IDL.Nat,
+    'data' : IDL.Variant({
+      'Transfer' : TransferEvent,
+      'PriceChange' : PriceChange,
+    }),
     'timestamp' : IDL.Int,
   });
   const HistoryResponse = IDL.Record({
-    'transfers' : IDL.Vec(Transfer),
     'count' : IDL.Nat,
+    'events' : IDL.Vec(Event),
   });
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
   const HttpRequest = IDL.Record({
@@ -192,6 +203,11 @@ export const idlFactory = ({ IDL }) => {
     'setCanisters' : IDL.Func([Canisters], [], []),
     'setControllers' : IDL.Func([IDL.Vec(IDL.Principal)], [], []),
     'setDetails' : IDL.Func([SetDetailsRequest], [], []),
+    'setPrice' : IDL.Func(
+        [IDL.Record({ 'newOffer' : IDL.Nat, 'projectId' : IDL.Nat })],
+        [Result],
+        [],
+      ),
     'summary' : IDL.Func([IDL.Nat], [Summary], ['query']),
     'tokenTransferNotification' : IDL.Func(
         [TokenIdentifier, User, Balance, Memo],

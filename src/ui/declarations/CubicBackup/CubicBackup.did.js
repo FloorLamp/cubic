@@ -1,8 +1,9 @@
 export const idlFactory = ({ IDL }) => {
   const PrincipalToNatEntry = IDL.Tuple(IDL.Principal, IDL.Nat);
-  const Status = IDL.Record({
+  const Status_v2 = IDL.Record({
     'offerTimestamp' : IDL.Int,
     'owner' : IDL.Principal,
+    'isForeclosed' : IDL.Bool,
     'offerValue' : IDL.Nat,
   });
   const Block = IDL.Record({
@@ -15,26 +16,38 @@ export const idlFactory = ({ IDL }) => {
     'lastSalePrice' : IDL.Int,
     'totalOwnedTime' : IDL.Int,
   });
-  const Transfer = IDL.Record({
-    'id' : IDL.Nat,
+  const TransferEvent = IDL.Record({
     'to' : IDL.Principal,
     'value' : IDL.Nat,
     'from' : IDL.Principal,
+  });
+  const PriceChange = IDL.Record({
+    'to' : IDL.Nat,
+    'owner' : IDL.Principal,
+    'from' : IDL.Nat,
+  });
+  const Event = IDL.Record({
+    'id' : IDL.Nat,
+    'data' : IDL.Variant({
+      'Transfer' : TransferEvent,
+      'PriceChange' : PriceChange,
+    }),
     'timestamp' : IDL.Int,
   });
-  const ProjectDetails = IDL.Record({
+  const ProjectDetails_v2 = IDL.Record({
     'creator' : IDL.Text,
     'name' : IDL.Text,
     'description' : IDL.Text,
     'createdTime' : IDL.Int,
+    'isActive' : IDL.Bool,
   });
   const DataEntry_shared = IDL.Record({
-    'status' : Status,
+    'status' : Status_v2,
     'owners' : IDL.Vec(Block),
-    'transfers' : IDL.Vec(Transfer),
     'ownerIdEntries' : IDL.Vec(PrincipalToNatEntry),
     'projectId' : IDL.Nat,
-    'details' : ProjectDetails,
+    'events' : IDL.Vec(Event),
+    'details' : ProjectDetails_v2,
   });
   const Backup = IDL.Record({
     'foreclosureCount' : IDL.Nat,

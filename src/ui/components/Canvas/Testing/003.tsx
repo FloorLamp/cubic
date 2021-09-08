@@ -1,12 +1,13 @@
 import React from "react";
 import { HistoryResponse } from "../../../declarations/Cubic/Cubic.did";
 import { principalColor } from "../../../lib/blocks";
+import { transfersFromEvents } from "../../../lib/utils";
 
 export function Art003({ data }: { data: HistoryResponse }) {
-  if (!data?.transfers) return null;
+  if (!data?.events) return null;
 
   const count = 20;
-  const recentTransfers = data.transfers.slice(-count);
+  const recentTransfers = transfersFromEvents(data.events).slice(-count);
 
   const inputs = recentTransfers.map((d, i) => {
     const arr = d.to.toUint8Array();

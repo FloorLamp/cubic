@@ -26,30 +26,41 @@ export interface CubicBackup {
   'load' : (arg_0: Backup) => Promise<undefined>,
 }
 export interface DataEntry_shared {
-  'status' : Status,
+  'status' : Status_v2,
   'owners' : Array<Block>,
-  'transfers' : Array<Transfer>,
   'ownerIdEntries' : Array<PrincipalToNatEntry>,
   'projectId' : bigint,
-  'details' : ProjectDetails,
+  'events' : Array<Event>,
+  'details' : ProjectDetails_v2,
+}
+export interface Event {
+  'id' : bigint,
+  'data' : { 'Transfer' : TransferEvent } |
+    { 'PriceChange' : PriceChange },
+  'timestamp' : bigint,
+}
+export interface PriceChange {
+  'to' : bigint,
+  'owner' : Principal,
+  'from' : bigint,
 }
 export type PrincipalToNatEntry = [Principal, bigint];
-export interface ProjectDetails {
+export interface ProjectDetails_v2 {
   'creator' : string,
   'name' : string,
   'description' : string,
   'createdTime' : bigint,
+  'isActive' : boolean,
 }
-export interface Status {
+export interface Status_v2 {
   'offerTimestamp' : bigint,
   'owner' : Principal,
+  'isForeclosed' : boolean,
   'offerValue' : bigint,
 }
-export interface Transfer {
-  'id' : bigint,
+export interface TransferEvent {
   'to' : Principal,
   'value' : bigint,
   'from' : Principal,
-  'timestamp' : bigint,
 }
 export interface _SERVICE extends CubicBackup {}

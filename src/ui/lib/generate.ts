@@ -28,17 +28,11 @@ export const randomPrincipal = () => {
 };
 
 export const generate = (
-  {
-    active,
-    transfers,
-    art,
-    status,
-    now,
-  }: State["mockData"] = INITIAL_MOCK_STATE,
+  { active, events, art, status, now }: State["mockData"] = INITIAL_MOCK_STATE,
   count: number = 1
 ): State["mockData"] => {
   let i = 0;
-  let newTransfers = transfers.transfers;
+  let newEvents = events.events;
   let newArt = art;
   let newNow = now;
 
@@ -55,7 +49,7 @@ export const generate = (
       newTimeDiff = BigInt(Math.floor(Math.random() * 60 * 60) * 1e9);
       newNow += newTimeDiff;
 
-      const isNew = newTransfers.length === 0;
+      const isNew = newEvents.length === 0;
       const isExistingOwner = Math.random() < 0.5 && art.length > 1;
       let idx;
 
@@ -66,7 +60,7 @@ export const generate = (
         } while (
           principalIsEqual(
             newOwner,
-            transfers.transfers[transfers.transfers.length - 1].to
+            events.events[events.events.length - 1].data["Transfer"].to
           )
         );
       } else {
@@ -74,17 +68,21 @@ export const generate = (
       }
 
       newTransfer = {
-        id: BigInt(newTransfers.length),
-        to: newOwner,
-        from: isNew
-          ? Principal.fromText(canisterId)
-          : newTransfers[newTransfers.length - 1].to,
-        value: BigInt(Math.floor(randomNormal(1, 100)) * 1e12),
+        id: BigInt(newEvents.length),
         timestamp: newNow,
+        data: {
+          Transfer: {
+            to: newOwner,
+            from: isNew
+              ? Principal.fromText(canisterId)
+              : newEvents[newEvents.length - 1].data["Transfer"].to,
+            value: BigInt(Math.floor(randomNormal(1, 100)) * 1e12),
+          },
+        },
       };
       console.log({ newTransfer });
 
-      newTransfers = newTransfers.concat(newTransfer);
+      newEvents = newEvents.concat(newTransfer);
 
       if (isExistingOwner) {
         const {
@@ -154,7 +152,7 @@ export const generate = (
 
   return {
     active,
-    transfers: { transfers: newTransfers, count: BigInt(newTransfers.length) },
+    events: { events: newEvents, count: BigInt(newEvents.length) },
     art: newArt,
     status: newStatus,
     now: newNow,

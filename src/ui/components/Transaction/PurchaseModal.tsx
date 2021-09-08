@@ -5,7 +5,6 @@ import { BsFillExclamationCircleFill } from "react-icons/bs";
 import { FiChevronRight } from "react-icons/fi";
 import useBuy from "../../lib/hooks/useBuy";
 import { useCubesBalance } from "../../lib/hooks/useCubesBalance";
-import { useDetails } from "../../lib/hooks/useDetails";
 import useId from "../../lib/hooks/useId";
 import { useInfo } from "../../lib/hooks/useInfo";
 import { useSummary } from "../../lib/hooks/useSummary";
@@ -22,7 +21,7 @@ export default function PurchaseModal() {
     state: { isAuthed },
   } = useGlobalContext();
   const info = useInfo();
-  const { data: details } = useDetails({ id });
+  const summary = useSummary({ id });
 
   const [isOpen, setIsOpen] = useState(false);
   const openModal = () => setIsOpen(true);
@@ -31,7 +30,6 @@ export default function PurchaseModal() {
   const [newOffer, setNewOffer] = useState("");
   const [error, setError] = useState("");
   const buy = useBuy({ id });
-  const summary = useSummary({ id });
   const cubesBalance = useCubesBalance();
   const newOfferAmount = Number(newOffer);
 
@@ -68,7 +66,7 @@ export default function PurchaseModal() {
   };
 
   const hasSufficientBalance = cubesBalance.data > summary?.status.offerValue;
-  const modalDisabled = details && !details.isActive;
+  const modalDisabled = summary && !summary.details.isActive;
 
   return (
     <>

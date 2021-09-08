@@ -19,6 +19,7 @@ import { TimestampLabel } from "./Labels/TimestampLabel";
 import { TokenLogo } from "./Labels/TokenLabel";
 import { useGlobalContext } from "./Store/Store";
 import PurchaseModal from "./Transaction/PurchaseModal";
+import SetPriceModal from "./Transaction/SetPriceModal";
 
 export function CurrentStatus() {
   const id = useId();
@@ -147,11 +148,7 @@ export function CurrentStatus() {
         </div>
       )}
 
-      {!isOwner && (
-        <div>
-          <PurchaseModal />
-        </div>
-      )}
+      {isOwner ? <SetPriceModal /> : <PurchaseModal />}
     </Panel>
   );
 }

@@ -11,6 +11,12 @@ type User =
    address: AccountIdentifier;
    "principal": principal;
  };
+type TransferEvent = 
+ record {
+   from: principal;
+   to: principal;
+   value: nat;
+ };
 type TransferError__1 = 
  variant {
    AmountTooLarge;
@@ -26,14 +32,6 @@ type TransferError =
    Other: text;
    Rejected;
    Unauthorized: AccountIdentifier;
- };
-type Transfer = 
- record {
-   from: principal;
-   id: nat;
-   timestamp: int;
-   to: principal;
-   value: nat;
  };
 type TokenIdentifier = text;
 type Summary = 
@@ -91,6 +89,12 @@ type ProjectDetails_v2 =
    isActive: bool;
    name: text;
  };
+type PriceChange = 
+ record {
+   from: nat;
+   owner: principal;
+   to: nat;
+ };
 type Memo = vec nat8;
 type Initialization = 
  record {
@@ -136,7 +140,7 @@ type HttpRequest =
 type HistoryResponse = 
  record {
    count: nat;
-   transfers: vec Transfer;
+   events: vec Event;
  };
 type HistoryRequest = 
  record {
@@ -147,6 +151,15 @@ type HeaderField =
  record {
    text;
    text;
+ };
+type Event = 
+ record {
+   data: variant {
+           PriceChange: PriceChange;
+           Transfer: TransferEvent;
+         };
+   id: nat;
+   timestamp: int;
  };
 type ErrorCode = 
  variant {
@@ -191,6 +204,10 @@ type Cubic =
    setCanisters: (Canisters) -> ();
    setControllers: (vec principal) -> ();
    setDetails: (SetDetailsRequest) -> ();
+   setPrice: (record {
+                newOffer: nat;
+                projectId: nat;
+              }) -> (Result);
    summary: (nat) -> (Summary) query;
    tokenTransferNotification: (TokenIdentifier, User, Balance, Memo) ->
     (opt Balance);

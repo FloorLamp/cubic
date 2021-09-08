@@ -1,5 +1,5 @@
 import { Principal } from "@dfinity/principal";
-import { Error } from "../declarations/Cubic/Cubic.did";
+import { Error, Event, TransferEvent } from "../declarations/Cubic/Cubic.did";
 import { CommonError, CommonError__1 } from "../declarations/wtc/wtc.did";
 import { TransferError } from "../declarations/xtc/xtc.did";
 import { ExtTransferError } from "./types";
@@ -104,3 +104,21 @@ export async function tryCall<T extends (...args: any) => any>(
     throw error.message;
   }
 }
+
+export const transfersFromEvents = (
+  events: Event[]
+): Array<
+  TransferEvent & {
+    id: bigint;
+    timestamp: bigint;
+  }
+> =>
+  events
+    .filter(({ data }) => "Transfer" in data)
+    .map(({ id, timestamp, data }) => ({
+      id,
+      timestamp,
+      to: data["Transfer"].to,
+      value: data["Transfer"].value,
+      from: data["Transfer"].from,
+    }));

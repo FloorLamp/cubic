@@ -2,22 +2,18 @@ import { useMutation, useQueryClient } from "react-query";
 import { useCubic } from "../../components/Store/Store";
 import { errorToString } from "../utils";
 
-export default function useBuy({ id }: { id: string }) {
+export default function useSetPrice({ id }: { id: string }) {
   const queryClient = useQueryClient();
   const cubic = useCubic();
 
   return useMutation(
-    ["buy", id],
+    ["setPrice", id],
     async (newOffer: bigint) => {
-      const result = await cubic.buy({ projectId: BigInt(id), newOffer });
+      const result = await cubic.setPrice({ projectId: BigInt(id), newOffer });
       if ("ok" in result) {
         return result.ok;
-      } else {
-        if ("InsufficientBalance" in result.err) {
-          queryClient.refetchQueries("allSummary");
-        }
-        throw errorToString(result.err);
       }
+      throw errorToString(result.err);
     },
     {
       onSuccess: async (data) => {

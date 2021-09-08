@@ -44,6 +44,9 @@ export interface Cubic {
   'setCanisters' : (arg_0: Canisters) => Promise<undefined>,
   'setControllers' : (arg_0: Array<Principal>) => Promise<undefined>,
   'setDetails' : (arg_0: SetDetailsRequest) => Promise<undefined>,
+  'setPrice' : (
+      arg_0: { 'newOffer' : bigint, 'projectId' : bigint },
+    ) => Promise<Result>,
   'summary' : (arg_0: bigint) => Promise<Summary>,
   'tokenTransferNotification' : (
       arg_0: TokenIdentifier,
@@ -68,15 +71,18 @@ export type ErrorCode = { 'canister_error' : null } |
   { 'canister_reject' : null } |
   { 'destination_invalid' : null } |
   { 'system_fatal' : null };
+export interface Event {
+  'id' : bigint,
+  'data' : { 'Transfer' : TransferEvent } |
+    { 'PriceChange' : PriceChange },
+  'timestamp' : bigint,
+}
 export type HeaderField = [string, string];
 export interface HistoryRequest {
   'principal' : [] | [Principal],
   'projectId' : bigint,
 }
-export interface HistoryResponse {
-  'transfers' : Array<Transfer>,
-  'count' : bigint,
-}
+export interface HistoryResponse { 'count' : bigint, 'events' : Array<Event> }
 export interface HttpRequest {
   'url' : string,
   'method' : string,
@@ -114,6 +120,11 @@ export interface Initialization {
   'canisters' : Canisters,
 }
 export type Memo = Array<number>;
+export interface PriceChange {
+  'to' : bigint,
+  'owner' : Principal,
+  'from' : bigint,
+}
 export interface ProjectDetails_v2 {
   'creator' : string,
   'name' : string,
@@ -159,13 +170,6 @@ export interface Summary {
   'details' : ProjectDetails_v2,
 }
 export type TokenIdentifier = string;
-export interface Transfer {
-  'id' : bigint,
-  'to' : Principal,
-  'value' : bigint,
-  'from' : Principal,
-  'timestamp' : bigint,
-}
 export type TransferError = { 'CannotNotify' : AccountIdentifier } |
   { 'InsufficientBalance' : null } |
   { 'InvalidToken' : TokenIdentifier } |
@@ -176,6 +180,11 @@ export type TransferError__1 = { 'CallFailed' : null } |
   { 'InsufficientBalance' : null } |
   { 'Unknown' : null } |
   { 'AmountTooLarge' : null };
+export interface TransferEvent {
+  'to' : Principal,
+  'value' : bigint,
+  'from' : Principal,
+}
 export type User = { 'principal' : Principal } |
   { 'address' : AccountIdentifier };
 export interface WithdrawRequest {

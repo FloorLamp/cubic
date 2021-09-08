@@ -5,7 +5,6 @@ import { CgSpinner } from "react-icons/cg";
 import { FiChevronRight } from "react-icons/fi";
 import { padProjectId } from "../../lib/blocks";
 import { useAllSummary } from "../../lib/hooks/useAllSummary";
-import { useDetails } from "../../lib/hooks/useDetails";
 import { useSummary } from "../../lib/hooks/useSummary";
 import { formatNumber } from "../../lib/utils";
 import Panel from "../Containers/Panel";
@@ -16,12 +15,11 @@ export const Preview = ({ id }: { id: string }) => {
   const router = useRouter();
   const { isLoading } = useAllSummary();
   const data = useSummary({ id });
-  const { data: details } = useDetails({ id });
 
   return (
     <Panel
       className={classNames("p-6 w-full max-w-xs", {
-        "bg-gray-300": details && !details.isActive,
+        "bg-gray-300": data && !data.details.isActive,
       })}
     >
       <div
@@ -34,7 +32,7 @@ export const Preview = ({ id }: { id: string }) => {
         <a className="w-full pt-2 inline-flex gap-1 items-center group font-bold">
           <span>
             {padProjectId(id)}
-            {details ? ` — ${details?.name}` : "—"}
+            {data ? ` — ${data.details.name}` : "—"}
           </span>
           <FiChevronRight className="inline-block group-hover:translate-x-1 transform transition-transform duration-75" />
         </a>

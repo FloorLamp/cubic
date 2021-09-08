@@ -33,7 +33,7 @@ export type State = {
   mockData: {
     active: boolean;
     status: ParsedSummary;
-    transfers: HistoryResponse;
+    events: HistoryResponse;
     art: Block[];
     now: bigint;
   };
@@ -41,7 +41,7 @@ export type State = {
 
 export const INITIAL_MOCK_STATE = {
   active: true,
-  transfers: { transfers: [], count: BigInt(0) },
+  events: { events: [], count: BigInt(0) },
   art: [],
   status: {
     status: {

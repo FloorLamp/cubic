@@ -12,7 +12,8 @@ module {
     owners: [var Block];
     status: Status_v2;
     ownerIds: PrincipalToNat;
-    transfers: [Transfer];
+    events: [Event];
+    transferCount: Nat;
   };
 
   public type ProjectDetails_v2 = {
@@ -37,15 +38,16 @@ module {
     owners: [Block];
     status: Status_v2;
     ownerIdEntries: [PrincipalToNatEntry];
-    transfers: [Transfer];
+    events: [Event];
   };
-  public type DataEntry_v3 = {
+  public type DataEntry_v4 = {
     projectId: Nat;
     details: ProjectDetails_v2;
     owners: [var Block];
     status: Status_v2;
     ownerIdEntries: [PrincipalToNatEntry];
-    transfers: [Transfer];
+    events: [Event];
+    transferCount: Nat;
   };
 
   public type Transfer = {
@@ -55,6 +57,25 @@ module {
     timestamp: Int;
     value: Nat;
   };
+  public type TransferEvent = {
+    from: Principal;
+    to: Principal;
+    value: Nat;
+  };
+  public type PriceChange = {
+    owner: Principal;
+    from: Nat;
+    to: Nat;
+  };
+
+  public type Event = {
+    id: Nat;
+    timestamp: Int;
+    data: {
+      #Transfer: TransferEvent;
+      #PriceChange: PriceChange;
+    }
+  };
 
   public type HistoryRequest = {
     projectId: Nat;
@@ -62,7 +83,7 @@ module {
   };
 
   public type HistoryResponse = {
-    transfers: [Transfer];
+    events: [Event];
     count: Nat;
   };
 

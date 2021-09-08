@@ -8,7 +8,7 @@ import { History } from "../../../components/History";
 import { MetaTags } from "../../../components/MetaTags";
 import Breadcrumbs from "../../../components/Navigation/Breadcrumbs";
 import { padProjectId } from "../../../lib/blocks";
-import { useDetails } from "../../../lib/hooks/useDetails";
+import { useSummary } from "../../../lib/hooks/useSummary";
 
 const CanvasContainer = dynamic(
   () => import("../../../components/Canvas/Canvas"),
@@ -26,7 +26,7 @@ export async function getServerSideProps({ params }) {
 }
 
 export default function ProjectPage({ id }: { id: string }) {
-  const { data } = useDetails({ id });
+  const data = useSummary({ id });
   const paddedId = padProjectId(id);
 
   return (
@@ -46,14 +46,14 @@ export default function ProjectPage({ id }: { id: string }) {
 
         <Panel className="w-full p-8">
           <h1 className="text-2xl">
-            {data ? `${paddedId} — ${data.name}` : "—"}
+            {data ? `${paddedId} — ${data.details.name}` : "—"}
           </h1>
-          <p>{data?.description}</p>
+          <p>{data?.details.description}</p>
           {data && (
             <p className="text-gray-500 mt-4">
-              {data.creator || "Unknown"} •{" "}
-              {data.createdTime
-                ? DateTime.fromSeconds(Number(data.createdTime)).year
+              {data.details.creator || "Unknown"} •{" "}
+              {data.details.createdTime
+                ? DateTime.fromSeconds(Number(data.details.createdTime)).year
                 : null}
             </p>
           )}

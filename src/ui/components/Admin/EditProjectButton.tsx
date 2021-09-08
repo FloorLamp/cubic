@@ -1,9 +1,9 @@
 import { DateTime } from "luxon";
 import React, { useState } from "react";
 import { SetDetailsRequest } from "../../declarations/Cubic/Cubic.did";
-import { useDetails } from "../../lib/hooks/useDetails";
 import { useIsController } from "../../lib/hooks/useIsController";
 import useSetDetails from "../../lib/hooks/useSetDetails";
+import { useSummary } from "../../lib/hooks/useSummary";
 import SpinnerButton from "../Buttons/SpinnerButton";
 import ErrorAlert from "../Labels/ErrorAlert";
 import Modal from "../Layout/Modal";
@@ -15,18 +15,18 @@ const EditProjectForm = ({
   id: string;
   closeModal: () => void;
 }) => {
-  const details = useDetails({ id });
-  const [creator, setCreator] = useState(details.data.creator);
-  const [name, setName] = useState(details.data.name);
-  const [description, setDescription] = useState(details.data.description);
+  const { details } = useSummary({ id });
+  const [creator, setCreator] = useState(details.creator);
+  const [name, setName] = useState(details.name);
+  const [description, setDescription] = useState(details.description);
   const [createdTime, setCreatedTime] = useState(
-    details.data.createdTime
-      ? DateTime.fromSeconds(Number(details.data.createdTime)).toISO({
+    details.createdTime
+      ? DateTime.fromSeconds(Number(details.createdTime)).toISO({
           includeOffset: false,
         })
       : ""
   );
-  const [isActive, setIsActive] = useState(details.data.isActive);
+  const [isActive, setIsActive] = useState(details.isActive);
   const [changed, setChanged] = useState({});
   const [error, setError] = useState("");
   const setDetails = useSetDetails({ id });
@@ -171,7 +171,7 @@ const EditProjectForm = ({
 
 export default function EditProjectButton({ id }: { id: string }) {
   const isController = useIsController();
-  const details = useDetails({ id });
+  const summary = useSummary({ id });
 
   const [isOpen, setIsOpen] = useState(false);
   const openModal = () => setIsOpen(true);
@@ -191,7 +191,7 @@ export default function EditProjectButton({ id }: { id: string }) {
         closeModal={closeModal}
         title="Edit Project"
       >
-        {details.data && <EditProjectForm id={id} closeModal={closeModal} />}
+        {summary && <EditProjectForm id={id} closeModal={closeModal} />}
       </Modal>
     </>
   );

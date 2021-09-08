@@ -67,12 +67,12 @@ const generate = (p: Principal) => {
 
 export function Art004({
   owners,
-  transfers,
+  events,
 }: {
   owners: Block[];
-  transfers: HistoryResponse;
+  events: HistoryResponse;
 }) {
-  if (!transfers?.transfers) return null;
+  if (!events?.events) return null;
 
   const count = 10;
   const inputs = owners

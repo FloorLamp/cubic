@@ -26,7 +26,7 @@ shared actor class Cubic(init: T.Initialization) = this {
   stable var ledgerEntries: [T.PrincipalToNatEntry] = [];
 
   var data: [var T.Data] = [var];
-  stable var dataEntries_v3: [T.DataEntry_v3] = [];
+  stable var dataEntries_v4: [T.DataEntry_v4] = [];
 
   // ---- Stats
   stable var cubesSupply: Nat = 0;
@@ -75,8 +75,8 @@ shared actor class Cubic(init: T.Initialization) = this {
         ownCubesBalance = Option.get(ledger.get(thisPrincipal()), 0);
         feesCollected = feesCollected;
         taxCollected = taxCollected;
-        transactionsCount = Array.foldLeft<T.Data, Nat>(Array.freeze(data), 0, func (sum, ({transfers})) {
-          sum + transfers.size()
+        transactionsCount = Array.foldLeft<T.Data, Nat>(Array.freeze(data), 0, func (sum, ({transferCount})) {
+          sum + transferCount
         });
         foreclosureCount = foreclosureCount;
         salesTotal = salesTotal;
@@ -103,8 +103,8 @@ shared actor class Cubic(init: T.Initialization) = this {
 
     switch (path) {
       case ("/000.svg") { Http.svg(Svg000.make(latestBlocks(0))) };
-      case ("/001.svg") { Http.svg(Svg001.make(data[1].transfers)) };
-      case ("/002.svg") { Http.svg(Svg002.make(data[2].transfers)) };
+      case ("/001.svg") { Http.svg(Svg001.make(transfersFromEvents(data[1].events))) };
+      case ("/002.svg") { Http.svg(Svg002.make(transfersFromEvents(data[2].events))) };
       case _ {
         {
           body = Text.encodeUtf8("404 Not found :" # path);
@@ -197,26 +197,33 @@ shared actor class Cubic(init: T.Initialization) = this {
   };
 
   public query func getHistory(request: T.HistoryRequest): async T.HistoryResponse {
-    let {transfers} = data[request.projectId];
+    let {events; transferCount} = data[request.projectId];
 
     let (max, filtered) = switch (request.principal) {
       case (?principal) {
-        let filtered = Array.filter<T.Transfer>(transfers, func ({ from; to }) {
-          from == principal or to == principal
+        let filtered = Array.filter<T.Event>(events, func ({ data }) {
+          switch (data) {
+            case (#Transfer({from; to})) {
+              from == principal or to == principal
+            };
+            case (#PriceChange({owner})) {
+              owner == principal
+            }
+          }
         });
         (filtered.size(), filtered)
       };
       case _ {
-        (Nat.min(100, transfers.size()), transfers)
+        (Nat.min(100, events.size()), events)
       }
     };
 
     let size = filtered.size();
     {
-      transfers = Array.tabulate<T.Transfer>(max, func (i) {
+      events = Array.tabulate<T.Event>(max, func (i) {
         filtered[size - i - 1]
       });
-      count = transfers.size();
+      count = events.size();
     }
   };
 
@@ -373,7 +380,7 @@ shared actor class Cubic(init: T.Initialization) = this {
 
   // Transfer ownership to buyer and update the offer
   public shared({ caller }) func buy(request: {projectId: Nat; newOffer: Nat}): async T.Result {
-    let {details; status; ownerIds; owners; transfers} = data[request.projectId];
+    let {details; status; ownerIds; owners; events; transferCount} = data[request.projectId];
 
     if (not details.isActive) {
       return #err(#CannotPurchase);
@@ -410,13 +417,14 @@ shared actor class Cubic(init: T.Initialization) = this {
     ledger.put(status.owner, Option.get(ledger.get(status.owner), 0) + amountMinusFees);
 
     // Add transfer to history
-    let newTransfers = Array.append(transfers, [{
-      id = transfers.size();
-      projectId = request.projectId;
-      from = status.owner;
-      to = caller;
+    let newEvents = Array.append(events, [{
+      id = events.size();
       timestamp = now;
-      value = status.offerValue;
+      data = #Transfer({
+        from = status.owner;
+        to = caller;
+        value = status.offerValue;
+      });
     }]);
     salesTotal := salesTotal + status.offerValue;
 
@@ -470,7 +478,42 @@ shared actor class Cubic(init: T.Initialization) = this {
       owners = newOwners;
       status = newStatus;
       ownerIds = ownerIds;
-      transfers = newTransfers;
+      events = newEvents;
+      transferCount = transferCount + 1;
+    };
+
+    #ok
+  };
+
+  // Set offer price for an owned artwork
+  public shared({ caller }) func setPrice(request: {projectId: Nat; newOffer: Nat}): async T.Result {
+    let {details; status; ownerIds; owners; events; transferCount} = data[request.projectId];
+    assert(caller == status.owner);
+
+    // Add transfer to history
+    let newEvents = Array.append(events, [{
+      id = events.size();
+      timestamp = Time.now();
+      data = #PriceChange({
+        owner = status.owner;
+        from = status.offerValue;
+        to = request.newOffer;
+      });
+    }]);
+
+    data[request.projectId] := {
+      projectId = request.projectId;
+      details = details;
+      owners = owners;
+      status = {
+        isForeclosed = status.isForeclosed;
+        owner = status.owner;
+        offerTimestamp = status.offerTimestamp;
+        offerValue = request.newOffer;
+      };
+      ownerIds = ownerIds;
+      events = newEvents;
+      transferCount = transferCount;
     };
 
     #ok
@@ -493,7 +536,8 @@ shared actor class Cubic(init: T.Initialization) = this {
         isForeclosed = false;
       };
       ownerIds = HashMap.HashMap<Principal, Nat>(1, Principal.equal, Principal.hash);
-      transfers = [];
+      events = [];
+      transferCount = 0;
     };
     data := Array.thaw(Array.append(Array.freeze(data), [item]));
   };
@@ -501,7 +545,7 @@ shared actor class Cubic(init: T.Initialization) = this {
   public shared({ caller }) func setDetails(request: T.SetDetailsRequest): async () {
     onlyController(caller);
 
-    let {projectId; details; owners; ownerIds; status; transfers} = data[request.projectId];
+    let {projectId; details; owners; ownerIds; status; events; transferCount} = data[request.projectId];
 
     data[projectId] := {
       projectId = projectId;
@@ -515,7 +559,8 @@ shared actor class Cubic(init: T.Initialization) = this {
       owners = owners;
       status = status;
       ownerIds = ownerIds;
-      transfers = transfers;
+      events = events;
+      transferCount = transferCount;
     }
   };
 
@@ -545,7 +590,13 @@ shared actor class Cubic(init: T.Initialization) = this {
         owners = Array.thaw(d.owners);
         status = d.status;
         ownerIds = HashMap.fromIter<Principal, Nat>(d.ownerIdEntries.vals(), d.ownerIdEntries.size(), Principal.equal, Principal.hash);
-        transfers = d.transfers;
+        events = d.events;
+        transferCount = Array.foldLeft<T.Event, Nat>(d.events, 0, func (sum, ({data})) {
+          switch (data) {
+            case (#Transfer(_)) { sum + 1 };
+            case _ { sum };
+          }
+        });
       }
     }));
     cubesSupply := dump.cubesSupply;
@@ -569,14 +620,15 @@ shared actor class Cubic(init: T.Initialization) = this {
   };
 
   system func preupgrade() {
-    dataEntries_v3 := Array.map<T.Data, T.DataEntry_v3>(Array.freeze(data), func (d) {
+    dataEntries_v4 := Array.map<T.Data, T.DataEntry_v4>(Array.freeze(data), func (d) {
       {
         projectId = d.projectId;
         details = d.details;
         owners = d.owners;
         status = d.status;
         ownerIdEntries = Iter.toArray(d.ownerIds.entries());
-        transfers = d.transfers;
+        events = d.events;
+        transferCount = d.transferCount;
       }
     });
 
@@ -592,14 +644,15 @@ shared actor class Cubic(init: T.Initialization) = this {
       sum + bal
     });
 
-    data := Array.thaw(Array.map<T.DataEntry_v3, T.Data>(dataEntries_v3, func (d) {
+    data := Array.thaw(Array.map<T.DataEntry_v4, T.Data>(dataEntries_v4, func (d) {
       {
         projectId = d.projectId;
         details = d.details;
         owners = d.owners;
         status = d.status;
         ownerIds = HashMap.fromIter<Principal, Nat>(d.ownerIdEntries.vals(), d.ownerIdEntries.size(), Principal.equal, Principal.hash);
-        transfers = d.transfers;
+        events = d.events;
+        transferCount = d.transferCount;
       }
     }));
   };
@@ -622,7 +675,7 @@ shared actor class Cubic(init: T.Initialization) = this {
     if (lastTaxTimestamp == 0 or now - lastTaxTimestamp < 10_000_000_000 ) { return };
 
     for (project in data.vals()) {
-      let {projectId; details; owners; ownerIds; status; transfers} = project;
+      let {projectId; details; owners; ownerIds; status; events; transferCount} = project;
 
       // Only tax active, non-foreclosed items
       if (details.isActive and status.owner != thisPrincipal()) {
@@ -645,13 +698,14 @@ shared actor class Cubic(init: T.Initialization) = this {
             foreclosureCount := foreclosureCount + 1;
 
             // Transfer to self with 0-value
-            let newTransfers = Array.append(transfers, [{
-              projectId = project.projectId;
-              id = transfers.size();
-              from = status.owner;
-              to = thisPrincipal();
+            let newEvents = Array.append(events, [{
+              id = events.size();
               timestamp = now;
-              value = 0;
+              data = #Transfer({
+                from = status.owner;
+                to = thisPrincipal();
+                value = 0;
+              })
             }]);
 
             // Owner increases owned time but not value
@@ -672,7 +726,8 @@ shared actor class Cubic(init: T.Initialization) = this {
               owners = owners;
               status = newStatus;
               ownerIds = ownerIds;
-              transfers = newTransfers;
+              events = newEvents;
+              transferCount = transferCount;
             }
           };
         };
@@ -822,7 +877,7 @@ shared actor class Cubic(init: T.Initialization) = this {
           owners = Array.freeze(d.owners);
           status = d.status;
           ownerIdEntries = Iter.toArray(d.ownerIds.entries());
-          transfers = d.transfers;
+          events = d.events;
         }
       });
       cubesSupply = cubesSupply;
@@ -840,6 +895,23 @@ shared actor class Cubic(init: T.Initialization) = this {
 
 
   // ---- Helpers
+
+  func transfersFromEvents(events: [T.Event]): [T.Transfer] {
+    Array.mapFilter<T.Event, T.Transfer>(events, func ({id; timestamp; data}) {
+      switch (data) {
+        case (#Transfer({ from; to; value })) {
+          ?{
+            id = id;
+            from = from;
+            to = to;
+            timestamp = timestamp;
+            value = value;
+          }
+        };
+        case _ { null }
+      }
+    })
+  };
 
   func blockWithTimeNow(block: T.Block, status: T.Status_v2): T.Block {
     {

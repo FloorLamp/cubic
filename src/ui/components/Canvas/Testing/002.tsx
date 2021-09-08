@@ -1,19 +1,21 @@
 import React from "react";
 import { HistoryResponse } from "../../../declarations/Cubic/Cubic.did";
 import { principalColor } from "../../../lib/blocks";
+import { transfersFromEvents } from "../../../lib/utils";
 
 const ONE_YEAR_SECONDS = 365 * 24 * 60 * 60;
 
 export function Art002({ data, now }: { data: HistoryResponse; now: bigint }) {
   if (!data) return null;
 
+  const transfers = transfersFromEvents(data.events);
   const startIndex = Math.max(
     0,
-    data.transfers.findIndex(
+    transfers.findIndex(
       ({ timestamp }) => timestamp >= now - BigInt(ONE_YEAR_SECONDS * 1e9)
     ) - 1
   );
-  const mostRecent = [...data.transfers.slice(startIndex)].reverse();
+  const mostRecent = [...transfers.slice(startIndex)].reverse();
 
   const inputs = mostRecent.map((d, i) => {
     const seconds =
