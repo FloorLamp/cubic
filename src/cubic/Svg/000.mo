@@ -13,22 +13,14 @@ module {
     size: Float;
   };
 
-  func color(owner: T.Block): Text {
-    let TC = 1_000_000_000_000;
-    let sat =
-      if (owner.totalValue < TC) { 0 }
-      else if (owner.totalValue < 10 * TC) { 25 }
-      else if (owner.totalValue < 100 * TC) { 50 }
-      else if (owner.totalValue < 1000 * TC) { 75 }
-      else { 100 };
-
-    "hsl(" # Nat32.toText(Shared.hash(owner.owner) % 360) # "," # Nat.toText(sat) # "%,50%)"
+  func color(owner: Principal): Text {
+    "hsl(" # Nat32.toText(Shared.hash(owner) % 360) # ",100%,50%)"
   };
 
   public func make(data: [T.Block]): Text {
     let inputs = Array.map<T.Block, Data>(data, func (d) {
       {
-        color = color(d);
+        color = color(d.owner);
         size = Float.fromInt(d.totalOwnedTime) / 1e9;
       }
     });
