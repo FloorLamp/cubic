@@ -3,7 +3,7 @@ import { HistoryResponse } from "../../../declarations/Cubic/Cubic.did";
 import { principalColor } from "../../../lib/blocks";
 import { transfersFromEvents } from "../../../lib/utils";
 
-export function Art003({ data }: { data: HistoryResponse }) {
+export function Heartbeats({ data }: { data: HistoryResponse }) {
   if (!data?.events) return null;
 
   const count = 20;

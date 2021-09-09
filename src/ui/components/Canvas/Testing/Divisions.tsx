@@ -2,7 +2,7 @@ import React from "react";
 import { Block } from "../../../declarations/Cubic/Cubic.did";
 import { ownerColor } from "../../../lib/blocks";
 
-export function Art000({ data }: { data: Block[] }) {
+export function Divisions({ data }: { data: Block[] }) {
   const inputs = data.map((d) => ({
     ...d,
     color: ownerColor(d),

@@ -5,7 +5,13 @@ import { transfersFromEvents } from "../../../lib/utils";
 
 const ONE_YEAR_SECONDS = 365 * 24 * 60 * 60;
 
-export function Art002({ data, now }: { data: HistoryResponse; now: bigint }) {
+export function Chronicle({
+  data,
+  now,
+}: {
+  data: HistoryResponse;
+  now: bigint;
+}) {
   if (!data) return null;
 
   const transfers = transfersFromEvents(data.events);

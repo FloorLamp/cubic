@@ -65,7 +65,7 @@ const generate = (p: Principal) => {
   return polygons;
 };
 
-export function Art004({
+export function Triangles({
   owners,
   events,
 }: {

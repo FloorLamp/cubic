@@ -9,9 +9,7 @@ import Panel from "../Containers/Panel";
 import { DevTools } from "../DevTools";
 import { useMockData } from "../Store/Store";
 import Asset from "./Asset";
-import { Art003 } from "./Testing/003";
-import { Art004 } from "./Testing/004";
-// import { Art005 } from "./Testing/005";
+import { Triangles } from "./Testing/Triangles";
 
 export default function Canvas() {
   const id = useId();
@@ -29,15 +27,7 @@ export default function Canvas() {
   return (
     <Panel className="p-8 w-full flex flex-col items-center">
       <Asset id={id} />
-      {id === "3" && <Art003 data={actualEvents} />}
-      {id === "4" && <Art004 owners={actualData} events={actualEvents} />}
-      {/* {id === "5" && (
-        <Art005
-          owners={actualData}
-          events={actualEvents}
-          now={actualNow}
-        />
-      )} */}
+      {id === "4" && <Triangles owners={actualData} events={actualEvents} />}
 
       {process.env.NEXT_PUBLIC_DFX_NETWORK === "local" && <DevTools />}
     </Panel>
