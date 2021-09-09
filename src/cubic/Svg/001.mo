@@ -23,7 +23,7 @@ module {
   };
 
   func color(owner: Principal): Text {
-    "hsl(" # Nat32.toText(Principal.hash(owner) % 360) # ",100%,50%)"
+    "hsl(" # Nat32.toText(Shared.hash(owner) % 360) # ",100%,50%)"
   };
 
   public func make(data: [T.Transfer]): Text {

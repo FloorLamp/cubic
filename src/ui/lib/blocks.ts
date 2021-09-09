@@ -12,8 +12,8 @@ export const principalHash = (principal: Principal) => {
   let hash = 0;
   const bytes = principal.toUint8Array();
   for (const byte of bytes) {
-    hash = byte + (hash << 5) - hash;
-    hash = hash & hash;
+    hash += byte + (hash << 1);
+    hash &= hash;
   }
   return hash >>> 0;
 };

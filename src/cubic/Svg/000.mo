@@ -22,7 +22,7 @@ module {
       else if (owner.totalValue < 1000 * TC) { 75 }
       else { 100 };
 
-    "hsl(" # Nat32.toText(Principal.hash(owner.owner) % 360) # "," # Nat.toText(sat) # "%,50%)"
+    "hsl(" # Nat32.toText(Shared.hash(owner.owner) % 360) # "," # Nat.toText(sat) # "%,50%)"
   };
 
   public func make(data: [T.Block]): Text {

@@ -24,23 +24,23 @@ module {
       let transfer = data[length - count + i];
       let id = Principal.toText(transfer.to);
       let ii : Float = Float.fromInt(count) - 1 - Float.fromInt(i);
-      let color = "hsla(" # Nat32.toText(Principal.hash(transfer.to) % 360) # "," # Float.toText(100 - ii * (95 / 11)) # "%," # Float.toText(50 - ii * (30 / 11)) # "%,100%)";
+      let color = "hsla(" # Nat32.toText(Shared.hash(transfer.to) % 360) # "," # Float.toText(100 - ii * (95 / 11)) # "%," # Float.toText(50 - ii * (30 / 11)) # "%,100%)";
 
       let blob = Blob.toArray(Principal.toBlob(transfer.to));
       var y : Float = 5;
       var circles = Shared.join(Array.tabulate<Text>(blob.size(), func (n) {
         let width : Float = (Float.fromInt(n) + 1) * 2;
         let height : Float = Float.fromInt(Nat8.toNat(blob[n])) / 100;
-        let rect = "<rect width='" # Float.toText(width) # "' height='" # Float.toText(height) # "' x='" # Float.toText(-width) # "' y='" # Float.toText(-(y + height)) # "' fill='url(#bg-" # id # ")' />";
+        let rect = "<rect width='" # Float.toText(width) # "' height='" # Float.toText(height) # "' x='" # Float.toText(-width) # "' y='" # Float.toText(-(y + height)) # "' fill='url(#bg-" # Nat.toText(i) # ")' />";
         y += height / 2;
         let circle = "<circle cx='0' cy='" # Float.toText(-y) # "' r='" # Float.toText(height / 2) # "' fill='" # color # "' />";
         y += height / 2 + 2;
-        circle # rect
+        rect # circle
       }));
-      if (i == 0) {
+      if (ii == 0) {
         circles := circles # "<circle cx='0' cy='0' r='2.5' fill='rgba(0,0,0,.2)' stroke='" # color # "' stroke-width='0.5' />"
       };
-      "<g transform='rotate(" # Float.toText(-30 * ii + hourOffset) # ")'> <defs> <linearGradient id='bg-" # id # "' x1='100%' y1='0%' x2='0%' y2='0%'> <stop offset='0%' stop-color='" # color # "' /> <stop offset='100%' stop-color='rgba(0,0,0,0)' /> </linearGradient> </defs>" #
+      "<g transform='rotate(" # Float.toText(-30 * ii + hourOffset) # ")'> <defs> <linearGradient id='bg-" # Nat.toText(i) # "' x1='100%' y1='0%' x2='0%' y2='0%'> <stop offset='0%' stop-color='" # color # "' /> <stop offset='100%' stop-color='rgba(0,0,0,0)' /> </linearGradient> </defs>" #
         circles #
       "</g>"
     }));

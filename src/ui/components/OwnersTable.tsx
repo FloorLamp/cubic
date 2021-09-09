@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import React, { useState } from "react";
-import { ownerColor } from "../lib/blocks";
+import { principalColor } from "../lib/blocks";
 import {
   dateTimeFromNanos,
   formatDuration,
@@ -50,7 +50,7 @@ export function OwnersTable() {
                   <div
                     className="w-3 h-3 mr-2"
                     style={{
-                      backgroundColor: ownerColor(block),
+                      backgroundColor: principalColor(block.owner),
                     }}
                   />
                   <div className="flex-1 overflow-hidden whitespace-nowrap">

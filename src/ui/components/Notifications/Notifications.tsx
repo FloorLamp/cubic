@@ -35,9 +35,10 @@ export type NotificationType = NewNotification & { id: string };
 
 export const Notifications = () => {
   const { list, remove } = useNotifications();
+  const reversed = [...list].reverse();
   return (
     <div className="fixed z-50 top-8 right-8 flex flex-col gap-2">
-      {list.map((item) => (
+      {reversed.map((item) => (
         <Notification
           key={item.id}
           handleClose={() => remove(item.id)}

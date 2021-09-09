@@ -24,6 +24,7 @@ export default function useBuy({ id }: { id: string }) {
         queryClient.resetQueries("cubesBalance");
         queryClient.refetchQueries("allSummary");
         queryClient.refetchQueries("info");
+        queryClient.refetchQueries(["asset", id]);
         queryClient.refetchQueries(["details", id]);
         queryClient.refetchQueries(["owners", id]);
         queryClient.refetchQueries(["history", id]);

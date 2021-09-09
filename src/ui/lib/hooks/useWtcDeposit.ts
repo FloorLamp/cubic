@@ -37,7 +37,7 @@ export default function useWtcDeposit() {
     },
     {
       onSuccess: async (data, tcAmount) => {
-        add({ type: "Withdraw", asset: "WTC", amount: tcAmount });
+        add({ type: "Deposit", asset: "WTC", amount: tcAmount });
         queryClient.resetQueries("cubesBalance");
         queryClient.resetQueries("wtcBalance");
       },

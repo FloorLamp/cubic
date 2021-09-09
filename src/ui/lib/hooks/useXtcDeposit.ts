@@ -36,7 +36,7 @@ export default function useXtcDeposit() {
     },
     {
       onSuccess: async (data, tcAmount) => {
-        add({ type: "Withdraw", asset: "XTC", amount: tcAmount });
+        add({ type: "Deposit", asset: "XTC", amount: tcAmount });
         queryClient.resetQueries("cubesBalance");
         queryClient.resetQueries("xtcBalance");
       },

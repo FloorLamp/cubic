@@ -2,7 +2,7 @@ import { Principal } from "@dfinity/principal";
 import React, { useEffect } from "react";
 import { CgSpinner } from "react-icons/cg";
 import { canisterId } from "../declarations/Cubic";
-import { ownerColor } from "../lib/blocks";
+import { principalColor } from "../lib/blocks";
 import {
   dateTimeFromNanos,
   formatDuration,
@@ -76,10 +76,10 @@ export function CurrentStatus() {
                 <div
                   className="w-3 h-3 mr-2 inline-block"
                   style={{
-                    backgroundColor: ownerColor(data.owner),
+                    backgroundColor: principalColor(data.status.owner),
                   }}
                 />
-                {isOwner ? "You!" : data.status.owner.toText()}
+                {isOwner ? "You" : data.status.owner.toText()}
               </div>
             ) : (
               "—"
