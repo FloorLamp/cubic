@@ -13,7 +13,6 @@ module {
     for (byte in Principal.toBlob(arg).vals()) {
       hash +%= Nat32.fromNat(Nat8.toNat(byte)) + (hash << 1);
     };
-    Debug.print(Principal.toText(arg) # ": " # debug_show(hash));
     return hash;
   };
 

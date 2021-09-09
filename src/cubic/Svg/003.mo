@@ -19,7 +19,7 @@ module {
     let length = data.size();
     let count = Nat.min(12, length);
     let dt = Float.fromInt(Time.now() / 1_000_000_000);
-    let hourOffset : Float = 30 * (((dt / 3600) % 12) + (dt % 3600) / 3600);
+    let hourOffset : Float = 30 * ((dt / 3600) % 12);
     let inputs = Shared.join(Array.tabulate<Text>(count, func (i) {
       let transfer = data[length - count + i];
       let id = Principal.toText(transfer.to);
