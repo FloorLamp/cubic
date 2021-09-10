@@ -17,14 +17,6 @@
       "candid": "src/heartbeat/src/heartbeat.did",
       "wasm": "target/wasm32-unknown-unknown/release/heartbeat.wasm",
       "type": "custom"
-    },
-    "cubic_assets": {
-      "dependencies": ["cubic"],
-      "frontend": {
-        "entrypoint": "src/cubic_assets/src/index.html"
-      },
-      "source": ["src/cubic_assets/assets", "dist/cubic_assets/"],
-      "type": "assets"
     }
   },
   "defaults": {

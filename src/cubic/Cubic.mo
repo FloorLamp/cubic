@@ -10,14 +10,14 @@ import Nat "mo:base/Nat";
 import Nat64 "mo:base/Nat64";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
+import Text "mo:base/Text";
+import Time "mo:base/Time";
 
 import Svg000 "./Svg/000";
 import Svg001 "./Svg/001";
 import Svg002 "./Svg/002";
 import Svg003 "./Svg/003";
 import T "./Types";
-import Text "mo:base/Text";
-import Time "mo:base/Time";
 import Wtc "./WtcTypes";
 import Xtc "./XtcTypes";
 
