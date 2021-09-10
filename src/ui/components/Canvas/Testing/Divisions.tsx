@@ -1,11 +1,11 @@
 import React from "react";
 import { Block } from "../../../declarations/Cubic/Cubic.did";
-import { ownerColor } from "../../../lib/blocks";
+import { principalColor } from "../../../lib/blocks";
 
 export function Divisions({ data }: { data: Block[] }) {
   const inputs = data.map((d) => ({
     ...d,
-    color: ownerColor(d),
+    color: principalColor(d.owner),
     size: Number(d.totalOwnedTime) / 1e9,
     start: 0,
   }));
