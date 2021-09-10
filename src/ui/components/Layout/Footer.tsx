@@ -22,7 +22,7 @@ export default function Footer() {
         <FaGithub />
       </a>
       <a
-        href="https://t.me/joinchat/jozeWC4qZGxjYzRh"
+        href="https://t.me/cubicplace"
         className="opacity-50 hover:opacity-100"
         target="_blank"
         rel="noopener noreferrer"

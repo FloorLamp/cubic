@@ -20,10 +20,8 @@ export const defaultAgent = new HttpAgent({
 export const cyclesMintingCanisterId = "rkp4c-7iaaa-aaaaa-aaaca-cai";
 export const protobufRoot = protobuf.Root.fromJSON(protobufJson as INamespace);
 
-export const agent = new HttpAgent({ host: "https://ic0.app" });
-
 export const registry = Actor.createActor(() => IDL.Service({}), {
-  agent,
+  agent: defaultAgent,
   canisterId: "rwlgt-iiaaa-aaaaa-aaaaa-cai",
 });
 extendProtobuf(registry, protobufRoot.lookupService("Registry"));
