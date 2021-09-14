@@ -104,9 +104,7 @@ export default function LoginButton() {
   const [showStoicLogin, setShowStoicLogin] = useState(false);
   const handleStoicLogin = async () => {
     StoicIdentity.load().then(async (identity: SignIdentity) => {
-      if (!identity) {
-        identity = await StoicIdentity.connect();
-      }
+      identity = await StoicIdentity.connect();
       setAgent({
         agent: new HttpAgent({
           identity,
