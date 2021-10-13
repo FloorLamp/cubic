@@ -19,11 +19,6 @@ const cors = Cors({
   methods: ["GET", "POST"],
 });
 
-// Principal that custodies ICP
-const minterPrincipal = Principal.fromText(
-  process.env.NEXT_PUBLIC_MINTER_PRINCIPAL
-);
-
 // Mint cycles to our minter canister
 const minterSubaccount = makeCanisterIdSubaccount(minterCanisterId);
 const minterAccount = accountIdentifierFromSubaccount(

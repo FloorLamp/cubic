@@ -1,5 +1,6 @@
 import Cycles "mo:base/ExperimentalCycles";
 import Debug "mo:base/Debug";
+import Int "mo:base/Int";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Wtc "../cubic/WtcTypes";
@@ -31,7 +32,7 @@ shared actor class Minter(canisters: {
   let controller: Principal = canisters.controller;
 
   var activeRequest: ?Request = null;
-  var startingBalance: Nat = 0;
+  var startingBalance: Int = 0;
 
   public query func isActive(): async Bool {
     Option.isSome(activeRequest)
@@ -60,7 +61,7 @@ shared actor class Minter(canisters: {
       case (?r) { r };
     };
 
-    let diff = Cycles.balance() - startingBalance : Nat;
+    let diff = Cycles.balance() - startingBalance;
     if (diff > 0) {
       Debug.print("Received cycles: " # debug_show(diff));
     } else {
@@ -69,12 +70,13 @@ shared actor class Minter(canisters: {
       return #NoCyclesReceived;
     };
 
-    Cycles.add(diff);
+    let amount = Int.abs(diff);
+    Cycles.add(amount);
     let result = switch (token) {
       case (#wtc) {
         await wtc.mint(?#principal(recipient));
-        Debug.print("mint WTC success, amount=" # debug_show(diff) # ", recipient=" # debug_show(recipient));
-        #Ok({ amount = diff; xtcTransactionId = null })
+        Debug.print("mint WTC success, amount=" # debug_show(amount) # ", recipient=" # debug_show(recipient));
+        #Ok({ amount = amount; xtcTransactionId = null })
       };
       case (#xtc) {
         switch (await xtc.mint(?recipient)) {
@@ -83,8 +85,8 @@ shared actor class Minter(canisters: {
             #Err(error)
           };
           case (#Ok(txId)) {
-            Debug.print("mint XTC success, amount=" # debug_show(diff) # ", recipient=" # debug_show(recipient));
-            #Ok({ amount = diff; xtcTransactionId = ?txId })
+            Debug.print("mint XTC success, amount=" # debug_show(amount) # ", recipient=" # debug_show(recipient));
+            #Ok({ amount = amount; xtcTransactionId = ?txId })
           }
         };
       };

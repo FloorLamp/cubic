@@ -21,8 +21,14 @@ export const accountIdentifierFromSubaccount = (
   return addCrc32(hashed).toString("hex");
 };
 
+export const firstAccountOfPrincipal = (principal: Principal) =>
+  accountIdentifierFromSubaccount(
+    Buffer.from(principal.toUint8Array()),
+    Buffer.from(Array(32).fill(0))
+  );
+
 export const padSubaccountArray = (arg: Array<number>) =>
-  arg.concat(Array.from({ length: 32 - arg.length }, () => 0));
+  arg.concat(Array(32 - arg.length).fill(0));
 
 export const makeCanisterIdSubaccount = (canisterId: string) => {
   let arr = Array.from(Principal.fromText(canisterId).toUint8Array());
