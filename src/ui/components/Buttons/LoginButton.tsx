@@ -18,6 +18,10 @@ declare global {
       plug: {
         agent: any;
         isConnected: () => Promise<boolean>;
+        requestConnect: (args?: {
+          whitelist: string[];
+          host?: string;
+        }) => Promise<undefined>;
         createAgent: (args?: {
           whitelist: string[];
           host?: string;
@@ -55,6 +59,11 @@ const WHITELIST = [
   XtcCanisterId,
   WtcCanisterId,
 ].filter(Boolean);
+
+const PLUG_ARGS = {
+  whitelist: WHITELIST,
+  host: HOST,
+};
 
 export default function LoginButton() {
   const [isOpen, setIsOpen] = useLoginModal();
@@ -94,8 +103,17 @@ export default function LoginButton() {
   };
 
   const handlePlugLogin = async () => {
+    const connected = await window.ic.plug.isConnected();
+
+    if (!connected) {
+      await window.ic.plug.requestConnect(PLUG_ARGS);
+    }
+    if (!window.ic.plug.agent) {
+      await window.ic.plug.createAgent(PLUG_ARGS);
+    }
+
     setAgent({
-      agent: await window?.ic?.plug?.agent,
+      agent: window.ic.plug.agent,
       isAuthed: true,
     });
     closeModal();
@@ -132,12 +150,6 @@ export default function LoginButton() {
       setAuthClient(authClient);
 
       if (await window?.ic?.plug?.isConnected()) {
-        if (!window.ic.plug.agent) {
-          await window.ic.plug.createAgent({
-            whitelist: WHITELIST,
-            host: HOST,
-          });
-        }
         handlePlugLogin();
       } else {
         if (await authClient.isAuthenticated()) {

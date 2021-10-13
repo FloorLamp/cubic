@@ -1,9 +1,12 @@
 import { useQuery } from "react-query";
-import { useXtc } from "../../components/Store/Store";
+import { useGlobalContext, useXtc } from "../../components/Store/Store";
 import { FIVE_SECONDS_MS } from "../constants";
 
 export const useXtcBalance = () => {
   const xtc = useXtc();
+  const {
+    state: { isAuthed },
+  } = useGlobalContext();
 
   return useQuery(
     "xtcBalance",
@@ -13,6 +16,7 @@ export const useXtcBalance = () => {
     },
     {
       refetchInterval: FIVE_SECONDS_MS,
+      enabled: isAuthed,
     }
   );
 };
